@@ -171,7 +171,7 @@ public static class JsonInternalConverters
 
 	private static JsonConverter<ulong>? s_uint64Converter;
 
-	private static JsonConverter<T> GetConverter<T>()
+	internal static JsonConverter<T> GetConverter<T>()
 	{
 		//todo keep track and remove later.
 
