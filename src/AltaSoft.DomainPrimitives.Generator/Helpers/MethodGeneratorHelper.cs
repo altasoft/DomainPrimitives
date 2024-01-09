@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
-using AltaSoft.DomainPrimitives.Generator.Extensions;
+﻿using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
+using System.Collections.Generic;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
@@ -499,7 +499,7 @@ internal static class MethodGeneratorHelper
 	/// <param name="sb">The source code builder.</param>
 	public static void GenerateEquatableOperators(string className, string fieldName, bool isValueType, SourceCodeBuilder sb)
 	{
-		sb.AppendInheritDoc().AppendLine($"public override readonly bool Equals(object? obj) => obj is {className} other && Equals(other);");
+		sb.AppendInheritDoc().AppendLine($"public override bool Equals(object? obj) => obj is {className} other && Equals(other);");
 
 		var nullable = isValueType ? "" : "?";
 

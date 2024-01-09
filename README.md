@@ -1,6 +1,6 @@
 # DomainPrimitives for C#  
 
-[![Version](https://img.shields.io/static/v1?label=Version&message=1.0.2&color=0c3c60&style=for-the-badge)](https://www.nuget.org/profiles/AltaSoft)
+[![Version](https://img.shields.io/static/v1?label=Version&message=1.0.3&color=0c3c60&style=for-the-badge)](https://www.nuget.org/profiles/AltaSoft)
 [![Dot NET 7+](https://img.shields.io/static/v1?label=DOTNET&message=7%2B&color=0c3c60&style=for-the-badge)](https://dotnet.microsoft.com)
 
 # Table of Contents
@@ -84,8 +84,8 @@ In your project file add references as follows:
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="AltaSoft.DomainPrimitives.Abstractions" Version="1.0.2" />
-  <ProjectReference Include="AltaSoft.DomainPrimitives.Generator" Version="1.0.2" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime" />
+  <PackageReference Include="AltaSoft.DomainPrimitives.Abstractions" Version="1.0.3" />
+  <PackageReference Include="AltaSoft.DomainPrimitives.Generator" Version="1.0.3" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime" />
 </ItemGroup>
 ```
 
