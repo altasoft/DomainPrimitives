@@ -31,7 +31,7 @@ With `AltaSoft.DomainPrimitives`, experience an accelerated development process 
  
 ## Generator Features 
 
-The **AltaSoft.DomainPrimitivesGenerator** offers a diverse set of features:
+The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 
 * **Implicit Operators:** Streamlines type conversion to/from the underlying primitive type. [Example](#implicit-usage-of-domaintype)
 * **Specialized Constructor Generation:**  Automatically validates and constructs instances of this domain type. This constructor, tailored for the domain primitive, utilizes the underlying type as a parameter, ensuring the value's correctness within the domain.
@@ -78,14 +78,14 @@ The **AltaSoft.DomainPrimitivesGenerator** offers a diverse set of features:
 To use **AltaSoft.DomainPrimitives**, install two NuGet packages:
 
 1. `AltaSoft.DomainPrimitives.Abstractions`
-2. `AltaSoft.DomainPrimitivesGenerator`
+2. `AltaSoft.DomainPrimitives.Generator`
 
 In your project file add references as follows:
 
 ```xml
 <ItemGroup>
-  <PackageReference Include="AltaSoft.DomainPrimitives.Abstractions" Version="1.0.0" />
-  <ProjectReference Include="AltaSoft.DomainPrimitivesGenerator" Version="1.0.0" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime" />
+  <PackageReference Include="AltaSoft.DomainPrimitives.Abstractions" Version="1.0.2" />
+  <ProjectReference Include="AltaSoft.DomainPrimitives.Generator" Version="1.0.2" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime" />
 </ItemGroup>
 ```
 
