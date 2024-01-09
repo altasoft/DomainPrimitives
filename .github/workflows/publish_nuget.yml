@@ -1,8 +1,8 @@
 name: Publish to NuGet
+
 on:
-  push:
-    branches:
-      - main  # or the branch of your choice
+  release:
+    types: [created]
 
 jobs:
   build:
@@ -18,6 +18,9 @@ jobs:
           8.0.x
           7.0.x
 
+    - name: Extract version from tag
+      run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
+
     - name: Restore dependencies
       run: dotnet restore
 
@@ -28,7 +31,7 @@ jobs:
 #      run: dotnet test --no-build
 
     - name: Pack
-      run: dotnet pack --no-build -c Release -o nupkg
+      run: dotnet pack --no-build -c Release -o nupkg -p:Version=${{ env.VERSION }}
 
     - name: Publish
       run: dotnet nuget push "nupkg/*.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
