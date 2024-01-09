@@ -19,7 +19,7 @@ jobs:
           7.0.x
 
     - name: Extract version from tag
-      run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v} | sed 's/^\.//')" >> $GITHUB_ENV
+      run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
 
     - name: Restore dependencies
       run: dotnet restore
