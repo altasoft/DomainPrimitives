@@ -6,9 +6,9 @@
 public class GYearTests
 {
 	[Theory]
-	[InlineData(2022)]
+	[InlineData(1968)]
+	[InlineData(2000)]
 	[InlineData(2024)]
-	[InlineData(2023)]
 	public void Validate_ShouldNotThrowException_WhenValidDateOnly(int year)
 	{
 		// Arrange
@@ -30,10 +30,9 @@ public class GYearTests
 	}
 
 	[Theory]
-	[InlineData(2022, "2022")]
+	[InlineData(1968, "1968")]
+	[InlineData(2000, "2000")]
 	[InlineData(2024, "2024")]
-	[InlineData(2024, "2024")]
-	[InlineData(2023, "2023")]
 	public void ToString_ShouldReturnFormattedString(int year, string expectedString)
 	{
 		// Arrange

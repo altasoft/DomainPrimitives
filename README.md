@@ -38,7 +38,7 @@ The **AltaSoft.DomainPrimitivesGenerator** offers a diverse set of features:
 * **JsonConverters:** Handles JSON serialization and deserialization for the underlying type. [Example](#json-conversion)
 * **TypeConverters:** Assists in type conversion to/from it's underlying type. [Please refer to generated type converter below](#type-converter)
 * **Swagger Custom Type Mappings:** Facilitates easy integration with Swagger by treating the primitive type as it's underlying type. [Please refer to generated swagger helper below](#swagger-mappers)
-* **Interface Implementations:** All DomainPritmitives Implement `IConvertible`, `IComparable`, `IEqualityComparer` interfaces.
+* **Interface Implementations:** All DomainPritmitives Implement `IConvertible`, `IComparable`, `IComparable<T>`, `IEquatable<T>`, `IEqualityComparer<T>`, `IParsable` interfaces.
 * **NumberType Operations:** Automatically generates basic arithmetic and comparison operators, by implementing Static abstract interfaces. [More details regarding numeric types](#number-types-attribute)
 * **IParsable Implementation:** Automatically generates parsing for non-string types.
 
