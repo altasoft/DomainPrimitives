@@ -1,6 +1,6 @@
 # DomainPrimitives for C#  
 
-[![Version](https://img.shields.io/static/v1?label=Version&message=1.0.2&color=0c3c60&style=for-the-badge)](https://www.nuget.org/altasoft/domainprimitives)
+[![Version](https://img.shields.io/static/v1?label=Version&message=1.0.2&color=0c3c60&style=for-the-badge)](https://www.nuget.org/profiles/AltaSoft)
 [![Dot NET 7+](https://img.shields.io/static/v1?label=DOTNET&message=7%2B&color=0c3c60&style=for-the-badge)](https://dotnet.microsoft.com)
 
 # Table of Contents
