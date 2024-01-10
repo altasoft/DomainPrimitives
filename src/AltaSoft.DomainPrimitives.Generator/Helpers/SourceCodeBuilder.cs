@@ -71,6 +71,13 @@ internal sealed class SourceCodeBuilder
 	public SourceCodeBuilder AppendInheritDoc() => AppendLine("/// <inheritdoc/>");
 
 	/// <summary>
+	/// Appends an <c>&lt;inheritdoc/&gt;</c> XML comment with cref.
+	/// </summary>
+	/// <param name="cref">The cref attribute specifying the member to inherit documentation from.</param>
+	/// <returns>The updated <see cref="SourceCodeBuilder"/> instance.</returns>
+	public SourceCodeBuilder AppendInheritDoc(string cref) => AppendLine($"/// <inheritdoc cref=\"{cref}\"/>");
+
+	/// <summary>
 	/// Appends a parameterless method declaration to the source code with the specified modifiers and method name.
 	/// </summary>
 	/// <param name="modifiers">The modifiers (e.g., public, private, static) for the method.</param>
@@ -328,6 +335,13 @@ internal sealed class SourceCodeBuilder
 
 		return this;
 	}
+
+	/// <summary>
+	/// Appends a preprocessor directive to the source code builder.
+	/// </summary>
+	/// <param name="directive">The preprocessor directive to append.</param>
+	/// <returns>A reference to the updated SourceCodeBuilder instance.</returns>
+	public SourceCodeBuilder AppendPreProcessorDirective(string directive) => AppendLine($"#{directive}", false);
 
 	/// <summary>
 	/// Appends the specified line to the source code with an optional indentation and a newline.

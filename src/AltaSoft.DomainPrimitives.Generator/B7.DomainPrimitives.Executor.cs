@@ -252,7 +252,7 @@ internal static class Executor
 		if (type is not DomainPrimitiveType.Boolean && !@class.ImplementsInterface("System.IComparable"))
 			generatorData.GenerateComparable = true;
 
-		if (type is DomainPrimitiveType.Numeric or DomainPrimitiveType.DateTime && !@class.ImplementsInterface("System.IParsable"))
+		if (!@class.ImplementsInterface("System.IParsable"))
 			generatorData.GenerateParsable = true;
 
 		if (type is DomainPrimitiveType.Numeric or DomainPrimitiveType.DateTime or DomainPrimitiveType.Char && !@class.ImplementsInterface("System.Numerics.IComparisonOperators"))
@@ -260,6 +260,11 @@ internal static class Executor
 
 		if ((type is DomainPrimitiveType.DateTime || type is DomainPrimitiveType.Guid) && !@class.ImplementsInterface("System.ISpanFormattable"))
 			generatorData.GenerateSpanFormattable = true;
+
+		if (primitiveType.ImplementsInterface("System.IUtf8SpanFormattable") && !@class.ImplementsInterface("System.IUtf8SpanFormattable"))
+		{
+			generatorData.GenerateUtf8SpanFormattable = true;
+		}
 
 		if (!@class.ImplementsInterface("System.IEquatable"))
 			generatorData.GenerateEquitableOperators = true;
@@ -476,7 +481,8 @@ internal static class Executor
 			{
 				GenerateComparable: false, GenerateAdditionOperators: false, GenerateDivisionOperators: false,
 				GenerateMultiplyOperators: false, GenerateSubtractionOperators: false, GenerateModulusOperator: false, GenerateComparison: false,
-				GenerateImplicitOperators: false, GenerateParsable: false, GenerateEquitableOperators: false, GenerateHashCode: false, GenerateSpanFormattable: false
+				GenerateImplicitOperators: false, GenerateParsable: false, GenerateEquitableOperators: false, GenerateHashCode: false,
+				GenerateSpanFormattable: false, GenerateConvertibles: false, GenerateUtf8SpanFormattable: false
 			})
 
 		{
@@ -542,17 +548,18 @@ internal static class Executor
 		}
 		if (data.GenerateParsable)
 		{
-			var typeToConvert = data.ParentSymbols.Count == 0
-				? data.PrimitiveTypeFriendlyName
-				: data.ParentSymbols[0].Name;
-
-			MethodGeneratorHelper.GenerateParsable(data.ClassName, typeToConvert, data.SerializationFormat, sb);
+			MethodGeneratorHelper.GenerateParsable(data, sb);
 			sb.NewLine();
 		}
 
 		if (data.GenerateSpanFormattable)
 		{
 			MethodGeneratorHelper.GenerateSpanFormatable(sb, data.FieldName);
+			sb.NewLine();
+		}
+		if (data.GenerateUtf8SpanFormattable)
+		{
+			MethodGeneratorHelper.GenerateUtf8Formattable(sb);
 			sb.NewLine();
 		}
 
@@ -571,11 +578,11 @@ internal static class Executor
 		sb.AppendInheritDoc();
 
 		var baseType = data.ParentSymbols.Count == 0 ? data.PrimitiveNamedTypeSymbol : data.ParentSymbols[0];
-		var hasExplicitMethod = data.Type.GetMembersOfType<IMethodSymbol>().Any(x =>
+		var hasExplicitToStringMethod = data.Type.GetMembersOfType<IMethodSymbol>().Any(x =>
 			x.Name == "ToString" && x is { IsStatic: true, Parameters.Length: 1 } &&
 			x.Parameters[0].Type.Equals(baseType, SymbolEqualityComparer.Default));
 
-		if (hasExplicitMethod)
+		if (hasExplicitToStringMethod)
 			sb.AppendLine($"public override string ToString() => ToString({data.FieldName});").NewLine();
 		else
 			sb.AppendLine($"public override string ToString() => {data.FieldName}.ToString();").NewLine();
@@ -686,6 +693,18 @@ internal static class Executor
 				else
 					sb.AppendLine();
 				sb.Append("\t\tIConvertible");
+			}
+
+			if (data.GenerateUtf8SpanFormattable)
+			{
+				if (sb.Length != 0)
+					sb.AppendLine(",");
+				else
+					sb.AppendLine();
+
+				sb.AppendLine("#if NET8_0_OR_GREATER")
+					.AppendLine("\t\tIUtf8SpanFormattable")
+					.AppendLine("#endif");
 			}
 
 			return sb.ToString();

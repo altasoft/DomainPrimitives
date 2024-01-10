@@ -238,6 +238,21 @@ internal static class MethodGeneratorHelper
 	}
 
 	/// <summary>
+	/// Generates a method for formatting to UTF-8 if the condition NET8_0_OR_GREATER is met.
+	/// </summary>
+	/// <param name="sb">The SourceCodeBuilder to append the generated code.</param>
+	internal static void GenerateUtf8Formattable(SourceCodeBuilder sb)
+	{
+		sb.AppendPreProcessorDirective("if NET8_0_OR_GREATER")
+			.AppendInheritDoc("IUtf8SpanFormattable.TryFormat")
+			.AppendLine("public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)")
+			.OpenBracket()
+			.AppendLine("return ((IUtf8SpanFormattable)_valueOrDefault).TryFormat(utf8Destination, out bytesWritten, format, provider);")
+			.CloseBracket()
+			.AppendPreProcessorDirective("endif");
+	}
+
+	/// <summary>
 	/// Generates IConvertible interface methods for the specified type.
 	/// </summary>
 	/// <param name="data">The generator data containing type information.</param>
@@ -466,28 +481,76 @@ internal static class MethodGeneratorHelper
 	/// <summary>
 	/// Generates Parse and TryParse methods for the specified type.
 	/// </summary>
-	/// <param name="dataClassName">The name of the data class.</param>
-	/// <param name="underlyingType">The name of the underlying primitive type.</param>
-	/// <param name="format">The optional format for parsing.</param>
-	/// <param name="sb">The source code builder.</param>
-	public static void GenerateParsable(string dataClassName, string underlyingType, string? format, SourceCodeBuilder sb)
+	/// <param name="data">The <see cref="GeneratorData"/> object containing information about the data type.</param>
+	/// <param name="sb">The <see cref="SourceCodeBuilder"/> used to build the source code.</param>
+	/// <remarks>
+	/// This method generates parsing methods based on the provided data type and serialization format.
+	/// </remarks>
+	public static void GenerateParsable(GeneratorData data, SourceCodeBuilder sb)
 	{
-		sb.AppendInheritDoc().Append($"public static {dataClassName} Parse(string s, IFormatProvider? provider) => {underlyingType}.")
-			.AppendLineIfElse(format is null, "Parse(s, provider);", $"ParseExact(s, \"{format}\", provider);")
-			.NewLine();
+		var dataClassName = data.ClassName;
+		var underlyingType = data.ParentSymbols.Count == 0
+			? data.PrimitiveTypeFriendlyName
+			: data.ParentSymbols[0].Name;
+		var format = data.SerializationFormat;
 
-		sb.AppendInheritDoc().AppendLine($"public static bool TryParse(string? s, IFormatProvider? provider, out {dataClassName} result)")
-			.OpenBracket()
-			.AppendIf(format is null, $"if ({underlyingType}.TryParse(s, provider, out var value))")
-			.AppendIf(format is not null, $"if ({underlyingType}.TryParseExact(s, \"{format}\", out var value))")
-			.OpenBracket()
-			.AppendLine($"result = new {dataClassName}(value);")
-			.AppendLine("return true;")
-			.CloseBracket()
-			.AppendLine("result = default;")
-			.AppendLine("return false;")
-			.CloseBracket()
-			.NewLine();
+		sb.AppendInheritDoc()
+			.Append($"public static {dataClassName} Parse(string s, IFormatProvider? provider) => ");
+
+		var isString = data.ParentSymbols.Count == 0 && data.DomainPrimitiveType is DomainPrimitiveType.String;
+		var isChar = data.ParentSymbols.Count == 0 && data.DomainPrimitiveType is DomainPrimitiveType.Char;
+
+		if (isString)
+		{
+			sb.AppendLine("s;");
+		}
+		else if (isChar)
+		{
+			sb.AppendLine("char.Parse(s);");
+		}
+		else
+		{
+			sb.AppendLine($"{underlyingType}.")
+				.AppendLineIfElse(format is null, "Parse(s, provider);", $"ParseExact(s, \"{format}\", provider);");
+		}
+
+		sb.NewLine();
+
+		sb.AppendInheritDoc()
+			.AppendLine($"public static bool TryParse(string? s, IFormatProvider? provider, out {dataClassName} result)")
+			.OpenBracket();
+
+		if (isString)
+		{
+			sb.AppendLine("if(s is null)");
+		}
+		else if (isChar)
+		{
+			sb.AppendLine("if(!char.TryParse(s,out var value))");
+		}
+		else
+		{
+			sb.AppendIf(format is null, $"if (!{underlyingType}.TryParse(s, provider, out var value))")
+				.AppendIf(format is not null, $"if (!{underlyingType}.TryParseExact(s, \"{format}\", out var value))");
+		}
+
+		sb.OpenBracket()
+		.AppendLine("result = default;")
+		.AppendLine("return false;")
+		.CloseBracket()
+		.NewLine()
+		.AppendLine("try")
+		.OpenBracket()
+		.AppendLine($"result = new {dataClassName}({(isString ? "s" : "value")});")
+		.AppendLine("return true;")
+		.CloseBracket()
+		.AppendLine("catch (Exception)")
+		.OpenBracket()
+		.AppendLine("result = default;")
+		.AppendLine("return false;")
+		.CloseBracket()
+		.CloseBracket()
+		.NewLine();
 	}
 
 	/// <summary>

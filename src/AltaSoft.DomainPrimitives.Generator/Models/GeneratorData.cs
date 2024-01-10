@@ -1,6 +1,6 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Collections.Generic;
-using Microsoft.CodeAnalysis;
 
 namespace AltaSoft.DomainPrimitives.Generator.Models;
 
@@ -130,6 +130,11 @@ internal sealed class GeneratorData
 	/// Gets or sets a value indicating whether to generate IConvertible methods.
 	/// </summary>
 	public bool GenerateConvertibles { get; set; }
+
+	/// <summary>
+	/// Gets or sets a value indicating whether to generate IUtf8SpanFormattable methods.
+	/// </summary>
+	public bool GenerateUtf8SpanFormattable { get; set; }
 
 	/// <summary>
 	/// Gets the field name for convertible types, including conversions for DateOnly and TimeOnly.
