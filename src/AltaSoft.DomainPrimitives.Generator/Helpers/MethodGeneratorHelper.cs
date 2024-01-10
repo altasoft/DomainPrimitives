@@ -510,7 +510,7 @@ internal static class MethodGeneratorHelper
 		}
 		else
 		{
-			sb.AppendLine($"{underlyingType}.")
+			sb.Append($"{underlyingType}.")
 				.AppendLineIfElse(format is null, "Parse(s, provider);", $"ParseExact(s, \"{format}\", provider);");
 		}
 
