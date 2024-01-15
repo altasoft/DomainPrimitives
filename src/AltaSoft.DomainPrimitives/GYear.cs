@@ -7,7 +7,7 @@ namespace AltaSoft.DomainPrimitives;
 /// Represents an XML gYear value object, providing operations for parsing and handling gYear values.
 /// </summary>
 [SerializationFormat("yyyy")]
-public readonly partial record struct GYear : IDomainValue<DateOnly>
+public readonly partial struct GYear : IDomainValue<DateOnly>
 {
 	/// <inheritdoc/>
 	public static void Validate(DateOnly value)

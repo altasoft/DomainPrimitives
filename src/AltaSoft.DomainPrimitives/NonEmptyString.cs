@@ -8,7 +8,7 @@ namespace AltaSoft.DomainPrimitives;
 /// <remarks>
 /// The NonEmptyString ensures that its value is a non-empty string.
 /// </remarks>
-public readonly partial record struct NonEmptyString : IDomainValue<string>
+public readonly partial struct NonEmptyString : IDomainValue<string>
 {
 	/// <inheritdoc/>
 	public static void Validate(string value)

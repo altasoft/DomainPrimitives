@@ -8,7 +8,7 @@ namespace AltaSoft.DomainPrimitives;
 /// <remarks>
 /// The NonNegativeInteger ensures that its value is a non-negative integer (greater than or equal to zero).
 /// </remarks>
-public readonly partial record struct NonNegativeInteger : IDomainValue<int>
+public readonly partial struct NonNegativeInteger : IDomainValue<int>
 {
 	/// <inheritdoc/>
 	public static void Validate(int value)

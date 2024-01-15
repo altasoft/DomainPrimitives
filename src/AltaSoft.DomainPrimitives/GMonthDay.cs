@@ -7,7 +7,7 @@ namespace AltaSoft.DomainPrimitives;
 /// Represents an XML gMonthDay value object, providing operations for parsing and handling gMonthDay values.
 /// </summary>
 [SerializationFormat("MM-dd")]
-public readonly partial record struct GMonthDay : IDomainValue<DateOnly>
+public readonly partial struct GMonthDay : IDomainValue<DateOnly>
 {
 	/// <inheritdoc/>
 	public static void Validate(DateOnly value)

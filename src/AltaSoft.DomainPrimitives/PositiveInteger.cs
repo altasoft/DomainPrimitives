@@ -8,7 +8,7 @@ namespace AltaSoft.DomainPrimitives;
 /// <remarks>
 /// The PositiveInteger ensures that its value is a positive integer (greater than zero).
 /// </remarks>
-public readonly partial record struct PositiveInteger : IDomainValue<int>
+public readonly partial struct PositiveInteger : IDomainValue<int>
 {
 	/// <inheritdoc/>
 	public static void Validate(int value)

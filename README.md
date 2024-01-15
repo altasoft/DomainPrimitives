@@ -94,7 +94,7 @@ In your project file add references as follows:
 For optimal performance, we recommend using `readonly struct` - especially for wrapping value types
 
 ```csharp
-public readonly partial record struct PositiveInteger : IDomainValue<int>
+public readonly partial struct PositiveInteger : IDomainValue<int>
 {
 	public static void Validate(int value)
 	{
@@ -130,7 +130,7 @@ namespace AltaSoft.DomainPrimitives;
 [JsonConverter(typeof(PositiveIntegerJsonConverter))]
 [TypeConverter(typeof(PositiveIntegerTypeConverter))]
 [DebuggerDisplay("{_valueOrDefault}")]
-public readonly partial record struct PositiveInteger :
+public readonly partial struct PositiveInteger :
 		IAdditionOperators<PositiveInteger, PositiveInteger, PositiveInteger>,
 		ISubtractionOperators<PositiveInteger, PositiveInteger, PositiveInteger>,
 		IMultiplyOperators<PositiveInteger, PositiveInteger, PositiveInteger>,
@@ -237,6 +237,18 @@ public readonly partial record struct PositiveInteger :
 		result = default;
 		return false;
 	}
+	
+	/// <inheritdoc/>
+	public override bool Equals(object? obj) => obj is AsciiString other && Equals(other);
+	/// <inheritdoc/>
+	public bool Equals(AsciiString other) => _valueOrDefault == other._valueOrDefault;
+	/// <inheritdoc/>
+	public static bool operator ==(AsciiString left, AsciiString right) => left.Equals(right);
+	/// <inheritdoc/>
+	public static bool operator !=(AsciiString left, AsciiString right) => !(left == right);
+
+	/// <inheritdoc/>
+	public override int GetHashCode() => _valueOrDefault.GetHashCode();
 
 	/// <inheritdoc/>
 	public override string ToString() => _valueOrDefault.ToString();
@@ -465,7 +477,7 @@ Mathematical operators for particular numeric types can be customized using the 
 
 ```csharp
 [SupportedOperations(Addition = false,Division = false,Modulus = false,Multiplication = true,Subtraction = true)]
-public readonly partial record struct PositiveInteger : IDomainValue<int>
+public readonly partial struct PositiveInteger : IDomainValue<int>
 {
 	public static void Validate(int value)
 	{
@@ -478,7 +490,7 @@ public readonly partial record struct PositiveInteger : IDomainValue<int>
 ### For further customization of the operators, consider implementing specific interfaces. This action will override the generated operators for the respective domain type:
 
 ```csharp
-public readonly partial record struct PositiveInteger :
+public readonly partial struct PositiveInteger :
 	IDomainValue<int>,
 	IAdditionOperators<PositiveInteger, PositiveInteger, PositiveInteger>
 {
@@ -506,7 +518,7 @@ For instance, consider the `GDay` type, which represents an XML gDay value. It i
 /// Represents an XML gDay value object, providing operations for parsing and handling gDay values.
 /// </summary>
 [SerializationFormat("dd")]
-public readonly partial record struct GDay : IDomainValue<DateOnly>
+public readonly partial struct GDay : IDomainValue<DateOnly>
 {
 	/// <inheritdoc/>
 	public static void Validate(DateOnly value)
@@ -550,7 +562,7 @@ To disable the generation of Converters or Swagger Mappers in csproj file follow
 	* Chaining of primitive types is possible. For instance, considering the `PositiveInteger` and `BetweenOneAnd100` DomainPrimitives:
 
     ```csharp
-    public readonly partial record struct PositiveInteger : IDomainValue<int>
+    public readonly partial struct PositiveInteger : IDomainValue<int>
 		{
 			public static void Validate(int value)
 			{
@@ -560,7 +572,7 @@ To disable the generation of Converters or Swagger Mappers in csproj file follow
 			public static int Default => 1;
 		}
 
-    public readonly partial record struct BetweenOneAnd100 : IDomainValue<PositiveInteger>
+    public readonly partial struct BetweenOneAnd100 : IDomainValue<PositiveInteger>
     {
 		public static void Validate(PositiveInteger value)
 		{
@@ -573,7 +585,7 @@ To disable the generation of Converters or Swagger Mappers in csproj file follow
 	Defined type `BetweenOneAnd100`  automatically inherits restrictions from PositiveInteger. Operators restricted in PositiveInteger are also inherited. Further restrictions on operators can be added using the `SupportedOperationsAttribute`:	
 	```csharp
 	[SupportedOperations(Addition=false)]
-	public readonly partial record struct BetweenOneAnd100 : IDomainValue<PositiveInteger>
+	public readonly partial struct BetweenOneAnd100 : IDomainValue<PositiveInteger>
 		{
 			public static void Validate(PositiveInteger value)
 			{
@@ -619,7 +631,7 @@ These additional features offer enhanced control over exceptions, chaining of pr
 ## Implicit Usage of DomainType
 
 ```csharp
-public readonly partial record struct PositiveAmount : IDomainValue<decimal>
+public readonly partial struct PositiveAmount : IDomainValue<decimal>
 {
 	public static void Validate(decimal value)
 	{
@@ -647,7 +659,7 @@ public static class Example
 
 ```csharp 
 [SupportedOperations] // no mathematical operators should be generated
-public readonly partial record struct CustomerId : IDomainValue<int>
+public readonly partial struct CustomerId : IDomainValue<int>
 {
 	public static void Validate(int value)
 	{
