@@ -30,6 +30,11 @@ internal enum NumericType
 	/// </summary>
 	Int64,
 
+	///// <summary>
+	///// 128-bit signed integer.
+	///// </summary>
+	//Int128,
+
 	/// <summary>
 	/// 16-bit unsigned integer.
 	/// </summary>
@@ -44,6 +49,11 @@ internal enum NumericType
 	/// 64-bit unsigned integer.
 	/// </summary>
 	UInt64,
+
+	///// <summary>
+	///// 128-bit unsigned integer.
+	///// </summary>
+	//UInt128,
 
 	/// <summary>
 	/// Decimal type with high precision.

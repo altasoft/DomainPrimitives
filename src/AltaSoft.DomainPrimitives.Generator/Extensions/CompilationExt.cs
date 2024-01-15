@@ -1,12 +1,12 @@
-﻿using System;
+﻿using AltaSoft.DomainPrimitives.Generator.Models;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using AltaSoft.DomainPrimitives.Generator.Models;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AltaSoft.DomainPrimitives.Generator.Extensions;
 
@@ -292,36 +292,37 @@ internal static class CompilationExt
 	/// </summary>
 	/// <param name="type">The named type symbol for which to retrieve the underlying primitive type information.</param>
 	/// <param name="domainTypes">A list of named type symbols representing domain types to track recursion.</param>
-	/// <returns>A tuple containing the <see cref="DomainPrimitiveType"/> enum value representing the primitive type and the corresponding named type symbol.</returns>
-	public static (DomainPrimitiveType type, INamedTypeSymbol symbol) GetUnderlyingPrimitiveType(this INamedTypeSymbol type, List<INamedTypeSymbol> domainTypes)
+	/// <returns>A tuple containing the <see cref="PrimitiveCategory"/> enum value representing the primitive type and the corresponding named type symbol.</returns>
+	public static (PrimitiveCategory category, INamedTypeSymbol typeSymbol) GetUnderlyingPrimitiveCategory(this INamedTypeSymbol type, List<INamedTypeSymbol> domainTypes)
 	{
 		if (s_numericTypes.TryGetValue(type, out _))
-			return (DomainPrimitiveType.Numeric, type);
+			return (PrimitiveCategory.Numeric, type);
 
 		if (type.Equals(_stringType, SymbolEqualityComparer.Default))
-			return (DomainPrimitiveType.String, type);
+			return (PrimitiveCategory.String, type);
 
 		if (type.TryGetDateTypeSymbol(out _))
-			return (DomainPrimitiveType.DateTime, type);
+			return (PrimitiveCategory.DateTime, type);
 
 		if (type.Equals(_boolType, SymbolEqualityComparer.Default))
-			return (DomainPrimitiveType.Boolean, type);
+			return (PrimitiveCategory.Boolean, type);
 
 		if (type.Equals(_charType, SymbolEqualityComparer.Default))
-			return (DomainPrimitiveType.Char, type);
+			return (PrimitiveCategory.Char, type);
 
 		if (type.ToDisplayString() == "System.Guid")
-			return (DomainPrimitiveType.Guid, type);
+			return (PrimitiveCategory.Guid, type);
 
 		var domainType = type.Interfaces.FirstOrDefault(x => x.IsDomainValue());
 
 		if (domainType is null)
-			return (DomainPrimitiveType.Other, type);
+			return (PrimitiveCategory.Other, type);
 
+		// Recurse into the domain type
 		var primitiveType = domainType.TypeArguments[0] as INamedTypeSymbol;
 		domainTypes.Add(type);
 
-		return primitiveType!.GetUnderlyingPrimitiveType(domainTypes);
+		return primitiveType!.GetUnderlyingPrimitiveCategory(domainTypes);
 	}
 
 	/// <summary>
@@ -378,6 +379,14 @@ internal static class CompilationExt
 		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Decimal), NumericType.Decimal);
 		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Double), NumericType.Double);
 		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Single), NumericType.Single);
+
+		//var i128Type = compilation.GetTypeByMetadataName("System.Int128");
+		//if (i128Type is not null)
+		//	s_numericTypes.Add(i128Type, NumericType.Int128);
+
+		//i128Type = compilation.GetTypeByMetadataName("System.UInt128");
+		//if (i128Type is not null)
+		//	s_numericTypes.Add(i128Type, NumericType.UInt128);
 	}
 
 	/// <summary>
@@ -395,7 +404,7 @@ internal static class CompilationExt
 		if (primitiveType.IsNumericType(out var value))
 		{
 			var format = value.ToString();
-			if (value is NumericType.Int16 or NumericType.Int32 or NumericType.Int64)
+			if (value is NumericType.Int16 or NumericType.Int32 or NumericType.Int64) // or NumericType.Int128)
 				return ("integer", format[0] + format.Substring(1));
 
 			return ("number", format[0] + format.Substring(1));

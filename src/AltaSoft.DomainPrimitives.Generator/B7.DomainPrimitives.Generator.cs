@@ -4,10 +4,10 @@
 
 //#endif
 
-using System.Linq;
 using AltaSoft.DomainPrimitives.Generator.Extensions;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 

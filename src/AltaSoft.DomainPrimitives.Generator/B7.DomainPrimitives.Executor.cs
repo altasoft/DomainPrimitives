@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
+using System.Xml.Serialization;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -51,11 +52,11 @@ internal static class Executor
 				if (classSemantic.GetDeclaredSymbol(type) is not INamedTypeSymbol @class)
 					continue;
 
-				var generatorData = CreateGeneratorData(@class, context);
+				var generatorData = CreateGeneratorData(@class, context, globalOptions);
 				if (generatorData is null)
 					continue;
 
-				if (generatorData.PrimitiveNamedTypeSymbol.IsValueType && !generatorData.Type.IsValueType)
+				if (generatorData.PrimitiveTypeSymbol.IsValueType && !generatorData.Type.IsValueType)
 				{
 					context.ReportDiagnostic(DiagnosticHelper
 						.TypeShouldBeValueType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName,
@@ -78,7 +79,7 @@ internal static class Executor
 				}
 
 				if (globalOptions.GenerateSwaggerConverters)
-					swaggerTypes.Add((generatorData.Namespace, generatorData.ClassName, generatorData.Type.IsValueType, generatorData.SerializationFormat, generatorData.PrimitiveNamedTypeSymbol));
+					swaggerTypes.Add((generatorData.Namespace, generatorData.ClassName, generatorData.Type.IsValueType, generatorData.SerializationFormat, generatorData.PrimitiveTypeSymbol));
 			}
 
 			MethodGeneratorHelper.AddSwaggerOptions(projectNs, swaggerTypes, context);
@@ -108,12 +109,7 @@ internal static class Executor
 	/// <returns>The DomainPrimitiveGlobalOptions for the generator.</returns>
 	private static DomainPrimitiveGlobalOptions GetGlobalOptions(AnalyzerConfigOptionsProvider analyzerOptions)
 	{
-		var result = new DomainPrimitiveGlobalOptions
-		{
-			GenerateJsonConverters = true,
-			GenerateSwaggerConverters = true,
-			GenerateTypeConverters = true
-		};
+		var result = new DomainPrimitiveGlobalOptions();
 
 		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateJsonConverters", out var value)
 			&& bool.TryParse(value, out var generateJsonConverters))
@@ -133,80 +129,85 @@ internal static class Executor
 			result.GenerateSwaggerConverters = generateSwaggerConverters;
 		}
 
+		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateXmlSerialization", out value)
+			&& bool.TryParse(value, out var generateXmlSerialization))
+		{
+			result.GenerateXmlSerialization = generateXmlSerialization;
+		}
+
 		return result;
 	}
 
 	/// <summary>
 	/// Creates generator data for a specified class symbol.
 	/// </summary>
-	/// <param name="class">The INamedTypeSymbol representing the class.</param>
+	/// <param name="type">The INamedTypeSymbol representing the class.</param>
 	/// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
 	/// <returns>The GeneratorData for the class or null if not applicable.</returns>
-	private static GeneratorData? CreateGeneratorData(INamedTypeSymbol @class, SourceProductionContext context)
+	private static GeneratorData? CreateGeneratorData(INamedTypeSymbol type, SourceProductionContext context, DomainPrimitiveGlobalOptions globalOptions)
 	{
-		var interfaceType = @class.AllInterfaces.First(x => x.IsDomainValue());
+		var interfaceType = type.AllInterfaces.First(x => x.IsDomainValue());
 
 		if (interfaceType.TypeArguments[0] is not INamedTypeSymbol primitiveType)
 		{
-			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(@class.Locations.FirstOrDefault()));
+			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(type.Locations.FirstOrDefault()));
 			return null;
 		}
 
 		var parentSymbols = new List<INamedTypeSymbol>();
-		var (type, symbol) = primitiveType.GetUnderlyingPrimitiveType(parentSymbols);
+		var (category, typeSymbol) = primitiveType.GetUnderlyingPrimitiveCategory(parentSymbols);
 
-		if (type == DomainPrimitiveType.Other)
+		if (category == PrimitiveCategory.Other)
 		{
-			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(@class.Locations.FirstOrDefault()));
+			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(type.Locations.FirstOrDefault()));
 			return null;
 		}
 
 		NumericType? numericType = null;
 		DateType? dateType = null;
 
-		switch (type)
+		switch (category)
 		{
-			case DomainPrimitiveType.Numeric:
-				numericType = symbol.GetFromNamedTypeSymbol();
+			case PrimitiveCategory.Numeric:
+				numericType = typeSymbol.GetFromNamedTypeSymbol();
 				break;
 
-			case DomainPrimitiveType.DateTime:
-				dateType = symbol.GetDateTypeTypeSymbol();
+			case PrimitiveCategory.DateTime:
+				dateType = typeSymbol.GetDateTypeTypeSymbol();
 				break;
 		}
 
-		var hasOverridenHashCode = @class.GetMembersOfType<IMethodSymbol>().Any(x => x.OverriddenMethod?.Name == "GetHashCode");
+		var hasOverridenHashCode = type.GetMembersOfType<IMethodSymbol>().Any(x => x.OverriddenMethod?.Name == "GetHashCode");
 
 		var generatorData = new GeneratorData
 		{
 			FieldName = "_valueOrDefault",
 			GenerateHashCode = !hasOverridenHashCode,
-			DomainPrimitiveType = type,
-			Type = @class,
-			PrimitiveNamedTypeSymbol = symbol,
-			PrimitiveTypeFriendlyName = symbol.GetFriendlyName(_nullableTypeSymbol!),
-			Namespace = @class.ContainingNamespace.ToDisplayString(),
+			Category = category,
+			Type = type,
+			PrimitiveTypeSymbol = typeSymbol,
+			PrimitiveTypeFriendlyName = typeSymbol.GetFriendlyName(_nullableTypeSymbol!),
+			Namespace = type.ContainingNamespace.ToDisplayString(),
 			NumericType = numericType,
+			DateType = dateType,
 			GenerateImplicitOperators = true,
 			ParentSymbols = parentSymbols,
-			DateType = dateType,
-			GenerateConvertibles = type != DomainPrimitiveType.Guid,
+			GenerateConvertibles = category != PrimitiveCategory.Guid
 		};
 
-		var attributes = @class.GetAttributes();
+		var attributes = type.GetAttributes();
 		var attributeData = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SupportedOperationsAttribute).FullName);
-		var serializationAttribute = attributes.FirstOrDefault(x =>
-			x.AttributeClass?.ToDisplayString() == typeof(SerializationFormatAttribute).FullName);
+		var serializationAttribute = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SerializationFormatAttribute).FullName);
 
 		if (numericType is null && attributeData is not null)
 		{
-			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeNumericType(attributeData.GetAttributeLocation(), @class.Name));
+			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeNumericType(attributeData.GetAttributeLocation(), type.Name));
 			return null;
 		}
 
 		if (serializationAttribute is not null && dateType is null)
 		{
-			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeDateType(serializationAttribute.GetAttributeLocation(), @class.Name));
+			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeDateType(serializationAttribute.GetAttributeLocation(), type.Name));
 			return null;
 		}
 
@@ -216,58 +217,31 @@ internal static class Executor
 			generatorData.SerializationFormat = value.Value?.ToString();
 		}
 
-		var supportedOperationsAttribute = numericType is null ? null : GetSupportedOperationsAttributes(@class, numericType.Value, parentSymbols);
+		var supportedOperationsAttribute = numericType is null ? null : GetSupportedOperationsAttributes(type, numericType.Value, parentSymbols);
 
-		if (type == DomainPrimitiveType.Numeric && supportedOperationsAttribute!.Addition
-											   && !@class.ImplementsInterface("System.Numerics.IAdditionOperators"))
-		{
-			generatorData.GenerateAdditionOperators = true;
-		}
+		generatorData.GenerateAdditionOperators = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Addition && !type.ImplementsInterface("System.Numerics.IAdditionOperators");
 
-		if (type == DomainPrimitiveType.Numeric && supportedOperationsAttribute!.Subtraction
-											   && !@class.ImplementsInterface("System.Numerics.ISubtractionOperators"))
+		generatorData.GenerateSubtractionOperators = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Subtraction && !type.ImplementsInterface("System.Numerics.ISubtractionOperators");
 
-		{
-			generatorData.GenerateSubtractionOperators = true;
-		}
+		generatorData.GenerateDivisionOperators = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Division && !type.ImplementsInterface("System.Numerics.IDivisionOperators");
 
-		if (type == DomainPrimitiveType.Numeric && supportedOperationsAttribute!.Division
-											   && !@class.ImplementsInterface("System.Numerics.IDivisionOperators"))
-		{
-			generatorData.GenerateDivisionOperators = true;
-		}
+		generatorData.GenerateMultiplyOperators = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Multiplication && !type.ImplementsInterface("System.Numerics.IMultiplyOperators");
 
-		if (type == DomainPrimitiveType.Numeric && supportedOperationsAttribute!.Multiplication
-											   && !@class.ImplementsInterface("System.Numerics.IMultiplyOperators"))
-		{
-			generatorData.GenerateMultiplyOperators = true;
-		}
+		generatorData.GenerateModulusOperator = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Modulus && !type.ImplementsInterface("System.Numerics.IModulusOperator");
 
-		if (type == DomainPrimitiveType.Numeric && supportedOperationsAttribute!.Modulus
-											   && !@class.ImplementsInterface("System.Numerics.IModulusOperator"))
-		{
-			generatorData.GenerateModulusOperator = true;
-		}
+		generatorData.GenerateComparable = category is not PrimitiveCategory.Boolean && !type.ImplementsInterface("System.IComparable");
 
-		if (type is not DomainPrimitiveType.Boolean && !@class.ImplementsInterface("System.IComparable"))
-			generatorData.GenerateComparable = true;
+		generatorData.GenerateParsable = !type.ImplementsInterface("System.IParsable");
 
-		if (!@class.ImplementsInterface("System.IParsable"))
-			generatorData.GenerateParsable = true;
+		generatorData.GenerateComparison = (category is PrimitiveCategory.Numeric or PrimitiveCategory.DateTime or PrimitiveCategory.Char) && !type.ImplementsInterface("System.Numerics.IComparisonOperators");
 
-		if (type is DomainPrimitiveType.Numeric or DomainPrimitiveType.DateTime or DomainPrimitiveType.Char && !@class.ImplementsInterface("System.Numerics.IComparisonOperators"))
-			generatorData.GenerateComparison = true;
+		generatorData.GenerateSpanFormattable = (category is PrimitiveCategory.DateTime or PrimitiveCategory.Guid) && !type.ImplementsInterface("System.ISpanFormattable");
 
-		if ((type is DomainPrimitiveType.DateTime || type is DomainPrimitiveType.Guid) && !@class.ImplementsInterface("System.ISpanFormattable"))
-			generatorData.GenerateSpanFormattable = true;
+		generatorData.GenerateUtf8SpanFormattable = primitiveType.ImplementsInterface("System.IUtf8SpanFormattable") && !type.ImplementsInterface("System.IUtf8SpanFormattable");
 
-		if (primitiveType.ImplementsInterface("System.IUtf8SpanFormattable") && !@class.ImplementsInterface("System.IUtf8SpanFormattable"))
-		{
-			generatorData.GenerateUtf8SpanFormattable = true;
-		}
+		generatorData.GenerateEquatableOperators = !type.ImplementsInterface("System.IEquatable");
 
-		if (!@class.ImplementsInterface("System.IEquatable"))
-			generatorData.GenerateEquitableOperators = true;
+		generatorData.GenerateXmlSerializableMethods = globalOptions.GenerateXmlSerialization;
 
 		return generatorData;
 	}
@@ -355,6 +329,8 @@ internal static class Executor
 				NumericType.UInt32 => true,
 				NumericType.Int64 => true,
 				NumericType.UInt64 => true,
+				//NumericType.Int128 => true,
+				//NumericType.UInt128 => true,
 				NumericType.Decimal => true,
 				NumericType.Double => true,
 				NumericType.Single => true,
@@ -394,7 +370,7 @@ internal static class Executor
 	private static bool ProcessType(GeneratorData data, DomainPrimitiveGlobalOptions options, SourceProductionContext context)
 	{
 		var sb = new SourceCodeBuilder();
-		var isSuccess = ProcessConstructor(data.Type, data.PrimitiveNamedTypeSymbol.IsValueType, sb, context);
+		var isSuccess = ProcessConstructor(data.Type, data.PrimitiveTypeSymbol.IsValueType, sb, context);
 		if (!isSuccess)
 		{
 			return false;
@@ -426,30 +402,44 @@ internal static class Executor
 
 		var sb = new SourceCodeBuilder();
 		var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics" };
+
 		if (data.ParentSymbols.Count > 0)
 		{
 			usings.Add(data.ParentSymbols[0].ContainingNamespace.ToDisplayString());
 		}
 
 		if (data.GenerateImplicitOperators)
+		{
 			usings.Add("System.Diagnostics.CodeAnalysis");
+		}
 
 		if (options.GenerateJsonConverters)
 		{
 			usings.Add("System.Text.Json.Serialization");
 			usings.Add($"{data.Namespace}.Converters");
 		}
-		if (options.GenerateTypeConverters)
-			usings.Add("System.ComponentModel");
 
-		var needsMathematicalOperators = data.GenerateAdditionOperators || data.GenerateDivisionOperators ||
+		if (options.GenerateTypeConverters)
+		{
+			usings.Add("System.ComponentModel");
+		}
+
+		if (options.GenerateXmlSerialization)
+		{
+			usings.Add("System.Xml");
+			usings.Add("System.Xml.Schema");
+			usings.Add("System.Xml.Serialization");
+			usings.Add("AltaSoft.DomainPrimitives.Abstractions");
+		}
+
+		var needsMathOperators = data.GenerateAdditionOperators || data.GenerateDivisionOperators ||
 										 data.GenerateMultiplyOperators || data.GenerateSubtractionOperators ||
 										 data.GenerateModulusOperator;
 
 		var isByteOrShort = data.ParentSymbols.Count == 0 &&
 			data.NumericType is NumericType.Byte or NumericType.SByte or NumericType.Int16 or NumericType.UInt16;
 
-		if ((needsMathematicalOperators && isByteOrShort) || data.DateType is DateType.DateOnly or DateType.TimeOnly)
+		if ((needsMathOperators && isByteOrShort) || data.DateType is DateType.DateOnly or DateType.TimeOnly)
 		{
 			usings.Add("AltaSoft.DomainPrimitives.Abstractions");
 		}
@@ -481,15 +471,15 @@ internal static class Executor
 			{
 				GenerateComparable: false, GenerateAdditionOperators: false, GenerateDivisionOperators: false,
 				GenerateMultiplyOperators: false, GenerateSubtractionOperators: false, GenerateModulusOperator: false, GenerateComparison: false,
-				GenerateImplicitOperators: false, GenerateParsable: false, GenerateEquitableOperators: false, GenerateHashCode: false,
-				GenerateSpanFormattable: false, GenerateConvertibles: false, GenerateUtf8SpanFormattable: false
+				GenerateImplicitOperators: false, GenerateParsable: false, GenerateEquatableOperators: false, GenerateHashCode: false,
+				GenerateSpanFormattable: false, GenerateConvertibles: false, GenerateUtf8SpanFormattable: false, GenerateXmlSerializableMethods: false
 			})
 
 		{
 			return;
 		}
 
-		if (needsMathematicalOperators && isByteOrShort)
+		if (needsMathOperators && isByteOrShort)
 		{
 			sb.AppendLine($"private {data.ClassName}(int value)")
 				.OpenBracket()
@@ -530,6 +520,7 @@ internal static class Executor
 			MethodGeneratorHelper.GenerateDivisionCode(data.ClassName, data.FieldName, sb);
 			sb.NewLine();
 		}
+
 		if (data.GenerateModulusOperator)
 		{
 			MethodGeneratorHelper.GenerateModulusCode(data.ClassName, data.FieldName, sb);
@@ -541,11 +532,13 @@ internal static class Executor
 			MethodGeneratorHelper.GenerateComparableCode(data.ClassName, data.FieldName, data.Type.IsValueType, sb);
 			sb.NewLine();
 		}
+
 		if (data.GenerateComparison)
 		{
 			MethodGeneratorHelper.GenerateComparisonCode(data.ClassName, data.FieldName, sb);
 			sb.NewLine();
 		}
+
 		if (data.GenerateParsable)
 		{
 			MethodGeneratorHelper.GenerateParsable(data, sb);
@@ -557,13 +550,14 @@ internal static class Executor
 			MethodGeneratorHelper.GenerateSpanFormatable(sb, data.FieldName);
 			sb.NewLine();
 		}
+
 		if (data.GenerateUtf8SpanFormattable)
 		{
 			MethodGeneratorHelper.GenerateUtf8Formattable(sb);
 			sb.NewLine();
 		}
 
-		if (data.GenerateEquitableOperators)
+		if (data.GenerateEquatableOperators)
 		{
 			MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.FieldName, data.Type.IsValueType, sb);
 			sb.NewLine();
@@ -575,124 +569,70 @@ internal static class Executor
 			sb.AppendLine($"public override int GetHashCode() => {data.FieldName}.GetHashCode();");
 		}
 
-		sb.AppendInheritDoc();
-
-		var baseType = data.ParentSymbols.Count == 0 ? data.PrimitiveNamedTypeSymbol : data.ParentSymbols[0];
-		var hasExplicitToStringMethod = data.Type.GetMembersOfType<IMethodSymbol>().Any(x =>
-			x.Name == "ToString" && x is { IsStatic: true, Parameters.Length: 1 } &&
-			x.Parameters[0].Type.Equals(baseType, SymbolEqualityComparer.Default));
-
-		if (hasExplicitToStringMethod)
-			sb.AppendLine($"public override string ToString() => ToString({data.FieldName});").NewLine();
-		else
-			sb.AppendLine($"public override string ToString() => {data.FieldName}.ToString();").NewLine();
-
 		if (data.GenerateConvertibles)
 		{
 			MethodGeneratorHelper.GenerateConvertibles(data, sb);
 		}
+
+		if (data.GenerateXmlSerializableMethods)
+		{
+			MethodGeneratorHelper.GenerateIXmlSerializableMethods(data, sb);
+		}
+
+		var baseType = data.ParentSymbols.Count == 0 ? data.PrimitiveTypeSymbol : data.ParentSymbols[0];
+		var hasExplicitToStringMethod = data.Type.GetMembersOfType<IMethodSymbol>().Any(x =>
+			x.Name == "ToString" && x is { IsStatic: true, Parameters.Length: 1 } &&
+			x.Parameters[0].Type.Equals(baseType, SymbolEqualityComparer.Default));
+
+		sb.AppendInheritDoc();
+		if (hasExplicitToStringMethod)
+			sb.AppendLine($"public override string ToString() => ToString({data.FieldName});").NewLine();
+		else
+			sb.AppendLine($"public override string ToString() => {data.FieldName}.ToString();").NewLine();
 
 		sb.CloseBracket();
 
 		context.AddSource(data.ClassName + ".g", sb.ToString());
 
 		return;
+
 		static string CreateInheritedInterfaces(GeneratorData data, string className)
 		{
 			var sb = new StringBuilder();
 
 			if (data.GenerateAdditionOperators)
 			{
-				sb.AppendLine().Append("\t\tIAdditionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "IAdditionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
 			}
 
 			if (data.GenerateSubtractionOperators)
 			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.Append("\t\tISubtractionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "ISubtractionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
 			}
 
 			if (data.GenerateMultiplyOperators)
 			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.Append("\t\tIMultiplyOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "IMultiplyOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
 			}
 
 			if (data.GenerateDivisionOperators)
 			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.Append("\t\tIDivisionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "IDivisionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
 			}
 
 			if (data.GenerateModulusOperator)
 			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.Append("\t\tIModulusOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "IModulusOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
 			}
 
 			if (data.GenerateComparison)
 			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.Append("\t\tIComparisonOperators<").Append(className).Append(", ").Append(className).Append(", ").Append("bool>");
+				AppendInterface(sb, "IComparisonOperators<").Append(className).Append(", ").Append(className).Append(", ").Append("bool>");
 			}
 
-			if (data.GenerateComparable)
+			if (data.GenerateSpanFormattable)
 			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.AppendLine("\t\tIComparable,").Append("\t\tIComparable<").Append(className).Append('>');
-			}
-
-			if (data.GenerateParsable)
-			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.Append("\t\tIParsable<").Append(className).Append('>');
-			}
-
-			if (data.GenerateEquitableOperators)
-			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.Append("\t\tIEquatable<").Append(className).Append('>');
-			}
-
-			if (data.GenerateConvertibles)
-			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-				sb.Append("\t\tIConvertible");
+				AppendInterface(sb, "ISpanFormattable");
 			}
 
 			if (data.GenerateUtf8SpanFormattable)
@@ -703,11 +643,47 @@ internal static class Executor
 					sb.AppendLine();
 
 				sb.AppendLine("#if NET8_0_OR_GREATER")
-					.AppendLine("\t\tIUtf8SpanFormattable")
+					.AppendLine("IUtf8SpanFormattable")
 					.AppendLine("#endif");
 			}
 
+			if (data.GenerateComparable)
+			{
+				AppendInterface(sb, nameof(IComparable));
+				AppendInterface(sb, "IComparable<").Append(className).Append('>');
+			}
+
+			if (data.GenerateParsable)
+			{
+				AppendInterface(sb, "IParsable<").Append(className).Append('>');
+			}
+
+			if (data.GenerateEquatableOperators)
+			{
+				AppendInterface(sb, "IEquatable<").Append(className).Append('>');
+			}
+
+			if (data.GenerateConvertibles)
+			{
+				AppendInterface(sb, nameof(IConvertible));
+			}
+
+			if (data.GenerateXmlSerializableMethods)
+			{
+				AppendInterface(sb, nameof(IXmlSerializable));
+			}
+
 			return sb.ToString();
+
+			static StringBuilder AppendInterface(StringBuilder sb, string interfaceName)
+			{
+				if (sb.Length != 0)
+					sb.AppendLine(",");
+				else
+					sb.AppendLine();
+
+				return sb.Append("\t\t").Append(interfaceName);
+			}
 		}
 	}
 
@@ -728,7 +704,7 @@ internal static class Executor
 			.NewLine();
 		}
 
-		var type = data.PrimitiveNamedTypeSymbol;
+		var type = data.PrimitiveTypeSymbol;
 
 		sb.AppendSummary($"<summary>Implicit conversion from <see cref = \"{friendlyName}?\"/> to <see cref = \"{data.ClassName}?\"/></summary>")
 			.AppendLine("[return: NotNullIfNotNull(nameof(value))]")

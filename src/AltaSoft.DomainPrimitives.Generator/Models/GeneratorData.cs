@@ -32,12 +32,12 @@ internal sealed class GeneratorData
 	/// <summary>
 	/// Gets or sets the Domain Primitive type.
 	/// </summary>
-	public DomainPrimitiveType DomainPrimitiveType { get; set; }
+	public PrimitiveCategory Category { get; set; }
 
 	/// <summary>
 	/// Gets or sets the named type symbol of the primitive type.
 	/// </summary>
-	public INamedTypeSymbol PrimitiveNamedTypeSymbol { get; set; } = default!;
+	public INamedTypeSymbol PrimitiveTypeSymbol { get; set; } = default!;
 
 	/// <summary>
 	/// Gets or sets the list of parent symbols.
@@ -92,12 +92,12 @@ internal sealed class GeneratorData
 	public bool GenerateComparison { get; set; }
 
 	/// <summary>
-	/// Gets or sets a value indicating whether to generate parsable methods.
+	/// Gets or sets a value indicating whether to generate IParsable methods.
 	/// </summary>
 	public bool GenerateParsable { get; set; }
 
 	/// <summary>
-	/// Gets or sets a value indicating whether to generate comparable methods.
+	/// Gets or sets a value indicating whether to generate IComparable methods.
 	/// </summary>
 	public bool GenerateComparable { get; set; }
 
@@ -117,14 +117,14 @@ internal sealed class GeneratorData
 	public string? SerializationFormat { get; set; }
 
 	/// <summary>
-	/// Gets or sets a value indicating whether to generate SpanFormattable methods.
+	/// Gets or sets a value indicating whether to generate ISpanFormattable methods.
 	/// </summary>
 	public bool GenerateSpanFormattable { get; set; }
 
 	/// <summary>
-	/// Gets or sets a value indicating whether to generate equitable operators.
+	/// Gets or sets a value indicating whether to generate IEquatable operators.
 	/// </summary>
-	public bool GenerateEquitableOperators { get; set; }
+	public bool GenerateEquatableOperators { get; set; }
 
 	/// <summary>
 	/// Gets or sets a value indicating whether to generate IConvertible methods.
@@ -135,6 +135,11 @@ internal sealed class GeneratorData
 	/// Gets or sets a value indicating whether to generate IUtf8SpanFormattable methods.
 	/// </summary>
 	public bool GenerateUtf8SpanFormattable { get; set; }
+
+	/// <summary>
+	/// Gets or sets a value indicating whether the generate IXmlSerializable methods.
+	/// </summary>
+	public bool GenerateXmlSerializableMethods { get; set; }
 
 	/// <summary>
 	/// Gets the field name for convertible types, including conversions for DateOnly and TimeOnly.
@@ -149,15 +154,15 @@ internal sealed class GeneratorData
 	/// <returns>The friendly name of the primitive type. First letter will be uppercase</returns>
 	public string GetPrimitiveTypeFriendlyName()
 	{
-		return DomainPrimitiveType switch
+		return Category switch
 		{
-			DomainPrimitiveType.Numeric => NumericType.ToString(),
-			DomainPrimitiveType.String => "String",
-			DomainPrimitiveType.DateTime => DateType!.ToString(),
-			DomainPrimitiveType.Boolean => "Boolean",
-			DomainPrimitiveType.Char => "Char",
-			DomainPrimitiveType.Guid => "Guid",
-			_ => throw new Exception($"DomainPrimitive Type {DomainPrimitiveType} is not yet supported")
+			PrimitiveCategory.Numeric => NumericType.ToString(),
+			PrimitiveCategory.String => "String",
+			PrimitiveCategory.DateTime => DateType!.ToString(),
+			PrimitiveCategory.Boolean => "Boolean",
+			PrimitiveCategory.Char => "Char",
+			PrimitiveCategory.Guid => "Guid",
+			_ => throw new Exception($"DomainPrimitive category {Category} is not yet supported")
 		};
 	}
 
@@ -168,7 +173,7 @@ internal sealed class GeneratorData
 	public string GetPrimitiveTypeFriendlyNameInCamelCase()
 	{
 		var friendlyName = GetPrimitiveTypeFriendlyName();
-		if (DomainPrimitiveType is DomainPrimitiveType.Numeric or DomainPrimitiveType.String)
+		if (Category is PrimitiveCategory.Numeric or PrimitiveCategory.String)
 			return char.ToLower(friendlyName[0]) + friendlyName.Substring(1);
 
 		return friendlyName;

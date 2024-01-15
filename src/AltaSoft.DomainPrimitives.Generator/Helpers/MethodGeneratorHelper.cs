@@ -2,6 +2,7 @@
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
@@ -153,7 +154,7 @@ internal static class MethodGeneratorHelper
 				};
 
 		var converterName = data.GetPrimitiveTypeFriendlyName();
-		var primitiveTypeIsValueType = data.PrimitiveNamedTypeSymbol.IsValueType;
+		var primitiveTypeIsValueType = data.PrimitiveTypeSymbol.IsValueType;
 		sb.AppendUsings(usingStatements);
 
 		sb.AppendNamespace(data.Namespace + ".Converters");
@@ -341,7 +342,8 @@ internal static class MethodGeneratorHelper
 
 		sb.AppendInheritDoc();
 		sb.Append("ulong IConvertible.ToUInt64(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToUInt64(provider);");
+			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToUInt64(provider);")
+			.NewLine();
 	}
 
 	/// <summary>
@@ -497,8 +499,8 @@ internal static class MethodGeneratorHelper
 		sb.AppendInheritDoc()
 			.Append($"public static {dataClassName} Parse(string s, IFormatProvider? provider) => ");
 
-		var isString = data.ParentSymbols.Count == 0 && data.DomainPrimitiveType is DomainPrimitiveType.String;
-		var isChar = data.ParentSymbols.Count == 0 && data.DomainPrimitiveType is DomainPrimitiveType.Char;
+		var isString = data.ParentSymbols.Count == 0 && data.Category is PrimitiveCategory.String;
+		var isChar = data.ParentSymbols.Count == 0 && data.Category is PrimitiveCategory.Char;
 
 		if (isString)
 		{
@@ -571,5 +573,38 @@ internal static class MethodGeneratorHelper
 		sb.AppendInheritDoc().AppendLine($"public static bool operator ==({className} left, {className} right) => left.Equals(right);");
 
 		sb.AppendInheritDoc().AppendLine($"public static bool operator !=({className} left, {className} right) => !(left == right);");
+	}
+
+	/// <summary>
+	/// Generates the necessary methods for implementing the IXmlSerializable interface.
+	/// </summary>
+	/// <param name="data">The generator data.</param>
+	/// <param name="sb">The source code builder.</param>
+	public static void GenerateIXmlSerializableMethods(GeneratorData data, SourceCodeBuilder sb)
+	{
+		sb.AppendInheritDoc();
+		sb.AppendLine("public XmlSchema? GetSchema() => null;")
+			.NewLine();
+
+		var typeName = CapitalizeFirstLetter(data.PrimitiveTypeFriendlyName);
+
+		sb.AppendInheritDoc();
+		sb.AppendLine("public void ReadXml(XmlReader reader)")
+			.OpenBracket()
+			.Append(data.Type.IsReadOnly ? "System.Runtime.CompilerServices.Unsafe.AsRef(in _value)" : "_value").Append(" = reader.ReadElementContentAs").Append(typeName).AppendLine("();")
+			.AppendLine(data.Type.IsReadOnly ? "System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;" : "_isInitialized = true;")
+			.CloseBracket()
+			.NewLine();
+
+		sb.AppendInheritDoc();
+		if (data.PrimitiveTypeFriendlyName == "string")
+			sb.AppendLine("public void WriteXml(XmlWriter writer) => writer.WriteString(_valueOrDefault);");
+		else
+			sb.AppendLine("public void WriteXml(XmlWriter writer) => writer.WriteString(_valueOrDefault.ToXmlString());");
+		sb.NewLine();
+
+		return;
+
+		static string CapitalizeFirstLetter(string input) => string.IsNullOrEmpty(input) ? input : char.ToUpper(input[0], CultureInfo.InvariantCulture) + input.Substring(1);
 	}
 }

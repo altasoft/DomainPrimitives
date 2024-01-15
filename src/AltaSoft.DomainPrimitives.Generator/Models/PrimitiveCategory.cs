@@ -3,7 +3,7 @@
 /// <summary>
 /// Enumerates the possible types of Domain Primitive values.
 /// </summary>
-internal enum DomainPrimitiveType
+internal enum PrimitiveCategory
 {
 	/// <summary>
 	/// Represents a numeric Domain Primitive type.
