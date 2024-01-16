@@ -19,7 +19,7 @@ namespace AltaSoft.DomainPrimitives.Generator;
 /// </summary>
 internal static class Executor
 {
-	private static INamedTypeSymbol? _nullableTypeSymbol;
+	private static INamedTypeSymbol? s_nullableTypeSymbol;
 	private static readonly Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> CachedOperationsAttributes = new(SymbolEqualityComparer.Default);
 
 	/// <summary>
@@ -32,7 +32,7 @@ internal static class Executor
 	internal static void Execute(Compilation compilation, ImmutableArray<TypeDeclarationSyntax> types,
 		AnalyzerConfigOptionsProvider analyzerOptions, SourceProductionContext context)
 	{
-		_nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
+		s_nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
 		CompilationExt.InitializeTypes(compilation);
 
 		if (types.IsDefaultOrEmpty)
@@ -143,6 +143,7 @@ internal static class Executor
 	/// </summary>
 	/// <param name="type">The INamedTypeSymbol representing the class.</param>
 	/// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
+	/// <param name="globalOptions">The global options for generating source.</param>
 	/// <returns>The GeneratorData for the class or null if not applicable.</returns>
 	private static GeneratorData? CreateGeneratorData(INamedTypeSymbol type, SourceProductionContext context, DomainPrimitiveGlobalOptions globalOptions)
 	{
@@ -186,7 +187,7 @@ internal static class Executor
 			Category = category,
 			Type = type,
 			PrimitiveTypeSymbol = typeSymbol,
-			PrimitiveTypeFriendlyName = typeSymbol.GetFriendlyName(_nullableTypeSymbol!),
+			PrimitiveTypeFriendlyName = typeSymbol.GetFriendlyName(s_nullableTypeSymbol!),
 			Namespace = type.ContainingNamespace.ToDisplayString(),
 			NumericType = numericType,
 			DateType = dateType,
@@ -547,7 +548,7 @@ internal static class Executor
 
 		if (data.GenerateSpanFormattable)
 		{
-			MethodGeneratorHelper.GenerateSpanFormatable(sb, data.FieldName);
+			MethodGeneratorHelper.GenerateSpanFormattable(sb, data.FieldName);
 			sb.NewLine();
 		}
 
@@ -763,7 +764,7 @@ internal static class Executor
 			return false;
 		}
 
-		var underlyingTypeName = interfaceGenericType.GetFriendlyName(_nullableTypeSymbol!);
+		var underlyingTypeName = interfaceGenericType.GetFriendlyName(s_nullableTypeSymbol!);
 
 		sb.AppendLine($"private {underlyingTypeName} _valueOrDefault => _isInitialized ? _value : Default;");
 		sb.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");

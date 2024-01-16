@@ -20,7 +20,7 @@ public class UtilsTests
 		var dateOnly = new DateOnly(year, month, day);
 
 		// Act
-		var dateTime = Utils.ToDateTime(dateOnly);
+		var dateTime = dateOnly.ToDateTime();
 
 		// Assert
 		Assert.Equal(new DateTime(year, month, day, 0, 0, 0, DateTimeKind.Local), dateTime);
@@ -37,7 +37,7 @@ public class UtilsTests
 		var timeOnly = new TimeOnly(hour, minute, second);
 
 		// Act
-		var dateTime = Utils.ToDateTime(timeOnly);
+		var dateTime = timeOnly.ToDateTime();
 
 		// Assert
 		Assert.Equal(new DateTime(DateTime.MinValue.Year, DateTime.MinValue.Month, DateTime.MinValue.Day, hour, minute, second, DateTimeKind.Local), dateTime);

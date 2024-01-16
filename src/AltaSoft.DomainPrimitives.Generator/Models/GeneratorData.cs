@@ -166,16 +166,16 @@ internal sealed class GeneratorData
 		};
 	}
 
-	/// <summary>
-	/// Gets the friendly name of the primitive type in camel case.
-	/// </summary>
-	/// <returns>The friendly name of the primitive type in camel case. LowerCase will be available only for numbers and string</returns>
-	public string GetPrimitiveTypeFriendlyNameInCamelCase()
-	{
-		var friendlyName = GetPrimitiveTypeFriendlyName();
-		if (Category is PrimitiveCategory.Numeric or PrimitiveCategory.String)
-			return char.ToLower(friendlyName[0]) + friendlyName.Substring(1);
+	///// <summary>
+	///// Gets the friendly name of the primitive type in camel case.
+	///// </summary>
+	///// <returns>The friendly name of the primitive type in camel case. LowerCase will be available only for numbers and string</returns>
+	//public string GetPrimitiveTypeFriendlyNameInCamelCase()
+	//{
+	//	var friendlyName = GetPrimitiveTypeFriendlyName();
+	//	if (Category is PrimitiveCategory.Numeric or PrimitiveCategory.String)
+	//		return char.ToLower(friendlyName[0]) + friendlyName.Substring(1);
 
-		return friendlyName;
-	}
+	//	return friendlyName;
+	//}
 }

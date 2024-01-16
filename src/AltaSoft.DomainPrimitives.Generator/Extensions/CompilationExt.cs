@@ -7,6 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
+using AltaSoft.DomainPrimitives.Abstractions;
 
 namespace AltaSoft.DomainPrimitives.Generator.Extensions;
 
@@ -16,45 +17,14 @@ namespace AltaSoft.DomainPrimitives.Generator.Extensions;
 internal static class CompilationExt
 {
 	/// <summary>
-	/// Gets explicit conversion methods for a given named type symbol.
-	/// </summary>
-	/// <param name="self">The named type symbol.</param>
-	/// <returns>An IEnumerable of IMethodSymbol representing explicit conversion methods.</returns>
-	public static IEnumerable<IMethodSymbol> GetExplicitMethods(this INamedTypeSymbol self)
-	{
-		return self.GetMembersOfType<IMethodSymbol>().Where(x => x.MethodKind == MethodKind.Conversion)
-			.Where(op =>
-				!op.ReturnsVoid && // Conversion operators have a non-void return type
-				op.ExplicitInterfaceImplementations.Length == 0 && // Exclude explicit interface implementations
-				op.Parameters.Length == 1 && // Usually one parameter for conversion operators
-				op.IsStatic && // Static methods
-				op.Name.StartsWith("op_Explicit"));
-	}
-
-	/// <summary>
-	/// Gets implicit conversion methods for a given named type symbol.
-	/// </summary>
-	/// <param name="self">The named type symbol.</param>
-	/// <returns>An IEnumerable of IMethodSymbol representing implicit conversion methods.</returns>
-	public static IEnumerable<IMethodSymbol> GetImplicitMethods(this INamedTypeSymbol self)
-	{
-		return self.GetMembersOfType<IMethodSymbol>().Where(x => x.MethodKind == MethodKind.Conversion)
-			.Where(op =>
-				!op.ReturnsVoid && // Conversion operators have a non-void return type
-				op.ExplicitInterfaceImplementations.Length == 0 && // Exclude explicit interface implementations
-				op.Parameters.Length == 1 && // Usually one parameter for conversion operators
-				op.IsStatic && // Static methods
-				op.Name.StartsWith("op_Implicit"));
-	}
-
-	/// <summary>
 	/// Checks if the given named type symbol implements the IDomainValue interface.
 	/// </summary>
 	/// <param name="x">The named type symbol to check.</param>
 	/// <returns>True if the type implements the IDomainValue interface; otherwise, false.</returns>
 	public static bool IsDomainValue(this INamedTypeSymbol x)
 	{
-		return x.IsGenericType && x.ContainingNamespace.ToDisplayString() + "." + x.Name == "AltaSoft.DomainPrimitives.Abstractions.IDomainValue";
+		return x is { IsGenericType: true, Name: "IDomainValue" } &&
+			   x.ContainingNamespace.ToDisplayString() == "AltaSoft.DomainPrimitives.Abstractions";
 	}
 
 	/// <summary>
@@ -68,80 +38,7 @@ internal static class CompilationExt
 		return self?.GetMembers().OfType<TMember>() ?? Enumerable.Empty<TMember>();
 	}
 
-	/// <summary>
-	/// Gets properties of a given ITypeSymbol
-	/// </summary>
-	/// <param name="self">The ITypeSymbol to retrieve properties from.</param>
-	/// <returns>An IEnumerable of IPropertySymbol representing the properties.</returns>
-	public static IEnumerable<IPropertySymbol> GetProperties(this ITypeSymbol self) => GetProperties(self, null, DefaultFlags);
-
-	/// <summary>
-	/// Gets properties of a given ITypeSymbol based on the provided conditions.
-	/// </summary>
-	/// <param name="self">The ITypeSymbol to retrieve properties from.</param>
-	/// <param name="where">Optional condition to filter properties.</param>
-	/// <returns>An IEnumerable of IPropertySymbol representing the properties.</returns>
-	public static IEnumerable<IPropertySymbol> GetProperties(this ITypeSymbol self, Func<IPropertySymbol, bool>? where) => GetProperties(self, where, DefaultFlags);
-
-	/// <summary>
-	/// Gets properties of a given ITypeSymbol based on the provided conditions.
-	/// </summary>
-	/// <param name="self">The ITypeSymbol to retrieve properties from.</param>
-	/// <param name="bindingAttr">Binding flags for property access.</param>
-	/// <returns>An IEnumerable of IPropertySymbol representing the properties.</returns>
-	public static IEnumerable<IPropertySymbol> GetProperties(this ITypeSymbol self, Func<IPropertySymbol, bool>? condition, BindingFlags bindingAttr)
-	{
-		return self.GetMembersOfType<IPropertySymbol>().Where(x =>
-		{
-			if (self.IsRecord && x.DeclaringSyntaxReferences.Length == 0)
-			{
-				return false;
-			}
-
-			// Skip if:
-			if (
-				// we want a static property and this is not static
-				((BindingFlags.Static & bindingAttr) != 0 && !x.IsStatic) ||
-				// we want an instance property and this is static
-				((BindingFlags.Instance & bindingAttr) != 0 && x.IsStatic))
-			{
-				return false;
-			}
-
-			if (condition is not null && !condition(x))
-			{
-				return false;
-			}
-			return ((BindingFlags.Public & bindingAttr) != 0 && x.IsPublic()) ||
-				   (BindingFlags.NonPublic & bindingAttr) != 0;
-		});
-	}
-
 	#region Accessibility
-
-	/// <summary>
-	/// Checks if the symbol has private accessibility.
-	/// </summary>
-	/// <param name="symbol">The symbol to check.</param>
-	/// <returns>True if the symbol has private accessibility; otherwise, false.</returns>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsPrivate(this ISymbol symbol) => symbol.DeclaredAccessibility == Accessibility.Private;
-
-	/// <summary>
-	/// Checks if the symbol has protected accessibility.
-	/// </summary>
-	/// <param name="symbol">The symbol to check.</param>
-	/// <returns>True if the symbol has protected accessibility; otherwise, false.</returns>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsProtected(this ISymbol symbol) => symbol.DeclaredAccessibility == Accessibility.Protected;
-
-	/// <summary>
-	/// Checks if the symbol has internal accessibility.
-	/// </summary>
-	/// <param name="symbol">The symbol to check.</param>
-	/// <returns>True if the symbol has internal accessibility; otherwise, false.</returns>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool IsInternal(this ISymbol symbol) => symbol.DeclaredAccessibility == Accessibility.Internal;
 
 	/// <summary>
 	/// Checks if the symbol has public accessibility.
@@ -229,7 +126,7 @@ internal static class CompilationExt
 	/// <returns>True if the type represents a date type; otherwise, false.</returns>
 	public static bool TryGetDateTypeSymbol(this INamedTypeSymbol type, out DateType? dateType)
 	{
-		if (type.Equals(_dateTimeType, SymbolEqualityComparer.Default))
+		if (type.Equals(s_dateTimeType, SymbolEqualityComparer.Default))
 		{
 			dateType = DateType.DateTime;
 			return true;
@@ -295,34 +192,31 @@ internal static class CompilationExt
 	/// <returns>A tuple containing the <see cref="PrimitiveCategory"/> enum value representing the primitive type and the corresponding named type symbol.</returns>
 	public static (PrimitiveCategory category, INamedTypeSymbol typeSymbol) GetUnderlyingPrimitiveCategory(this INamedTypeSymbol type, List<INamedTypeSymbol> domainTypes)
 	{
-		if (s_numericTypes.TryGetValue(type, out _))
-			return (PrimitiveCategory.Numeric, type);
+		while (true)
+		{
+			if (s_numericTypes.TryGetValue(type, out _)) return (PrimitiveCategory.Numeric, type);
 
-		if (type.Equals(_stringType, SymbolEqualityComparer.Default))
-			return (PrimitiveCategory.String, type);
+			if (type.Equals(s_stringType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.String, type);
 
-		if (type.TryGetDateTypeSymbol(out _))
-			return (PrimitiveCategory.DateTime, type);
+			if (type.TryGetDateTypeSymbol(out _)) return (PrimitiveCategory.DateTime, type);
 
-		if (type.Equals(_boolType, SymbolEqualityComparer.Default))
-			return (PrimitiveCategory.Boolean, type);
+			if (type.Equals(s_boolType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.Boolean, type);
 
-		if (type.Equals(_charType, SymbolEqualityComparer.Default))
-			return (PrimitiveCategory.Char, type);
+			if (type.Equals(s_charType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.Char, type);
 
-		if (type.ToDisplayString() == "System.Guid")
-			return (PrimitiveCategory.Guid, type);
+			if (type.ToDisplayString() == "System.Guid") return (PrimitiveCategory.Guid, type);
 
-		var domainType = type.Interfaces.FirstOrDefault(x => x.IsDomainValue());
+			var domainType = type.Interfaces.FirstOrDefault(x => x.IsDomainValue());
 
-		if (domainType is null)
-			return (PrimitiveCategory.Other, type);
+			if (domainType is null)
+				return (PrimitiveCategory.Other, type);
 
-		// Recurse into the domain type
-		var primitiveType = domainType.TypeArguments[0] as INamedTypeSymbol;
-		domainTypes.Add(type);
+			// Recurse into the domain type
+			if (domainType.TypeArguments[0] is not INamedTypeSymbol primitiveType) throw new Exception("primitiveType is null");
 
-		return primitiveType!.GetUnderlyingPrimitiveCategory(domainTypes);
+			domainTypes.Add(type);
+			type = primitiveType;
+		}
 	}
 
 	/// <summary>
@@ -342,10 +236,10 @@ internal static class CompilationExt
 		return false;
 	}
 
-	private static INamedTypeSymbol _stringType = default!;
-	private static INamedTypeSymbol _boolType = default!;
-	private static INamedTypeSymbol _charType = default!;
-	private static INamedTypeSymbol _dateTimeType = default!;
+	private static INamedTypeSymbol s_stringType = default!;
+	private static INamedTypeSymbol s_boolType = default!;
+	private static INamedTypeSymbol s_charType = default!;
+	private static INamedTypeSymbol s_dateTimeType = default!;
 
 	/// <summary>
 	/// Clears all cached types in the internal dictionary.
@@ -361,10 +255,10 @@ internal static class CompilationExt
 	/// <param name="compilation">The Roslyn Compilation instance.</param>
 	internal static void InitializeTypes(Compilation compilation)
 	{
-		_stringType = compilation.GetSpecialType(SpecialType.System_String);
-		_dateTimeType = compilation.GetSpecialType(SpecialType.System_DateTime);
-		_boolType = compilation.GetSpecialType(SpecialType.System_Boolean);
-		_charType = compilation.GetSpecialType(SpecialType.System_Char);
+		s_stringType = compilation.GetSpecialType(SpecialType.System_String);
+		s_dateTimeType = compilation.GetSpecialType(SpecialType.System_DateTime);
+		s_boolType = compilation.GetSpecialType(SpecialType.System_Boolean);
+		s_charType = compilation.GetSpecialType(SpecialType.System_Char);
 
 		s_numericTypes.Clear();
 
@@ -446,29 +340,25 @@ internal static class CompilationExt
 			return result;
 		}
 
-		string friendlyName = type.MetadataName;
+		var friendlyName = type.MetadataName;
 
-		if (type.IsGenericType)
+		if (!type.IsGenericType)
+			return friendlyName;
+
+		if (type.IsNullableValueType(nullableOfTType, out var underlyingType))
+			return underlyingType!.GetFriendlyName(nullableOfTType) + '?';
+
+		var iBacktick = friendlyName.IndexOf('`');
+		if (iBacktick > 0)
+			friendlyName = friendlyName.Remove(iBacktick);
+		friendlyName += "<";
+		var typeParameters = type.TypeArguments;
+		for (var i = 0; i < typeParameters.Length; ++i)
 		{
-			if (type.IsNullableValueType(nullableOfTType, out var underlyingType))
-			{
-				return underlyingType!.GetFriendlyName(nullableOfTType) + '?';
-			}
-
-			var iBacktick = friendlyName.IndexOf('`');
-			if (iBacktick > 0)
-			{
-				friendlyName = friendlyName.Remove(iBacktick);
-			}
-			friendlyName += "<";
-			var typeParameters = type.TypeArguments;
-			for (var i = 0; i < typeParameters.Length; ++i)
-			{
-				var typeParamName = typeParameters[i].ToString();
-				friendlyName += i == 0 ? typeParamName : "," + typeParamName;
-			}
-			friendlyName += ">";
+			var typeParamName = typeParameters[i].ToString();
+			friendlyName += i == 0 ? typeParamName : "," + typeParamName;
 		}
+		friendlyName += ">";
 
 		return friendlyName;
 	}
@@ -491,8 +381,6 @@ internal static class CompilationExt
 		underlyingTypeSymbol = null;
 		return false;
 	}
-
-	private const BindingFlags DefaultFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly;
 
 	/// <summary>
 	/// A dictionary that provides aliases for common .NET framework types, mapping their full names to shorter aliases.

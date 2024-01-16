@@ -53,14 +53,14 @@ internal static class MethodGeneratorHelper
 		sb.AppendLine("public static void AddSwaggerMappings(this SwaggerGenOptions options)")
 			.OpenBracket();
 
-		foreach (var (_, @class, isValueType, specifedFormat, primitiveType) in types)
+		foreach (var (_, @class, isValueType, specifiedFormat, primitiveType) in types)
 		{
 			var (type, format) = primitiveType.GetSwaggerTypeAndFormat();
 
-			sb.AppendLine($"options.MapType<{@class}>(() => new OpenApiSchema {{ Type = \"{type}\", Format = \"{specifedFormat ?? format}\" }});");
+			sb.AppendLine($"options.MapType<{@class}>(() => new OpenApiSchema {{ Type = \"{type}\", Format = \"{specifiedFormat ?? format}\" }});");
 
 			if (isValueType)
-				sb.AppendLine($"options.MapType<{@class}?>(() => new OpenApiSchema {{ Type = \"{type}\", Format = \"{specifedFormat ?? format}\" }});");
+				sb.AppendLine($"options.MapType<{@class}?>(() => new OpenApiSchema {{ Type = \"{type}\", Format = \"{specifiedFormat ?? format}\" }});");
 		}
 		sb.CloseBracket();
 		sb.CloseBracket();
@@ -80,13 +80,13 @@ internal static class MethodGeneratorHelper
 
 		sb.AddSourceHeader();
 
-		sb.AppendUsings([
+		sb.AppendUsings(new[] {
 			data.Namespace,
 			"System",
 			"System.ComponentModel",
 			"System.Globalization",
 			"AltaSoft.DomainPrimitives.Abstractions"
-		]);
+		});
 
 		sb.AppendNamespace(data.Namespace + ".Converters");
 		sb.AppendSummary($"TypeConverter for <see cref = \"{data.ClassName}\"/>");
@@ -383,7 +383,7 @@ internal static class MethodGeneratorHelper
 	}
 
 	/// <summary>
-	/// Generates comparison operators (<, <=, >, >=) for the specified type.
+	/// Generates comparison operators (&lt;, &lt;=, &gt;, &gt;=) for the specified type.
 	/// </summary>
 	/// <param name="className">The name of the class.</param>
 	/// <param name="fieldName">The name of the field to compare.</param>
@@ -468,7 +468,7 @@ internal static class MethodGeneratorHelper
 	/// </summary>
 	/// <param name="sb">The source code builder.</param>
 	/// <param name="fieldName">The name of the field.</param>
-	public static void GenerateSpanFormatable(SourceCodeBuilder sb, string fieldName)
+	public static void GenerateSpanFormattable(SourceCodeBuilder sb, string fieldName)
 	{
 		sb.AppendInheritDoc().AppendLine($"public string ToString(string? format, IFormatProvider? formatProvider) => {fieldName}.ToString(format, formatProvider);")
 			.NewLine();
@@ -591,16 +591,15 @@ internal static class MethodGeneratorHelper
 		sb.AppendInheritDoc();
 		sb.AppendLine("public void ReadXml(XmlReader reader)")
 			.OpenBracket()
-			.Append(data.Type.IsReadOnly ? "System.Runtime.CompilerServices.Unsafe.AsRef(in _value)" : "_value").Append(" = reader.ReadElementContentAs").Append(typeName).AppendLine("();")
-			.AppendLine(data.Type.IsReadOnly ? "System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;" : "_isInitialized = true;")
+			.Append("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = reader.ReadElementContentAs").Append(typeName).AppendLine("();")
+			.AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true")
 			.CloseBracket()
 			.NewLine();
 
 		sb.AppendInheritDoc();
-		if (data.PrimitiveTypeFriendlyName == "string")
-			sb.AppendLine("public void WriteXml(XmlWriter writer) => writer.WriteString(_valueOrDefault);");
-		else
-			sb.AppendLine("public void WriteXml(XmlWriter writer) => writer.WriteString(_valueOrDefault.ToXmlString());");
+		sb.AppendLine(data.PrimitiveTypeFriendlyName == "string"
+			? "public void WriteXml(XmlWriter writer) => writer.WriteString(_valueOrDefault);"
+			: "public void WriteXml(XmlWriter writer) => writer.WriteString(_valueOrDefault.ToXmlString());");
 		sb.NewLine();
 
 		return;

@@ -115,25 +115,6 @@ internal static class DiagnosticHelper
 	}
 
 	/// <summary>
-	/// Creates a diagnostic for a class constructor parameter that must match the type specified in IDomainValue.
-	/// </summary>
-	/// <param name="className">The name of the class that violates the rule.</param>
-	/// <param name="parameterType">The expected parameter type.</param>
-	/// <param name="location">The location where the diagnostic occurs.</param>
-	/// <returns>A diagnostic indicating that the class must have a single parameter constructor with the specified type.</returns>
-	internal static Diagnostic ClassConstructorParamMustBeCorrectType(string className, string parameterType, Location? location)
-	{
-		return Diagnostic.Create(
-			new DiagnosticDescriptor(
-				"AL1010",
-				"Domain Primitives must have a single parameter constructor with the same type as specified in IDomainValue<>",
-				"Type '{0}' must have a single parameter constructor with type `{1}` as specified in IDomainValue<>",
-				"General",
-				DiagnosticSeverity.Error,
-				isEnabledByDefault: true), location, className, parameterType);
-	}
-
-	/// <summary>
 	/// Creates a diagnostic for a class that must not have a parameterized constructor to generate members.
 	/// </summary>
 	/// <param name="className">The name of the class that violates the rule.</param>
@@ -164,24 +145,6 @@ internal static class DiagnosticHelper
 				"AL1003",
 				"Domain Primitives Should not have non obsolete empty constructors, either delete or add an obsolete attribute with Error=true",
 				"Type '{0}' Should not have non obsolete empty constructors, either delete or add an obsolete attribute with Error=true",
-				"General",
-				DiagnosticSeverity.Error,
-				isEnabledByDefault: true), location, className);
-	}
-
-	/// <summary>
-	/// Creates a diagnostic for a class that should have only one field with the same signature as the base type.
-	/// </summary>
-	/// <param name="className">The name of the class that violates the rule.</param>
-	/// <param name="location">The location where the diagnostic occurs.</param>
-	/// <returns>A diagnostic indicating that the class should have only one field with the same signature as the base type.</returns>
-	internal static Diagnostic MultipleOrNoFieldsAvailable(string className, Location? location)
-	{
-		return Diagnostic.Create(
-			new DiagnosticDescriptor(
-				"AL1004",
-				"Domain Primitives Should only have 1 field with the same signature as base type",
-				"Domain Primitives Should only have 1 field with the same signature as base type",
 				"General",
 				DiagnosticSeverity.Error,
 				isEnabledByDefault: true), location, className);

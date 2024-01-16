@@ -25,8 +25,6 @@ internal sealed class SourceCodeBuilder
 	private const char Tab = '\t';
 	private bool _previousWasLine;
 
-	private int? _rollbackLength;
-
 	/// <summary>
 	/// Initializes a new instance of the <see cref="SourceCodeBuilder"/> class with an optional starting indent level.
 	/// </summary>
@@ -46,25 +44,6 @@ internal sealed class SourceCodeBuilder
 	public void AddSourceHeader() => AppendLine(SourceHeader).NewLine();
 
 	/// <summary>
-	/// Saves the current position in the source code builder.
-	/// </summary>
-	public void SavePosition() => _rollbackLength = _sb.Length;
-
-	/// <summary>
-	/// Rolls back the source code builder to the previously saved position.
-	/// </summary>
-	/// <param name="length">The length to roll back.</param>
-	/// <returns>The updated <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder Rollback(int length)
-	{
-		if (_sb.Length != _rollbackLength)
-			_sb.Length -= length;
-
-		_rollbackLength = null;
-		return this;
-	}
-
-	/// <summary>
 	/// Appends an <c>&lt;inheritdoc/&gt;</c> XML comment.
 	/// </summary>
 	/// <returns>The updated <see cref="SourceCodeBuilder"/> instance.</returns>
@@ -76,31 +55,6 @@ internal sealed class SourceCodeBuilder
 	/// <param name="cref">The cref attribute specifying the member to inherit documentation from.</param>
 	/// <returns>The updated <see cref="SourceCodeBuilder"/> instance.</returns>
 	public SourceCodeBuilder AppendInheritDoc(string cref) => AppendLine($"/// <inheritdoc cref=\"{cref}\"/>");
-
-	/// <summary>
-	/// Appends a parameterless method declaration to the source code with the specified modifiers and method name.
-	/// </summary>
-	/// <param name="modifiers">The modifiers (e.g., public, private, static) for the method.</param>
-	/// <param name="name">The name of the method to be appended.</param>
-	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder AppendParameterlessMethod(string modifiers, string name) => Append(modifiers).Space().Continue(name).Continue(" ()").OpenBracket();
-
-	/// <summary>
-	/// Appends a summary documentation block with multiple lines to the source code.
-	/// </summary>
-	/// <param name="summary">An IEnumerable containing multiple lines of summary text.</param>
-	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder AppendSummary(IEnumerable<string> summary)
-	{
-		AppendLine("/// <summary>");
-
-		foreach (var item in summary)
-			Append("/// ").AppendLine(item);
-
-		AppendLine("/// </summary>");
-
-		return this;
-	}
 
 	/// <summary>
 	/// Appends a summary documentation block to the source code with an optional parameter description.
@@ -165,9 +119,9 @@ internal sealed class SourceCodeBuilder
 	/// <summary>
 	/// Appends usings by adding using prefix and ; at the end
 	/// </summary>
-	public SourceCodeBuilder AppendUsings(List<string> usings)
+	public SourceCodeBuilder AppendUsings(IEnumerable<string> usings)
 	{
-		foreach (string us in usings.Distinct())
+		foreach (var us in usings.Distinct())
 			Append("using ").Continue(us).ContinueLine(";");
 
 		NewLine();
@@ -180,13 +134,7 @@ internal sealed class SourceCodeBuilder
 	/// <param name="condition">A Boolean value indicating whether to append the string.</param>
 	/// <param name="line">The string to append if the condition is met.</param>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder AppendIf(bool condition, string line)
-	{
-		if (!condition)
-			return this;
-
-		return Append(line);
-	}
+	public SourceCodeBuilder AppendIf(bool condition, string line) => !condition ? this : Append(line);
 
 	/// <summary>
 	/// Appends the specified string to the source code on a new line if a specified condition is met.
@@ -194,22 +142,7 @@ internal sealed class SourceCodeBuilder
 	/// <param name="condition">A Boolean value indicating whether to append the string.</param>
 	/// <param name="line">The string to append on a new line if the condition is met.</param>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder AppendLineIf(bool condition, string line)
-	{
-		if (!condition)
-			return this;
-
-		return AppendLine(line);
-	}
-
-	/// <summary>
-	/// Appends one of two specified strings to the source code based on a condition.
-	/// </summary>
-	/// <param name="condition">A Boolean value indicating which string to append.</param>
-	/// <param name="ifLine">The string to append if the condition is true.</param>
-	/// <param name="elseLine">The string to append if the condition is false.</param>
-	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder AppendIfElse(bool condition, string ifLine, string elseLine) => Append(condition ? ifLine : elseLine);
+	public SourceCodeBuilder AppendLineIf(bool condition, string line) => !condition ? this : AppendLine(line);
 
 	/// <summary>
 	/// Appends one of two specified strings to the source code on a new line based on a condition.
@@ -231,41 +164,13 @@ internal sealed class SourceCodeBuilder
 	/// </summary>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
 	public SourceCodeBuilder CloseBracket() => AppendLine("}");
-
-	/// <summary>
-	/// Appends a closing bracket '}' followed by a semicolon ';' to the source code on a new line.
-	/// </summary>
-	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder CloseBracketWithSemiColon() => AppendLine("};");
-
-	/// <summary>
-	/// Appends a space character ' ' to the source code without adding a newline character.
-	/// </summary>
-	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder Space() => Continue(" ");
-
-	/// <summary>
-	/// Appends a single character to the source code without adding a newline character.
-	/// </summary>
-	/// <param name="c">The character to be appended.</param>
-	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder Continue(char c)
-	{
-		_sb.Append(c);
-		return this;
-	}
-
+	
 	/// <summary>
 	/// Appends a line of text to the source code without adding a newline character, if the input line is not null.
 	/// </summary>
 	/// <param name="line">The line of text to be appended.</param>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder Continue(string? line)
-	{
-		if (line is null)
-			return this;
-		return InternalAppend(line, false, false);
-	}
+	public SourceCodeBuilder Continue(string? line) => line is null ? this : InternalAppend(line, false, false);
 
 	/// <summary>
 	/// Appends a line of text to the source code without adding a newline character if a specified condition is met.
@@ -273,13 +178,7 @@ internal sealed class SourceCodeBuilder
 	/// <param name="condition">A boolean indicating whether to append the line.</param>
 	/// <param name="line">The line of text to be appended.</param>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder ContinueIf(bool condition, string line)
-	{
-		if (!condition)
-			return this;
-
-		return Continue(line);
-	}
+	public SourceCodeBuilder ContinueIf(bool condition, string line) => !condition ? this : Continue(line);
 
 	/// <summary>
 	/// Appends a line of text to the source code without adding a newline character.
@@ -295,22 +194,7 @@ internal sealed class SourceCodeBuilder
 	/// <param name="ensureTabs">A boolean indicating whether to ensure proper indentation.</param>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
 	public SourceCodeBuilder Append(string line, bool ensureTabs = true) => InternalAppend(line, false, ensureTabs);
-
-	/// <summary>
-	/// Appends multiple lines of text to the source code, splitting a single string by newline characters.
-	/// </summary>
-	/// <param name="line">A string containing multiple lines of text to be appended.</param>
-	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder AppendAsMultipleLines(string line)
-	{
-		foreach (var l in line.Split('\n'))
-		{
-			AppendLine(l);
-		}
-
-		return this;
-	}
-
+	
 	/// <summary>
 	/// Appends a series of lines, separated by newline characters, to the source code.
 	/// </summary>
@@ -357,14 +241,6 @@ internal sealed class SourceCodeBuilder
 	public SourceCodeBuilder NewLine() => InternalAppend(string.Empty, true, false);
 
 	/// <summary>
-	/// Appends a comment line to the source code with optional indentation.
-	/// </summary>
-	/// <param name="commentLine">The comment line to append to the source code.</param>
-	/// <param name="ensureTabs">Specifies whether to ensure proper indentation before appending the comment.</param>
-	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder AppendComment(string commentLine, bool ensureTabs = true) => AppendLine("// " + commentLine, ensureTabs);
-
-	/// <summary>
 	/// Gets the string representation of the source code builder.
 	/// </summary>
 	/// <returns>The source code built using this instance.</returns>
@@ -374,9 +250,10 @@ internal sealed class SourceCodeBuilder
 	/// Appends the specified line to the source code with optional indentation.
 	/// </summary>
 	/// <param name="line">The line to append.</param>
+	/// <param name="appendNewLine">Whether to append new line</param>
 	/// <param name="ensureTabs">Indicates whether to ensure proper indentation.</param>
 	/// <returns>The updated <see cref="SourceCodeBuilder"/> instance.</returns>
-	private SourceCodeBuilder InternalAppend(string line, bool appendLine, bool ensureTabs)
+	private SourceCodeBuilder InternalAppend(string line, bool appendNewLine, bool ensureTabs)
 	{
 		var lineType = CheckIndent(line);
 
@@ -394,7 +271,7 @@ internal sealed class SourceCodeBuilder
 			EnsureIndent();
 		}
 
-		if (appendLine)
+		if (appendNewLine)
 		{
 			_sb.AppendLine(line);
 			_previousWasLine = true;
@@ -436,10 +313,7 @@ internal sealed class SourceCodeBuilder
 		if (line.StartsWith("{"))
 			return LineType.OpenBracket;
 
-		if (line.StartsWith("}"))
-			return LineType.ClosingBracket;
-
-		return LineType.Default;
+		return line.StartsWith("}") ? LineType.ClosingBracket : LineType.Default;
 	}
 
 	/// <summary>

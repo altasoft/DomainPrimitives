@@ -15,6 +15,7 @@ public readonly partial struct AsciiString : IDomainValue<string>
 	public static void Validate(string value)
 	{
 		var input = value.AsSpan();
+		// ReSharper disable once ForCanBeConvertedToForeach
 		for (var i = 0; i < input.Length; i++)
 		{
 			if (!char.IsAscii(input[i]))
