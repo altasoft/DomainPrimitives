@@ -11,7 +11,6 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
 using System.Linq;
-using System.Threading;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -33,7 +32,7 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 
 		var domainPrimitivesToGenerate = context.SyntaxProvider.CreateSyntaxProvider(
 				predicate: static (node, _) => IsSyntaxTargetForGeneration(node),
-				transform: static (ctx, ct) => GetSemanticTargetForGeneration(ctx, ct))
+				transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx))
 			.Where(static x => x is not null);
 
 		var assemblyNames = context.CompilationProvider.Select((c, _) => c.AssemblyName ?? throw new Exception("Assembly name must be provided"));
@@ -58,10 +57,8 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 	/// and implements one or more interfaces marked as domain value types.
 	/// </remarks>
 	/// <seealso cref="DomainPrimitiveGenerator"/>
-	private static DomainPrimitiveToGenerate? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, CancellationToken cancellationToken)
+	private static DomainPrimitiveToGenerate? GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
 	{
-		cancellationToken.ThrowIfCancellationRequested();
-
 		var typeSyntax = (TypeDeclarationSyntax)context.Node;
 
 		var symbol = context.SemanticModel.GetDeclaredSymbol(typeSyntax);

@@ -84,9 +84,6 @@ internal static class Executor
 	/// <summary>
 	/// Creates generator data for a specified class symbol.
 	/// </summary>
-	/// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
-	/// <param name="type">The INamedTypeSymbol representing the class.</param>
-	/// <param name="globalOptions">The global options for generating source.</param>
 	/// <returns>The GeneratorData for the class or null if not applicable.</returns>
 	private static GeneratorData? CreateGeneratorData(SourceProductionContext context, INamedTypeSymbol type, DomainPrimitiveGlobalOptions globalOptions, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
 	{
@@ -263,9 +260,6 @@ internal static class Executor
 	/// <summary>
 	/// Retrieves the SupportedOperationsAttribute for a specified class, considering inheritance.
 	/// </summary>
-	/// <param name="class">The INamedTypeSymbol representing the class.</param>
-	/// <param name="underlyingType">The NumericType associated with the class.</param>
-	/// <param name="parentSymbols">The list of parent symbols for the class.</param>
 	/// <returns>The combined SupportedOperationsAttribute for the class and its inherited types.</returns>
 	private static SupportedOperationsAttribute GetSupportedOperationsAttributes(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, List<INamedTypeSymbol> parentSymbols, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
 	{

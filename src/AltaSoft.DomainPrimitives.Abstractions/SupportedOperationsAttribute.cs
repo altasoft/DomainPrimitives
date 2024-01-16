@@ -9,7 +9,7 @@ namespace AltaSoft.DomainPrimitives.Abstractions;
 /// <remarks>
 /// This attribute defines supported mathematical operations for numeric types,
 /// with constraints excluding <see cref="byte"/>, <see cref="sbyte"/>, <see cref="ushort"/>, and <see cref="short"/> types for the type parameter T.
-/// Its usage, particularly the constraint, depends on the <see cref="IDomainValue{T}"/>;.
+/// Its usage, particularly the constraint, depends on the IDomainValue.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Class | AttributeTargets.Struct)]
 public sealed class SupportedOperationsAttribute : Attribute
