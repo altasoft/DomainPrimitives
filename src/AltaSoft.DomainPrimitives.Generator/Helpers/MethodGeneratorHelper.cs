@@ -75,7 +75,7 @@ internal static class MethodGeneratorHelper
 	/// <param name="context">The source production context.</param>
 	internal static void ProcessTypeConverter(GeneratorData data, SourceProductionContext context)
 	{
-		var friendlyName = data.GetPrimitiveTypeFriendlyName();
+		var friendlyName = data.UnderlyingType.ToString();
 		var sb = new SourceCodeBuilder();
 
 		sb.AddSourceHeader();
@@ -154,7 +154,7 @@ internal static class MethodGeneratorHelper
 					"AltaSoft.DomainPrimitives.Abstractions",
 				};
 
-		var converterName = data.GetPrimitiveTypeFriendlyName();
+		var converterName = data.UnderlyingType.ToString();
 		var primitiveTypeIsValueType = data.PrimitiveTypeSymbol.IsValueType;
 		sb.AppendUsings(usingStatements);
 
@@ -246,89 +246,91 @@ internal static class MethodGeneratorHelper
 	/// <param name="sb">The source code builder.</param>
 	internal static void GenerateConvertibles(GeneratorData data, SourceCodeBuilder sb)
 	{
+		var fieldName = data.GetFieldNameForConvertible();
+
 		sb.AppendInheritDoc();
 		sb.Append("TypeCode IConvertible.GetTypeCode()")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).GetTypeCode();")
+			.AppendLine($" => ((IConvertible){fieldName}).GetTypeCode();")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("bool IConvertible.ToBoolean(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToBoolean(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToBoolean(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("byte IConvertible.ToByte(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToByte(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToByte(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("char IConvertible.ToChar(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToChar(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToChar(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("DateTime IConvertible.ToDateTime(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToDateTime(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToDateTime(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("decimal IConvertible.ToDecimal(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToDecimal(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToDecimal(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("double IConvertible.ToDouble(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToDouble(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToDouble(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("short IConvertible.ToInt16(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToInt16(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToInt16(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("int IConvertible.ToInt32(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToInt32(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToInt32(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("long IConvertible.ToInt64(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToInt64(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToInt64(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("sbyte IConvertible.ToSByte(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToSByte(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToSByte(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("float IConvertible.ToSingle(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToSingle(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToSingle(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("string IConvertible.ToString(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToString(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToString(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("object IConvertible.ToType(Type conversionType, IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToType(conversionType, provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToType(conversionType, provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("ushort IConvertible.ToUInt16(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToUInt16(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToUInt16(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("uint IConvertible.ToUInt32(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToUInt32(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToUInt32(provider);")
 			.NewLine();
 
 		sb.AppendInheritDoc();
 		sb.Append("ulong IConvertible.ToUInt64(IFormatProvider? provider)")
-			.AppendLine($" => ((IConvertible){data.FieldNameForConvertible}).ToUInt64(provider);")
+			.AppendLine($" => ((IConvertible){fieldName}).ToUInt64(provider);")
 			.NewLine();
 	}
 
@@ -502,14 +504,15 @@ internal static class MethodGeneratorHelper
 		sb.AppendInheritDoc()
 			.Append($"public static {dataClassName} Parse(string s, IFormatProvider? provider) => ");
 
-		var isString = data.ParentSymbols.Count == 0 && data.Category is PrimitiveCategory.String;
-		var isChar = data.ParentSymbols.Count == 0 && data.Category is PrimitiveCategory.Char;
+		var isString = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.String;
+		var isChar = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.Char;
 
 		if (isString)
 		{
 			sb.AppendLine("s;");
 		}
-		else if (isChar)
+		else
+		if (isChar)
 		{
 			sb.AppendLine("char.Parse(s);");
 		}

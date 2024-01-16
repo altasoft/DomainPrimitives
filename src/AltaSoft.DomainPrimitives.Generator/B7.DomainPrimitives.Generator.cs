@@ -5,9 +5,13 @@ using System.Diagnostics;
 #endif
 
 using AltaSoft.DomainPrimitives.Generator.Extensions;
+using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System;
 using System.Linq;
+using System.Threading;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -27,17 +31,18 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 		//		Debugger.Launch();
 		//#endif
 
-		var classes = context.SyntaxProvider.CreateSyntaxProvider(
-				 static (s, _) => IsSyntaxTargetForGeneration(s),
-				 static (s, _) => GetSemanticTargetForGeneration(s))
-						 .Where(x => x is not null);
+		var domainPrimitivesToGenerate = context.SyntaxProvider.CreateSyntaxProvider(
+				predicate: static (node, _) => IsSyntaxTargetForGeneration(node),
+				transform: static (ctx, ct) => GetSemanticTargetForGeneration(ctx, ct))
+			.Where(static x => x is not null);
 
-		var compilationAndClasses = context.CompilationProvider.Combine(classes.Collect());
+		var assemblyNames = context.CompilationProvider.Select((c, _) => c.AssemblyName ?? throw new Exception("Assembly name must be provided"));
 
-		var analyzerOptionsAndClasses = context.AnalyzerConfigOptionsProvider.Combine(compilationAndClasses);
+		var globalOptions = context.AnalyzerConfigOptionsProvider.Select((c, _) => GetGlobalOptions(c));
 
-		context.RegisterSourceOutput(analyzerOptionsAndClasses, (compilation, c) =>
-			Executor.Execute(c.Right.Left, c.Right.Right!, c.Left, compilation));
+		var allData = domainPrimitivesToGenerate.Collect().Combine(assemblyNames).Combine(globalOptions);
+
+		context.RegisterSourceOutput(allData, static (spc, pair) => Executor.Execute(in pair.Left.Left, in pair.Left.Right, in pair.Right, in spc));
 	}
 
 	/// <summary>
@@ -53,19 +58,20 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 	/// and implements one or more interfaces marked as domain value types.
 	/// </remarks>
 	/// <seealso cref="DomainPrimitiveGenerator"/>
-	private static TypeDeclarationSyntax? GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
+	private static DomainPrimitiveToGenerate? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, CancellationToken cancellationToken)
 	{
-		var typeDeclaration = (TypeDeclarationSyntax)context.Node;
+		cancellationToken.ThrowIfCancellationRequested();
 
-		var symbol = context.SemanticModel.GetDeclaredSymbol(typeDeclaration);
+		var typeSyntax = (TypeDeclarationSyntax)context.Node;
 
-		if (symbol is not INamedTypeSymbol c)
+		var symbol = context.SemanticModel.GetDeclaredSymbol(typeSyntax);
+
+		if (symbol is not INamedTypeSymbol typeSymbol)
 			return null;
 
-		if (!c.IsAbstract &&
-			c.AllInterfaces.Any(x => x.IsDomainValue()))
+		if (!typeSymbol.IsAbstract && typeSymbol.AllInterfaces.Any(x => x.IsDomainValue()))
 		{
-			return typeDeclaration;
+			return new DomainPrimitiveToGenerate(typeSyntax, typeSymbol);
 		}
 
 		return null;
@@ -84,8 +90,47 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 	/// with additional members.
 	/// </remarks>
 	/// <seealso cref="DomainPrimitiveGenerator"/>
-	private static bool IsSyntaxTargetForGeneration(SyntaxNode syntaxNode) => syntaxNode is
-		ClassDeclarationSyntax { BaseList: not null } or
-		StructDeclarationSyntax { BaseList: not null } or
-		RecordDeclarationSyntax { BaseList: not null };
+	private static bool IsSyntaxTargetForGeneration(SyntaxNode syntaxNode)
+	{
+		return syntaxNode is
+			ClassDeclarationSyntax { BaseList: not null } or
+			StructDeclarationSyntax { BaseList: not null } or
+			RecordDeclarationSyntax { BaseList: not null };
+	}
+
+	/// <summary>
+	/// Gets the global options for the AltaSoft.DomainPrimitiveGenerator generator.
+	/// </summary>
+	/// <param name="analyzerOptions">The AnalyzerConfigOptionsProvider to access analyzer options.</param>
+	/// <returns>The DomainPrimitiveGlobalOptions for the generator.</returns>
+	private static DomainPrimitiveGlobalOptions GetGlobalOptions(AnalyzerConfigOptionsProvider analyzerOptions)
+	{
+		var result = new DomainPrimitiveGlobalOptions();
+
+		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateJsonConverters", out var value)
+			&& bool.TryParse(value, out var generateJsonConverters))
+		{
+			result.GenerateJsonConverters = generateJsonConverters;
+		}
+
+		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateTypeConverters", out value)
+			&& bool.TryParse(value, out var generateTypeConverter))
+		{
+			result.GenerateTypeConverters = generateTypeConverter;
+		}
+
+		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateSwaggerConverters", out value)
+			&& bool.TryParse(value, out var generateSwaggerConverters))
+		{
+			result.GenerateSwaggerConverters = generateSwaggerConverters;
+		}
+
+		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateXmlSerialization", out value)
+			&& bool.TryParse(value, out var generateXmlSerialization))
+		{
+			result.GenerateXmlSerialization = generateXmlSerialization;
+		}
+
+		return result;
+	}
 }

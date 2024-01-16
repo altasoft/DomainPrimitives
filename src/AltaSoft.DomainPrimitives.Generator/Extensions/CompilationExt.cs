@@ -104,73 +104,6 @@ internal static class CompilationExt
 		return builder.ToString();
 	}
 
-	//public static bool IsDateOrDateTime(this INamedTypeSymbol? type, INamedTypeSymbol x)
-	//{
-	//	SpecialType.System_DateTime
-	//}
-
-	/// <summary>
-	/// Gets the corresponding <see cref="NumericType"/> enum value from the specified named type symbol.
-	/// </summary>
-	/// <param name="type">The named type symbol for which to retrieve the corresponding numeric type.</param>
-	/// <returns>The <see cref="NumericType"/> enum value representing the numeric type.</returns>
-	public static NumericType GetNumericTypeFromNamedTypeSymbol(this INamedTypeSymbol type) => s_numericTypes[type.SpecialType];
-
-	/// <summary>
-	/// Attempts to retrieve the <see cref="DateType"/> enum value from the specified named type symbol.
-	/// </summary>
-	/// <param name="type">The named type symbol to check for a date type.</param>
-	/// <param name="dateType">When this method returns, contains the <see cref="DateType"/> enum value if the type represents a date type; otherwise, null.</param>
-	/// <returns>True if the type represents a date type; otherwise, false.</returns>
-	public static bool TryGetDateTypeSymbol(this INamedTypeSymbol type, out DateType? dateType)
-	{
-		if (type.SpecialType == SpecialType.System_DateTime)
-		{
-			dateType = DateType.DateTime;
-			return true;
-		}
-
-		if (type.ToDisplayString() == "System.DateOnly")
-		{
-			dateType = DateType.DateOnly;
-			return true;
-		}
-
-		if (type.ToDisplayString() == "System.TimeOnly")
-		{
-			dateType = DateType.TimeOnly;
-			return true;
-		}
-
-		if (type.ToDisplayString() == "System.TimeSpan")
-		{
-			dateType = DateType.TimeSpan;
-			return true;
-		}
-
-		if (type.ToDisplayString() == "System.DateTimeOffset")
-		{
-			dateType = DateType.DateTimeOffset;
-			return true;
-		}
-
-		dateType = null;
-		return false;
-	}
-
-	/// <summary>
-	/// Gets the <see cref="DateType"/> enum value from the specified named type symbol representing a date type.
-	/// </summary>
-	/// <param name="type">The named type symbol representing a date type.</param>
-	/// <returns>The <see cref="DateType"/> enum value representing the date type.</returns>
-	public static DateType GetDateTypeFromNamedTypeSymbol(this INamedTypeSymbol type)
-	{
-		if (!type.TryGetDateTypeSymbol(out var value) || value is null)
-			throw new Exception("Invalid value for DateType");
-
-		return value.Value;
-	}
-
 	/// <summary>
 	/// Checks if the specified named type symbol implements the specified interface by its full name.
 	/// </summary>
@@ -187,99 +120,29 @@ internal static class CompilationExt
 	/// </summary>
 	/// <param name="type">The named type symbol for which to retrieve the underlying primitive type information.</param>
 	/// <param name="domainTypes">A list of named type symbols representing domain types to track recursion.</param>
-	/// <returns>A tuple containing the <see cref="PrimitiveCategory"/> enum value representing the primitive type and the corresponding named type symbol.</returns>
-	public static (PrimitiveCategory category, INamedTypeSymbol typeSymbol) GetUnderlyingPrimitiveCategory(this INamedTypeSymbol type, List<INamedTypeSymbol> domainTypes)
+	/// <returns>A tuple containing the <see cref="DomainPrimitiveUnderlyingType"/> enum value representing the primitive type and the corresponding named type symbol.</returns>
+	public static (DomainPrimitiveUnderlyingType underlyingType, INamedTypeSymbol typeSymbol) GetUnderlyingPrimitiveType(this INamedTypeSymbol type, List<INamedTypeSymbol> domainTypes)
 	{
 		while (true)
 		{
-			switch (type.SpecialType)
-			{
-				case SpecialType.System_String:
-					return (PrimitiveCategory.String, type);
+			var underlyingType = type.GetDomainPrimitiveUnderlyingType();
 
-				case SpecialType.System_Boolean:
-					return (PrimitiveCategory.Boolean, type);
-
-				case SpecialType.System_Char:
-					return (PrimitiveCategory.Char, type);
-			}
-
-			if (s_numericTypes.TryGetValue(type.SpecialType, out _)) return (PrimitiveCategory.Numeric, type);
-
-			if (type.ToDisplayString() == "System.Guid") return (PrimitiveCategory.Guid, type);
-
-			if (type.TryGetDateTypeSymbol(out _)) return (PrimitiveCategory.DateTime, type);
+			if (underlyingType != DomainPrimitiveUnderlyingType.Other)
+				return (underlyingType, type);
 
 			var domainType = type.Interfaces.FirstOrDefault(x => x.IsDomainValue());
 
 			if (domainType is null)
-				return (PrimitiveCategory.Other, type);
+				return (DomainPrimitiveUnderlyingType.Other, type);
 
 			// Recurse into the domain type
-			if (domainType.TypeArguments[0] is not INamedTypeSymbol primitiveType) throw new Exception("primitiveType is null");
+			if (domainType.TypeArguments[0] is not INamedTypeSymbol primitiveType)
+				throw new Exception("primitiveType is null");
 
 			domainTypes.Add(type);
 			type = primitiveType;
 		}
 	}
-
-	/// <summary>
-	/// Checks if the specified named type symbol represents a numeric type and retrieves its corresponding NumericType enum value.
-	/// </summary>
-	/// <param name="type">The named type symbol to check for numeric type.</param>
-	/// <param name="numericType">When this method returns, contains the corresponding NumericType enum value if the type is numeric; otherwise, null.</param>
-	/// <returns>True if the specified type is a numeric type; otherwise, false.</returns>
-	public static bool IsNumericType(this INamedTypeSymbol type, out NumericType? numericType)
-	{
-		numericType = null;
-		if (s_numericTypes.TryGetValue(type.SpecialType, out var n))
-		{
-			numericType = n;
-			return true;
-		}
-		return false;
-	}
-
-	/// <summary>
-	/// Clears all cached types in the internal dictionary.
-	/// </summary>
-	internal static void ClearTypes()
-	{
-		s_numericTypes.Clear();
-	}
-
-	/// <summary>
-	/// Initializes commonly used types from the provided compilation.
-	/// </summary>
-	internal static void InitializeTypes()
-	{
-		s_numericTypes.Clear();
-
-		s_numericTypes.Add(SpecialType.System_Byte, NumericType.Byte);
-		s_numericTypes.Add(SpecialType.System_SByte, NumericType.SByte);
-		s_numericTypes.Add(SpecialType.System_Int16, NumericType.Int16);
-		s_numericTypes.Add(SpecialType.System_UInt16, NumericType.UInt16);
-		s_numericTypes.Add(SpecialType.System_Int32, NumericType.Int32);
-		s_numericTypes.Add(SpecialType.System_UInt32, NumericType.UInt32);
-		s_numericTypes.Add(SpecialType.System_Int64, NumericType.Int64);
-		s_numericTypes.Add(SpecialType.System_UInt64, NumericType.UInt64);
-		s_numericTypes.Add(SpecialType.System_Decimal, NumericType.Decimal);
-		s_numericTypes.Add(SpecialType.System_Double, NumericType.Double);
-		s_numericTypes.Add(SpecialType.System_Single, NumericType.Single);
-
-		//var i128Type = compilation.GetTypeByMetadataName("System.Int128");
-		//if (i128Type is not null)
-		//	s_numericTypes.Add(i128Type, NumericType.Int128);
-
-		//i128Type = compilation.GetTypeByMetadataName("System.UInt128");
-		//if (i128Type is not null)
-		//	s_numericTypes.Add(i128Type, NumericType.UInt128);
-	}
-
-	/// <summary>
-	/// A dictionary that maps INamedTypeSymbol instances representing numeric types to their corresponding NumericType enum values.
-	/// </summary>
-	private static readonly Dictionary<SpecialType, NumericType> s_numericTypes = new();
 
 	/// <summary>
 	/// Gets the Swagger type and format for a given primitive type.
@@ -288,42 +151,33 @@ internal static class CompilationExt
 	/// <returns>A tuple containing the Swagger type and format as strings.</returns>
 	public static (string type, string format) GetSwaggerTypeAndFormat(this INamedTypeSymbol primitiveType)
 	{
-		if (primitiveType.IsNumericType(out var value))
+		var underlyingType = primitiveType.GetDomainPrimitiveUnderlyingType();
+
+		if (underlyingType.IsNumeric())
 		{
-			var format = value.ToString();
-			return value is NumericType.Int16 or NumericType.Int32 or NumericType.Int64 // or NumericType.Int128
-				? ("integer", format[0] + format.Substring(1))
+			var format = underlyingType.ToString();
+			return underlyingType is DomainPrimitiveUnderlyingType.Int16 or DomainPrimitiveUnderlyingType.Int32 or DomainPrimitiveUnderlyingType.Int64 // or NumericType.Int128
+				? ("integer", format[0] + format.Substring(1)) //TODO temo. Why?
 				: ("number", format[0] + format.Substring(1));
 		}
 
-		if (primitiveType.TryGetDateTypeSymbol(out var type))
+		return underlyingType switch
 		{
-			if (type == DateType.DateTime)
-				return ("string", "date-time");
-
-			if (type == DateType.DateOnly)
-				return ("string", "yyyy-MM-dd");
-
-			if (type == DateType.TimeOnly)
-				return ("string", "HH:mm:ss");
-
-			if (type == DateType.DateTimeOffset)
-				return ("string", "date-time");
-
-			if (type == DateType.TimeSpan)
-				return ("integer", "int64");
-		}
-
-		return ("string", ""); //todo
+			DomainPrimitiveUnderlyingType.DateTime => ("string", "date-time"),
+			DomainPrimitiveUnderlyingType.DateOnly => ("string", "yyyy-MM-dd"),
+			DomainPrimitiveUnderlyingType.TimeOnly => ("string", "HH:mm:ss"),
+			DomainPrimitiveUnderlyingType.DateTimeOffset => ("string", "date-time"),
+			DomainPrimitiveUnderlyingType.TimeSpan => ("integer", "int64"),
+			_ => ("string", ""),//todo
+		};
 	}
 
 	/// <summary>
 	/// Gets a friendly name for the named type symbol, including nullable types.
 	/// </summary>
 	/// <param name="type">The named type symbol to get the friendly name from.</param>
-	/// <param name="nullableOfTType">The named type symbol representing nullable&lt;T&gt;.</param>
 	/// <returns>The friendly name of the type, including nullable types if applicable.</returns>
-	public static string GetFriendlyName(this INamedTypeSymbol type, INamedTypeSymbol nullableOfTType)
+	public static string GetFriendlyName(this INamedTypeSymbol type)
 	{
 		var ns = type.ContainingNamespace?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.OmittedAsContaining))!;
 
@@ -336,9 +190,6 @@ internal static class CompilationExt
 
 		if (!type.IsGenericType)
 			return friendlyName;
-
-		if (type.IsNullableValueType(nullableOfTType, out var underlyingType))
-			return underlyingType!.GetFriendlyName(nullableOfTType) + '?';
 
 		var iBacktick = friendlyName.IndexOf('`');
 		if (iBacktick > 0)
@@ -353,25 +204,6 @@ internal static class CompilationExt
 		friendlyName += ">";
 
 		return friendlyName;
-	}
-
-	/// <summary>
-	/// Checks if the named type symbol represents a nullable value type and retrieves its underlying type symbol.
-	/// </summary>
-	/// <param name="type">The named type symbol to check.</param>
-	/// <param name="nullableOfTType">The named type symbol representing nullable&lt;T&gt;.</param>
-	/// <param name="underlyingTypeSymbol">The underlying type symbol if the type is nullable; otherwise, null.</param>
-	/// <returns>True if the type is nullable; otherwise, false.</returns>
-	public static bool IsNullableValueType(this INamedTypeSymbol type, INamedTypeSymbol nullableOfTType, out INamedTypeSymbol? underlyingTypeSymbol)
-	{
-		if (type.IsGenericType && type.ConstructedFrom.Equals(nullableOfTType, SymbolEqualityComparer.Default))
-		{
-			underlyingTypeSymbol = (INamedTypeSymbol)type.TypeArguments[0];
-			return true;
-		}
-
-		underlyingTypeSymbol = null;
-		return false;
 	}
 
 	/// <summary>

@@ -3,7 +3,7 @@
 /// <summary>
 /// Configuration options for controlling code generation of Domain Primitive types.
 /// </summary>
-internal sealed class DomainPrimitiveGlobalOptions
+internal sealed record DomainPrimitiveGlobalOptions
 {
 	/// <summary>
 	/// Gets or sets a value indicating whether to generate JSON converters for Domain Primitive types.

@@ -1,5 +1,4 @@
 ﻿using Microsoft.CodeAnalysis;
-using System;
 using System.Collections.Generic;
 
 namespace AltaSoft.DomainPrimitives.Generator.Models;
@@ -32,7 +31,7 @@ internal sealed class GeneratorData
 	/// <summary>
 	/// Gets or sets the Domain Primitive type.
 	/// </summary>
-	public PrimitiveCategory Category { get; set; }
+	public DomainPrimitiveUnderlyingType UnderlyingType { get; set; }
 
 	/// <summary>
 	/// Gets or sets the named type symbol of the primitive type.
@@ -43,13 +42,6 @@ internal sealed class GeneratorData
 	/// Gets or sets the list of parent symbols.
 	/// </summary>
 	public List<INamedTypeSymbol> ParentSymbols { get; set; } = default!;
-
-	/// <summary>
-	/// Gets or sets the numeric type (if applicable).
-	/// </summary>
-	public NumericType? NumericType { get; set; }
-
-	//public string UnderlyingFriendlyName { get; set; } = default!;
 
 	/// <summary>
 	/// Gets or sets the namespace.
@@ -112,11 +104,6 @@ internal sealed class GeneratorData
 	public bool GenerateImplicitOperators { get; set; }
 
 	/// <summary>
-	/// Gets or sets the DateType (if applicable).
-	/// </summary>
-	public DateType? DateType { get; set; }
-
-	/// <summary>
 	/// Gets or sets the serialization format (if applicable).
 	/// </summary>
 	public string? SerializationFormat { get; set; }
@@ -149,25 +136,10 @@ internal sealed class GeneratorData
 	/// <summary>
 	/// Gets the field name for convertible types, including conversions for DateOnly and TimeOnly.
 	/// </summary>
-	public string FieldNameForConvertible => DateType is DomainPrimitives.Generator.Models.DateType.DateOnly or DomainPrimitives.Generator.Models.DateType.TimeOnly
-		? $"{FieldName}.ToDateTime()"
-		: $"{FieldName}";
-
-	/// <summary>
-	/// Gets the friendly name of the primitive type.
-	/// </summary>
-	/// <returns>The friendly name of the primitive type. First letter will be uppercase</returns>
-	public string GetPrimitiveTypeFriendlyName()
+	public string GetFieldNameForConvertible()
 	{
-		return Category switch
-		{
-			PrimitiveCategory.Numeric => NumericType.ToString(),
-			PrimitiveCategory.String => "String",
-			PrimitiveCategory.DateTime => DateType!.ToString(),
-			PrimitiveCategory.Boolean => "Boolean",
-			PrimitiveCategory.Char => "Char",
-			PrimitiveCategory.Guid => "Guid",
-			_ => throw new Exception($"DomainPrimitive category {Category} is not yet supported")
-		};
+		return UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly
+			? FieldName + ".ToDateTime()"
+			: FieldName;
 	}
 }

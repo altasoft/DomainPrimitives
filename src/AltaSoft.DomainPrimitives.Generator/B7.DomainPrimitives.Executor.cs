@@ -3,15 +3,14 @@ using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Helpers;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Diagnostics;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
-using Microsoft.CodeAnalysis.CSharp;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -20,41 +19,35 @@ namespace AltaSoft.DomainPrimitives.Generator;
 /// </summary>
 internal static class Executor
 {
-	private static INamedTypeSymbol? s_nullableTypeSymbol;
-	private static readonly Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> CachedOperationsAttributes = new(SymbolEqualityComparer.Default);
-
 	/// <summary>
-	/// Executes the AltaSoft.DomainPrimitiveGenerator generator.
+	/// Executes the generation of domain primitives based on the provided parameters.
 	/// </summary>
-	/// <param name="compilation">The compilation being built.</param>
-	/// <param name="types">The collection of TypeDeclarationSyntax representing types to process.</param>
-	/// <param name="analyzerOptions">The AnalyzerConfigOptionsProvider to access analyzer options.</param>
-	/// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
-	internal static void Execute(Compilation compilation, ImmutableArray<TypeDeclarationSyntax> types,
-		AnalyzerConfigOptionsProvider analyzerOptions, SourceProductionContext context)
+	/// <param name="typesToGenerate">The list of domain primitives to generate.</param>
+	/// <param name="assemblyName">The name of the assembly.</param>
+	/// <param name="globalOptions">The global options for domain primitive generation.</param>
+	/// <param name="context">The source production context.</param>
+	internal static void Execute(
+			in ImmutableArray<DomainPrimitiveToGenerate?> typesToGenerate,
+			in string assemblyName,
+			in DomainPrimitiveGlobalOptions globalOptions,
+			in SourceProductionContext context)
 	{
-		s_nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
-
-		CompilationExt.InitializeTypes();
-
-		if (types.IsDefaultOrEmpty)
+		if (typesToGenerate.IsDefaultOrEmpty)
 			return;
 
-		var projectNs = compilation.AssemblyName ?? throw new Exception("Assembly name must be provided");
+		var swaggerTypes = new List<(string, string, bool, string?, INamedTypeSymbol primitiveType)>(typesToGenerate.Length);
+		var cachedOperationsAttributes = new Dictionary<INamedTypeSymbol, SupportedOperationsAttribute>(SymbolEqualityComparer.Default);
 
-		var globalOptions = GetGlobalOptions(analyzerOptions);
-
-		var swaggerTypes = new List<(string, string, bool, string?, INamedTypeSymbol primitiveType)>(types.Length);
 		try
 		{
-			foreach (var type in types)
+			foreach (var typeToGenerate in typesToGenerate)
 			{
-				var classSemantic = compilation.GetSemanticModel(type.SyntaxTree);
+				if (!typeToGenerate.HasValue)
+					continue; // Should never happen
 
-				if (ModelExtensions.GetDeclaredSymbol(classSemantic, type) is not INamedTypeSymbol @class)
-					continue;
+				var @class = typeToGenerate.Value.TypeSymbol;
 
-				var generatorData = CreateGeneratorData(@class, context, globalOptions);
+				var generatorData = CreateGeneratorData(context, @class, globalOptions, cachedOperationsAttributes);
 				if (generatorData is null)
 					continue;
 
@@ -63,9 +56,7 @@ internal static class Executor
 					context.ReportDiagnostic(DiagnosticHelper.TypeShouldBeValueType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName, @class.Locations.FirstOrDefault()));
 				}
 
-				var isSuccess = ProcessType(generatorData, globalOptions, context);
-
-				if (!isSuccess)
+				if (!ProcessType(generatorData, globalOptions, context))
 					continue;
 
 				if (globalOptions.GenerateJsonConverters)
@@ -82,63 +73,22 @@ internal static class Executor
 					swaggerTypes.Add((generatorData.Namespace, generatorData.ClassName, generatorData.Type.IsValueType, generatorData.SerializationFormat, generatorData.PrimitiveTypeSymbol));
 			}
 
-			MethodGeneratorHelper.AddSwaggerOptions(projectNs, swaggerTypes, context);
+			MethodGeneratorHelper.AddSwaggerOptions(assemblyName, swaggerTypes, context);
 		}
 		catch (Exception ex)
 		{
 			context.ReportDiagnostic(DiagnosticHelper.GeneralError(Location.None, ex));
 		}
-		finally
-		{
-			CachedOperationsAttributes.Clear();
-			CompilationExt.ClearTypes();
-		}
-	}
-
-	/// <summary>
-	/// Gets the global options for the AltaSoft.DomainPrimitiveGenerator generator.
-	/// </summary>
-	/// <param name="analyzerOptions">The AnalyzerConfigOptionsProvider to access analyzer options.</param>
-	/// <returns>The DomainPrimitiveGlobalOptions for the generator.</returns>
-	private static DomainPrimitiveGlobalOptions GetGlobalOptions(AnalyzerConfigOptionsProvider analyzerOptions)
-	{
-		var result = new DomainPrimitiveGlobalOptions();
-
-		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateJsonConverters", out var value)
-			&& bool.TryParse(value, out var generateJsonConverters))
-		{
-			result.GenerateJsonConverters = generateJsonConverters;
-		}
-
-		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateTypeConverters", out value)
-			&& bool.TryParse(value, out var generateTypeConverter))
-		{
-			result.GenerateTypeConverters = generateTypeConverter;
-		}
-
-		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateSwaggerConverters", out value)
-			&& bool.TryParse(value, out var generateSwaggerConverters))
-		{
-			result.GenerateSwaggerConverters = generateSwaggerConverters;
-		}
-
-		if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateXmlSerialization", out value)
-			&& bool.TryParse(value, out var generateXmlSerialization))
-		{
-			result.GenerateXmlSerialization = generateXmlSerialization;
-		}
-
-		return result;
 	}
 
 	/// <summary>
 	/// Creates generator data for a specified class symbol.
 	/// </summary>
-	/// <param name="type">The INamedTypeSymbol representing the class.</param>
 	/// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
+	/// <param name="type">The INamedTypeSymbol representing the class.</param>
 	/// <param name="globalOptions">The global options for generating source.</param>
 	/// <returns>The GeneratorData for the class or null if not applicable.</returns>
-	private static GeneratorData? CreateGeneratorData(INamedTypeSymbol type, SourceProductionContext context, DomainPrimitiveGlobalOptions globalOptions)
+	private static GeneratorData? CreateGeneratorData(SourceProductionContext context, INamedTypeSymbol type, DomainPrimitiveGlobalOptions globalOptions, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
 	{
 		var interfaceType = type.AllInterfaces.First(x => x.IsDomainValue());
 
@@ -149,26 +99,12 @@ internal static class Executor
 		}
 
 		var parentSymbols = new List<INamedTypeSymbol>();
-		var (category, typeSymbol) = primitiveType.GetUnderlyingPrimitiveCategory(parentSymbols);
+		var (underlyingType, typeSymbol) = primitiveType.GetUnderlyingPrimitiveType(parentSymbols);
 
-		if (category == PrimitiveCategory.Other)
+		if (underlyingType == DomainPrimitiveUnderlyingType.Other)
 		{
 			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(type.Locations.FirstOrDefault()));
 			return null;
-		}
-
-		NumericType? numericType = null;
-		DateType? dateType = null;
-
-		switch (category)
-		{
-			case PrimitiveCategory.Numeric:
-				numericType = typeSymbol.GetNumericTypeFromNamedTypeSymbol();
-				break;
-
-			case PrimitiveCategory.DateTime:
-				dateType = typeSymbol.GetDateTypeFromNamedTypeSymbol();
-				break;
 		}
 
 		var hasOverridenHashCode = type.GetMembersOfType<IMethodSymbol>().Any(x => x.OverriddenMethod?.Name == "GetHashCode");
@@ -177,7 +113,7 @@ internal static class Executor
 		var defaultProperty = type.GetMembersOfType<IPropertySymbol>().FirstOrDefault(x => x.Name == "Default");
 		if (defaultProperty is not null)
 		{
-			generateIsInitializedField = !DefaultPropertyReturnsDefaultValue(defaultProperty, category, numericType, dateType);
+			generateIsInitializedField = !DefaultPropertyReturnsDefaultValue(defaultProperty, underlyingType);
 		}
 
 		var generatorData = new GeneratorData
@@ -185,29 +121,30 @@ internal static class Executor
 			FieldName = generateIsInitializedField ? "_valueOrDefault" : "_value",
 			GenerateIsInitializedField = generateIsInitializedField,
 			GenerateHashCode = !hasOverridenHashCode,
-			Category = category,
+			UnderlyingType = underlyingType,
 			Type = type,
 			PrimitiveTypeSymbol = typeSymbol,
-			PrimitiveTypeFriendlyName = typeSymbol.GetFriendlyName(s_nullableTypeSymbol!),
+			PrimitiveTypeFriendlyName = typeSymbol.GetFriendlyName(),
 			Namespace = type.ContainingNamespace.ToDisplayString(),
-			NumericType = numericType,
-			DateType = dateType,
 			GenerateImplicitOperators = true,
 			ParentSymbols = parentSymbols,
-			GenerateConvertibles = category != PrimitiveCategory.Guid
+			GenerateConvertibles = underlyingType != DomainPrimitiveUnderlyingType.Guid
 		};
 
 		var attributes = type.GetAttributes();
 		var attributeData = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SupportedOperationsAttribute).FullName);
 		var serializationAttribute = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SerializationFormatAttribute).FullName);
 
-		if (numericType is null && attributeData is not null)
+		var isNumeric = underlyingType.IsNumeric();
+		var isDateOrTime = underlyingType.IsDateOrTime();
+
+		if (!isNumeric && attributeData is not null)
 		{
 			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeNumericType(attributeData.GetAttributeLocation(), type.Name));
 			return null;
 		}
 
-		if (serializationAttribute is not null && dateType is null)
+		if (!isDateOrTime && serializationAttribute is not null)
 		{
 			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeDateType(serializationAttribute.GetAttributeLocation(), type.Name));
 			return null;
@@ -219,25 +156,28 @@ internal static class Executor
 			generatorData.SerializationFormat = value.Value?.ToString();
 		}
 
-		var supportedOperationsAttribute = numericType is null ? null : GetSupportedOperationsAttributes(type, numericType.Value, parentSymbols);
+		if (isNumeric)
+		{
+			var supportedOperationsAttribute = GetSupportedOperationsAttributes(type, underlyingType, parentSymbols, cachedOperationsAttributes);
 
-		generatorData.GenerateAdditionOperators = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Addition && !type.ImplementsInterface("System.Numerics.IAdditionOperators");
+			generatorData.GenerateAdditionOperators = supportedOperationsAttribute.Addition && !type.ImplementsInterface("System.Numerics.IAdditionOperators");
 
-		generatorData.GenerateSubtractionOperators = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Subtraction && !type.ImplementsInterface("System.Numerics.ISubtractionOperators");
+			generatorData.GenerateSubtractionOperators = supportedOperationsAttribute.Subtraction && !type.ImplementsInterface("System.Numerics.ISubtractionOperators");
 
-		generatorData.GenerateDivisionOperators = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Division && !type.ImplementsInterface("System.Numerics.IDivisionOperators");
+			generatorData.GenerateDivisionOperators = supportedOperationsAttribute.Division && !type.ImplementsInterface("System.Numerics.IDivisionOperators");
 
-		generatorData.GenerateMultiplyOperators = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Multiplication && !type.ImplementsInterface("System.Numerics.IMultiplyOperators");
+			generatorData.GenerateMultiplyOperators = supportedOperationsAttribute.Multiplication && !type.ImplementsInterface("System.Numerics.IMultiplyOperators");
 
-		generatorData.GenerateModulusOperator = category == PrimitiveCategory.Numeric && supportedOperationsAttribute!.Modulus && !type.ImplementsInterface("System.Numerics.IModulusOperator");
+			generatorData.GenerateModulusOperator = supportedOperationsAttribute.Modulus && !type.ImplementsInterface("System.Numerics.IModulusOperator");
+		}
 
-		generatorData.GenerateComparable = category is not PrimitiveCategory.Boolean && !type.ImplementsInterface("System.IComparable");
+		generatorData.GenerateComparable = underlyingType is not DomainPrimitiveUnderlyingType.Boolean && !type.ImplementsInterface("System.IComparable");
 
 		generatorData.GenerateParsable = !type.ImplementsInterface("System.IParsable");
 
-		generatorData.GenerateComparison = (category is PrimitiveCategory.Numeric or PrimitiveCategory.DateTime or PrimitiveCategory.Char) && !type.ImplementsInterface("System.Numerics.IComparisonOperators");
+		generatorData.GenerateComparison = (isNumeric || (underlyingType == DomainPrimitiveUnderlyingType.Char || underlyingType.IsDateOrTime())) && !type.ImplementsInterface("System.Numerics.IComparisonOperators");
 
-		generatorData.GenerateSpanFormattable = (category is PrimitiveCategory.DateTime or PrimitiveCategory.Guid) && !type.ImplementsInterface("System.ISpanFormattable");
+		generatorData.GenerateSpanFormattable = (underlyingType == DomainPrimitiveUnderlyingType.Guid || underlyingType.IsDateOrTime()) && !type.ImplementsInterface("System.ISpanFormattable");
 
 		generatorData.GenerateUtf8SpanFormattable = primitiveType.ImplementsInterface("System.IUtf8SpanFormattable") && !type.ImplementsInterface("System.IUtf8SpanFormattable");
 
@@ -248,7 +188,7 @@ internal static class Executor
 		return generatorData;
 	}
 
-	private static bool DefaultPropertyReturnsDefaultValue(IPropertySymbol property, PrimitiveCategory category, NumericType? numericType, DateType? dateType)
+	private static bool DefaultPropertyReturnsDefaultValue(IPropertySymbol property, DomainPrimitiveUnderlyingType underlyingType)
 	{
 		var syntaxRefs = property.GetMethod?.DeclaringSyntaxReferences;
 		if (syntaxRefs is null)
@@ -308,7 +248,7 @@ internal static class Executor
 					return true;
 
 				// Determine the default value for the property's type
-				var defaultValue = GetDefaultValue();
+				var defaultValue = underlyingType.GetDefaultValue();
 				if (defaultValue is null)
 					return literal.Token.Value is null;
 
@@ -318,65 +258,22 @@ internal static class Executor
 			default:
 				return false;
 		}
-
-		object? GetDefaultValue()
-		{
-			return category switch
-			{
-				PrimitiveCategory.String => default(string?),
-				PrimitiveCategory.Boolean => false,
-				PrimitiveCategory.Char => default(char),
-				PrimitiveCategory.Guid => default(Guid),
-
-				PrimitiveCategory.Numeric =>
-					numericType switch
-					{
-						NumericType.Byte => default(byte),
-						NumericType.SByte => default(sbyte),
-						NumericType.Int16 => default(short),
-						NumericType.Int32 => default(int),
-						NumericType.Int64 => default(long),
-						NumericType.UInt16 => default(ushort),
-						NumericType.UInt32 => default(uint),
-						NumericType.UInt64 => default(ulong),
-						NumericType.Decimal => default(decimal),
-						NumericType.Double => default(double),
-						NumericType.Single => default(float),
-						_ => new DummyValueObject()
-					},
-
-				PrimitiveCategory.DateTime =>
-					dateType switch
-					{
-						DateType.DateOnly => new DateTime(1, 1, 1),
-						DateType.DateTime => default(DateTime),
-						DateType.TimeOnly => new DateTime(1, 1, 1, 0, 0, 0),
-						DateType.DateTimeOffset => default(DateTimeOffset),
-						DateType.TimeSpan => default(TimeSpan),
-						_ => new DummyValueObject()
-					},
-
-				_ => new DummyValueObject()
-			};
-		}
 	}
-
-	private readonly struct DummyValueObject;
 
 	/// <summary>
 	/// Retrieves the SupportedOperationsAttribute for a specified class, considering inheritance.
 	/// </summary>
 	/// <param name="class">The INamedTypeSymbol representing the class.</param>
-	/// <param name="numericType">The NumericType associated with the class.</param>
+	/// <param name="underlyingType">The NumericType associated with the class.</param>
 	/// <param name="parentSymbols">The list of parent symbols for the class.</param>
 	/// <returns>The combined SupportedOperationsAttribute for the class and its inherited types.</returns>
-	private static SupportedOperationsAttribute GetSupportedOperationsAttributes(INamedTypeSymbol @class, NumericType numericType, List<INamedTypeSymbol> parentSymbols)
+	private static SupportedOperationsAttribute GetSupportedOperationsAttributes(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, List<INamedTypeSymbol> parentSymbols, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
 	{
-		return CreateCombinedAttribute(@class, numericType, parentSymbols.Count);
+		return CreateCombinedAttribute(@class, underlyingType, parentSymbols.Count, cachedOperationsAttributes);
 
-		static SupportedOperationsAttribute CreateCombinedAttribute(INamedTypeSymbol @class, NumericType numericType, int parentCount)
+		static SupportedOperationsAttribute CreateCombinedAttribute(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, int parentCount, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
 		{
-			if (CachedOperationsAttributes.TryGetValue(@class, out var parentAttribute))
+			if (cachedOperationsAttributes.TryGetValue(@class, out var parentAttribute))
 			{
 				return parentAttribute;
 			}
@@ -388,19 +285,20 @@ internal static class Executor
 
 			if (parentCount == 0)
 			{
-				attribute ??= GetDefaultAttributeData(numericType);
-				CachedOperationsAttributes[@class] = attribute;
+				attribute ??= GetDefaultAttributeData(underlyingType);
+				cachedOperationsAttributes[@class] = attribute;
 
 				return attribute;
 			}
 
 			var parentType = @class.Interfaces.First(x => x.IsDomainValue());
 
-			var attr = CombineAttribute(attribute, CreateCombinedAttribute((parentType.TypeArguments[0] as INamedTypeSymbol)!, numericType, parentCount - 1));
+			var attr = CombineAttribute(attribute, CreateCombinedAttribute((parentType.TypeArguments[0] as INamedTypeSymbol)!, underlyingType, parentCount - 1, cachedOperationsAttributes));
 
-			CachedOperationsAttributes[@class] = attr;
+			cachedOperationsAttributes[@class] = attr;
 			return attr;
 		}
+
 		static SupportedOperationsAttribute CombineAttribute(SupportedOperationsAttribute? attribute, SupportedOperationsAttribute parentAttribute)
 		{
 			if (attribute is null)
@@ -420,11 +318,11 @@ internal static class Executor
 	/// <summary>
 	/// Gets the default SupportedOperationsAttribute based on the given NumericType.
 	/// </summary>
-	/// <param name="numericType">The NumericType for which to determine default attribute values.</param>
+	/// <param name="underlyingType">The NumericType for which to determine default attribute values.</param>
 	/// <returns>The default SupportedOperationsAttribute with attributes set based on the NumericType.</returns>
-	private static SupportedOperationsAttribute GetDefaultAttributeData(NumericType? numericType)
+	private static SupportedOperationsAttribute GetDefaultAttributeData(DomainPrimitiveUnderlyingType underlyingType)
 	{
-		var @default = DefaultAttributeValue(numericType!.Value);
+		var @default = DefaultAttributeValue(underlyingType);
 
 		return new SupportedOperationsAttribute
 		{
@@ -435,24 +333,26 @@ internal static class Executor
 			Modulus = @default
 		};
 
-		static bool DefaultAttributeValue(NumericType type) =>
-			type switch
+		static bool DefaultAttributeValue(DomainPrimitiveUnderlyingType underlyingType)
+		{
+			return underlyingType switch
 			{
-				NumericType.Byte => false,
-				NumericType.SByte => false,
-				NumericType.Int16 => false,
-				NumericType.UInt16 => false,
-				NumericType.Int32 => true,
-				NumericType.UInt32 => true,
-				NumericType.Int64 => true,
-				NumericType.UInt64 => true,
-				//NumericType.Int128 => true,
-				//NumericType.UInt128 => true,
-				NumericType.Decimal => true,
-				NumericType.Double => true,
-				NumericType.Single => true,
+				DomainPrimitiveUnderlyingType.Byte => false,
+				DomainPrimitiveUnderlyingType.SByte => false,
+				DomainPrimitiveUnderlyingType.Int16 => false,
+				DomainPrimitiveUnderlyingType.UInt16 => false,
+				DomainPrimitiveUnderlyingType.Int32 => true,
+				DomainPrimitiveUnderlyingType.UInt32 => true,
+				DomainPrimitiveUnderlyingType.Int64 => true,
+				DomainPrimitiveUnderlyingType.UInt64 => true,
+				//DomainPrimitiveUnderlyingType.Int128 => true,
+				//DomainPrimitiveUnderlyingType.UInt128 => true,
+				DomainPrimitiveUnderlyingType.Decimal => true,
+				DomainPrimitiveUnderlyingType.Double => true,
+				DomainPrimitiveUnderlyingType.Single => true,
 				_ => true
 			};
+		}
 	}
 
 	/// <summary>
@@ -553,10 +453,9 @@ internal static class Executor
 										 data.GenerateMultiplyOperators || data.GenerateSubtractionOperators ||
 										 data.GenerateModulusOperator;
 
-		var isByteOrShort = data.ParentSymbols.Count == 0 &&
-			data.NumericType is NumericType.Byte or NumericType.SByte or NumericType.Int16 or NumericType.UInt16;
+		var isByteOrShort = data.ParentSymbols.Count == 0 && data.UnderlyingType.IsByteOrShort();
 
-		if ((needsMathOperators && isByteOrShort) || data.DateType is DateType.DateOnly or DateType.TimeOnly)
+		if ((needsMathOperators && isByteOrShort) || data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
 		{
 			usings.Add("AltaSoft.DomainPrimitives.Abstractions");
 		}
@@ -752,18 +651,6 @@ internal static class Executor
 				AppendInterface(sb, "ISpanFormattable");
 			}
 
-			if (data.GenerateUtf8SpanFormattable)
-			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.AppendLine("#if NET8_0_OR_GREATER")
-					.AppendLine("IUtf8SpanFormattable")
-					.AppendLine("#endif");
-			}
-
 			if (data.GenerateComparable)
 			{
 				AppendInterface(sb, nameof(IComparable));
@@ -788,6 +675,18 @@ internal static class Executor
 			if (data.GenerateXmlSerializableMethods)
 			{
 				AppendInterface(sb, nameof(IXmlSerializable));
+			}
+
+			if (data.GenerateUtf8SpanFormattable)
+			{
+				if (sb.Length != 0)
+					sb.AppendLine(",");
+				else
+					sb.AppendLine();
+
+				sb.AppendLine("#if NET8_0_OR_GREATER")
+					.AppendLine("\t\tIUtf8SpanFormattable")
+					.AppendLine("#endif");
 			}
 
 			return sb.ToString();
@@ -842,7 +741,7 @@ internal static class Executor
 			.AppendLine($" => ({friendlyName})value.{data.FieldName};")
 			.NewLine();
 
-		if (data.DateType is DateType.DateOnly or DateType.TimeOnly)
+		if (data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
 		{
 			sb.AppendSummary($"<summary>Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"DateTime\"/></summary>")
 				.Append($"public static implicit operator DateTime({data.ClassName} value)")
@@ -878,7 +777,7 @@ internal static class Executor
 			return false;
 		}
 
-		var underlyingTypeName = interfaceGenericType.GetFriendlyName(s_nullableTypeSymbol!);
+		var underlyingTypeName = interfaceGenericType.GetFriendlyName();
 
 		if (data.GenerateIsInitializedField)
 		{
