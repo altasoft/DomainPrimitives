@@ -35,7 +35,7 @@ internal static class Executor
 	{
 		s_nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
 
-		CompilationExt.InitializeTypes(compilation);
+		CompilationExt.InitializeTypes();
 
 		if (types.IsDefaultOrEmpty)
 			return;
@@ -163,11 +163,11 @@ internal static class Executor
 		switch (category)
 		{
 			case PrimitiveCategory.Numeric:
-				numericType = typeSymbol.GetFromNamedTypeSymbol();
+				numericType = typeSymbol.GetNumericTypeFromNamedTypeSymbol();
 				break;
 
 			case PrimitiveCategory.DateTime:
-				dateType = typeSymbol.GetDateTypeTypeSymbol();
+				dateType = typeSymbol.GetDateTypeFromNamedTypeSymbol();
 				break;
 		}
 

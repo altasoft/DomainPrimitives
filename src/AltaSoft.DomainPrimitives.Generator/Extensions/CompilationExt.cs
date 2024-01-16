@@ -114,7 +114,7 @@ internal static class CompilationExt
 	/// </summary>
 	/// <param name="type">The named type symbol for which to retrieve the corresponding numeric type.</param>
 	/// <returns>The <see cref="NumericType"/> enum value representing the numeric type.</returns>
-	public static NumericType GetFromNamedTypeSymbol(this INamedTypeSymbol type) => s_numericTypes[type.SpecialType];
+	public static NumericType GetNumericTypeFromNamedTypeSymbol(this INamedTypeSymbol type) => s_numericTypes[type.SpecialType];
 
 	/// <summary>
 	/// Attempts to retrieve the <see cref="DateType"/> enum value from the specified named type symbol.
@@ -163,7 +163,7 @@ internal static class CompilationExt
 	/// </summary>
 	/// <param name="type">The named type symbol representing a date type.</param>
 	/// <returns>The <see cref="DateType"/> enum value representing the date type.</returns>
-	public static DateType GetDateTypeTypeSymbol(this INamedTypeSymbol type)
+	public static DateType GetDateTypeFromNamedTypeSymbol(this INamedTypeSymbol type)
 	{
 		if (!type.TryGetDateTypeSymbol(out var value) || value is null)
 			throw new Exception("Invalid value for DateType");
@@ -192,17 +192,19 @@ internal static class CompilationExt
 	{
 		while (true)
 		{
-			if (type.SpecialType == SpecialType.System_String) return (PrimitiveCategory.String, type);
-			if (type.SpecialType == SpecialType.System_Boolean) return (PrimitiveCategory.Boolean, type);
-			if (type.SpecialType == SpecialType.System_Char) return (PrimitiveCategory.Char, type);
+			switch (type.SpecialType)
+			{
+				case SpecialType.System_String:
+					return (PrimitiveCategory.String, type);
+
+				case SpecialType.System_Boolean:
+					return (PrimitiveCategory.Boolean, type);
+
+				case SpecialType.System_Char:
+					return (PrimitiveCategory.Char, type);
+			}
 
 			if (s_numericTypes.TryGetValue(type.SpecialType, out _)) return (PrimitiveCategory.Numeric, type);
-
-			//if (type.Equals(s_stringType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.String, type);
-
-			//if (type.Equals(s_boolType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.Boolean, type);
-
-			//if (type.Equals(s_charType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.Char, type);
 
 			if (type.ToDisplayString() == "System.Guid") return (PrimitiveCategory.Guid, type);
 
@@ -238,11 +240,6 @@ internal static class CompilationExt
 		return false;
 	}
 
-	//private static INamedTypeSymbol s_stringType = default!;
-	//private static INamedTypeSymbol s_boolType = default!;
-	//private static INamedTypeSymbol s_charType = default!;
-	//private static INamedTypeSymbol s_dateTimeType = default!;
-
 	/// <summary>
 	/// Clears all cached types in the internal dictionary.
 	/// </summary>
@@ -254,14 +251,8 @@ internal static class CompilationExt
 	/// <summary>
 	/// Initializes commonly used types from the provided compilation.
 	/// </summary>
-	/// <param name="compilation">The Roslyn Compilation instance.</param>
-	internal static void InitializeTypes(Compilation compilation)
+	internal static void InitializeTypes()
 	{
-		//s_stringType = compilation.GetSpecialType(SpecialType.System_String);
-		//s_dateTimeType = compilation.GetSpecialType(SpecialType.System_DateTime);
-		//s_boolType = compilation.GetSpecialType(SpecialType.System_Boolean);
-		//s_charType = compilation.GetSpecialType(SpecialType.System_Char);
-
 		s_numericTypes.Clear();
 
 		s_numericTypes.Add(SpecialType.System_Byte, NumericType.Byte);
