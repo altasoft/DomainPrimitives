@@ -1,8 +1,8 @@
-﻿//#if DEBUG
+﻿#if DEBUG
 
-//using System.Diagnostics;
+using System.Diagnostics;
 
-//#endif
+#endif
 
 using AltaSoft.DomainPrimitives.Generator.Extensions;
 using Microsoft.CodeAnalysis;
@@ -23,9 +23,9 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 	/// <param name="context">The generator initialization context.</param>
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
-		//#if DEBUG
-		//		Debugger.Launch();
-		//#endif
+#if DEBUG
+		Debugger.Launch();
+#endif
 
 		var classes = context.SyntaxProvider.CreateSyntaxProvider(
 				 static (s, _) => IsSyntaxTargetForGeneration(s),

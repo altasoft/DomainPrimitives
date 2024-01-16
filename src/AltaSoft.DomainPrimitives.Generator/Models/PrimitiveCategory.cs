@@ -36,7 +36,7 @@ internal enum PrimitiveCategory
 	Guid,
 
 	/// <summary>
-	/// Represents an other Domain Primitive type.
+	/// Represents other Domain Primitive type.
 	/// </summary>
 	Other
 }

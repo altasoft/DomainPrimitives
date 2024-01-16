@@ -62,6 +62,11 @@ internal sealed class GeneratorData
 	public string ClassName => Type.Name;
 
 	/// <summary>
+	/// Gets or sets a value indicating whether to generate _isInitialized field.
+	/// </summary>
+	public bool GenerateIsInitializedField { get; set; }
+
+	/// <summary>
 	/// Gets or sets a value indicating whether to generate subtraction operators.
 	/// </summary>
 	public bool GenerateSubtractionOperators { get; set; }
@@ -165,17 +170,4 @@ internal sealed class GeneratorData
 			_ => throw new Exception($"DomainPrimitive category {Category} is not yet supported")
 		};
 	}
-
-	///// <summary>
-	///// Gets the friendly name of the primitive type in camel case.
-	///// </summary>
-	///// <returns>The friendly name of the primitive type in camel case. LowerCase will be available only for numbers and string</returns>
-	//public string GetPrimitiveTypeFriendlyNameInCamelCase()
-	//{
-	//	var friendlyName = GetPrimitiveTypeFriendlyName();
-	//	if (Category is PrimitiveCategory.Numeric or PrimitiveCategory.String)
-	//		return char.ToLower(friendlyName[0]) + friendlyName.Substring(1);
-
-	//	return friendlyName;
-	//}
 }

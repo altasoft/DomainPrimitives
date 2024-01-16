@@ -11,6 +11,7 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -33,6 +34,7 @@ internal static class Executor
 		AnalyzerConfigOptionsProvider analyzerOptions, SourceProductionContext context)
 	{
 		s_nullableTypeSymbol = compilation.GetSpecialType(SpecialType.System_Nullable_T);
+
 		CompilationExt.InitializeTypes(compilation);
 
 		if (types.IsDefaultOrEmpty)
@@ -49,7 +51,7 @@ internal static class Executor
 			{
 				var classSemantic = compilation.GetSemanticModel(type.SyntaxTree);
 
-				if (classSemantic.GetDeclaredSymbol(type) is not INamedTypeSymbol @class)
+				if (ModelExtensions.GetDeclaredSymbol(classSemantic, type) is not INamedTypeSymbol @class)
 					continue;
 
 				var generatorData = CreateGeneratorData(@class, context, globalOptions);
@@ -58,9 +60,7 @@ internal static class Executor
 
 				if (generatorData.PrimitiveTypeSymbol.IsValueType && !generatorData.Type.IsValueType)
 				{
-					context.ReportDiagnostic(DiagnosticHelper
-						.TypeShouldBeValueType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName,
-							@class.Locations.FirstOrDefault()));
+					context.ReportDiagnostic(DiagnosticHelper.TypeShouldBeValueType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName, @class.Locations.FirstOrDefault()));
 				}
 
 				var isSuccess = ProcessType(generatorData, globalOptions, context);
@@ -84,16 +84,9 @@ internal static class Executor
 
 			MethodGeneratorHelper.AddSwaggerOptions(projectNs, swaggerTypes, context);
 		}
-		catch (Exception e)
+		catch (Exception ex)
 		{
-			context.ReportDiagnostic(Diagnostic.Create(
-				new DiagnosticDescriptor(
-					"AL1000",
-					"An exception was thrown by the AltaSoft.DomainPrimitiveGenerator generator",
-					"An exception was thrown by the AltaSoft.DomainPrimitiveGenerator generator: '{0}'",
-					"General",
-					DiagnosticSeverity.Error,
-					isEnabledByDefault: true), Location.None, e + e.StackTrace));
+			context.ReportDiagnostic(DiagnosticHelper.GeneralError(Location.None, ex));
 		}
 		finally
 		{
@@ -180,9 +173,17 @@ internal static class Executor
 
 		var hasOverridenHashCode = type.GetMembersOfType<IMethodSymbol>().Any(x => x.OverriddenMethod?.Name == "GetHashCode");
 
+		var generateIsInitializedField = true;
+		var defaultProperty = type.GetMembersOfType<IPropertySymbol>().FirstOrDefault(x => x.Name == "Default");
+		if (defaultProperty is not null)
+		{
+			generateIsInitializedField = !DefaultPropertyReturnsDefaultValue(defaultProperty, category, numericType, dateType);
+		}
+
 		var generatorData = new GeneratorData
 		{
-			FieldName = "_valueOrDefault",
+			FieldName = generateIsInitializedField ? "_valueOrDefault" : "_value",
+			GenerateIsInitializedField = generateIsInitializedField,
 			GenerateHashCode = !hasOverridenHashCode,
 			Category = category,
 			Type = type,
@@ -246,6 +247,121 @@ internal static class Executor
 
 		return generatorData;
 	}
+
+	private static bool DefaultPropertyReturnsDefaultValue(IPropertySymbol property, PrimitiveCategory category, NumericType? numericType, DateType? dateType)
+	{
+		var syntaxRefs = property.GetMethod?.DeclaringSyntaxReferences;
+		if (syntaxRefs is null)
+		{
+			// If there are no syntax references, the property doesn't have a getter
+			return false;
+		}
+
+		ExpressionSyntax? returnExpression = null;
+
+		foreach (var syntaxRef in syntaxRefs)
+		{
+			var syntaxNode = syntaxRef.GetSyntax();
+
+			// Handle expression-bodied properties
+			if (syntaxNode is ArrowExpressionClauseSyntax arrowExpressionClauseSyntax)
+			{
+				returnExpression = arrowExpressionClauseSyntax.Expression;
+				break;
+			}
+
+			// Handle expression-bodied properties
+			if (syntaxNode is PropertyDeclarationSyntax { ExpressionBody: { } expressionBody })
+			{
+				returnExpression = expressionBody.Expression;
+				break;
+			}
+
+			// Handle properties with getters that have a body
+			if (syntaxNode is AccessorDeclarationSyntax { Body: not null } accessorDeclaration)
+			{
+				var returnExpressions = accessorDeclaration.Body.DescendantNodes()
+					.OfType<ReturnStatementSyntax>()
+					.Select(r => r.Expression)
+					.ToArray();
+
+				if (returnExpressions.Length != 1)
+					return false;
+
+				returnExpression = returnExpressions[0];
+				break;
+			}
+		}
+
+		// Check if the return expression is a default value for the type
+		switch (returnExpression)
+		{
+			case null:
+				return false;
+
+			case DefaultExpressionSyntax:
+				return true;
+
+			// Simplified check for literal or default expressions
+			case LiteralExpressionSyntax literal:
+				if (literal.IsKind(SyntaxKind.DefaultLiteralExpression))
+					return true;
+
+				// Determine the default value for the property's type
+				var defaultValue = GetDefaultValue();
+				if (defaultValue is null)
+					return literal.Token.Value is null;
+
+				return defaultValue.Equals(literal.Token.Value);
+
+			// For more complex expressions, additional analysis is required
+			default:
+				return false;
+		}
+
+		object? GetDefaultValue()
+		{
+			return category switch
+			{
+				PrimitiveCategory.String => default(string?),
+				PrimitiveCategory.Boolean => false,
+				PrimitiveCategory.Char => default(char),
+				PrimitiveCategory.Guid => default(Guid),
+
+				PrimitiveCategory.Numeric =>
+					numericType switch
+					{
+						NumericType.Byte => default(byte),
+						NumericType.SByte => default(sbyte),
+						NumericType.Int16 => default(short),
+						NumericType.Int32 => default(int),
+						NumericType.Int64 => default(long),
+						NumericType.UInt16 => default(ushort),
+						NumericType.UInt32 => default(uint),
+						NumericType.UInt64 => default(ulong),
+						NumericType.Decimal => default(decimal),
+						NumericType.Double => default(double),
+						NumericType.Single => default(float),
+						_ => new DummyValueObject()
+					},
+
+				PrimitiveCategory.DateTime =>
+					dateType switch
+					{
+						DateType.DateOnly => new DateTime(1, 1, 1),
+						DateType.DateTime => default(DateTime),
+						DateType.TimeOnly => new DateTime(1, 1, 1, 0, 0, 0),
+						DateType.DateTimeOffset => default(DateTimeOffset),
+						DateType.TimeSpan => default(TimeSpan),
+						_ => new DummyValueObject()
+					},
+
+				_ => new DummyValueObject()
+			};
+		}
+	}
+
+	private readonly struct DummyValueObject;
 
 	/// <summary>
 	/// Retrieves the SupportedOperationsAttribute for a specified class, considering inheritance.
@@ -371,7 +487,7 @@ internal static class Executor
 	private static bool ProcessType(GeneratorData data, DomainPrimitiveGlobalOptions options, SourceProductionContext context)
 	{
 		var sb = new SourceCodeBuilder();
-		var isSuccess = ProcessConstructor(data.Type, data.PrimitiveTypeSymbol.IsValueType, sb, context);
+		var isSuccess = ProcessConstructor(data, sb, context);
 		if (!isSuccess)
 		{
 			return false;
@@ -554,7 +670,7 @@ internal static class Executor
 
 		if (data.GenerateUtf8SpanFormattable)
 		{
-			MethodGeneratorHelper.GenerateUtf8Formattable(sb);
+			MethodGeneratorHelper.GenerateUtf8Formattable(sb, data.FieldName);
 			sb.NewLine();
 		}
 
@@ -738,14 +854,13 @@ internal static class Executor
 	/// <summary>
 	/// Processes the constructor for a specified class.
 	/// </summary>
-	/// <param name="type">The INamedTypeSymbol representing the class.</param>
-	/// <param name="primitiveTypeIsValueType">A boolean indicating if the primitive type is a value type.</param>
+	/// <param name="data">The GeneratorData containing information about the data type.</param>
 	/// <param name="sb">The SourceCodeBuilder for generating source code.</param>
 	/// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
 	/// <returns>A boolean indicating whether the constructor processing was successful.</returns>
-	private static bool ProcessConstructor(INamedTypeSymbol type, bool primitiveTypeIsValueType, SourceCodeBuilder sb,
-		SourceProductionContext context)
+	private static bool ProcessConstructor(GeneratorData data, SourceCodeBuilder sb, SourceProductionContext context)
 	{
+		var type = data.Type;
 		if (type.HasDefaultConstructor(out _))
 		{
 			var emptyCtor = type.Constructors.First(x => x.IsPublic() && x.Parameters.Length == 0);
@@ -755,8 +870,7 @@ internal static class Executor
 
 		var interfaceGenericType = (INamedTypeSymbol)type.Interfaces.First(x => x.IsDomainValue()).TypeArguments[0];
 		var ctorWithParam = type.Constructors
-			.FirstOrDefault(x => x.IsPublic() && x.Parameters.Length == 1
-											  && (x.Parameters[0].Type as INamedTypeSymbol)!.Equals(interfaceGenericType, SymbolEqualityComparer.Default));
+			.FirstOrDefault(x => x.IsPublic() && x.Parameters.Length == 1 && (x.Parameters[0].Type as INamedTypeSymbol)!.Equals(interfaceGenericType, SymbolEqualityComparer.Default));
 
 		if (ctorWithParam is not null)
 		{
@@ -766,11 +880,20 @@ internal static class Executor
 
 		var underlyingTypeName = interfaceGenericType.GetFriendlyName(s_nullableTypeSymbol!);
 
-		sb.AppendLine($"private {underlyingTypeName} _valueOrDefault => _isInitialized ? _value : Default;");
+		if (data.GenerateIsInitializedField)
+		{
+			sb.AppendLine($"private {underlyingTypeName} _valueOrDefault => _isInitialized ? _value : Default;");
+		}
+
 		sb.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
-		sb.AppendLine($"private readonly {underlyingTypeName} _value;")
-			.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]")
-			.AppendLine("private readonly bool _isInitialized;").NewLine();
+		sb.AppendLine($"private readonly {underlyingTypeName} _value;");
+
+		if (data.GenerateIsInitializedField)
+		{
+			sb.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
+			sb.AppendLine("private readonly bool _isInitialized;");
+		}
+		sb.NewLine();
 
 		sb.AppendSummary($"Initializes a new instance of the <see cref=\"{type.Name}\"/> class by validating the specified <see cref=\"{underlyingTypeName}\"/> value using <see cref=\"Validate\"/> static method.",
 			"The value to be validated.", "value");
@@ -779,13 +902,15 @@ internal static class Executor
 			.OpenBracket()
 			.AppendLine("Validate(value);")
 			.AppendLine("_value = value;")
-			.AppendLine("_isInitialized = true;")
+			.AppendLineIf(data.GenerateIsInitializedField, "_isInitialized = true;")
 			.CloseBracket();
 
 		if (!type.IsValueType)
 			return true;
 
 		sb.NewLine().AppendLine("[Obsolete(\"Domain primitive cannot be created using empty Ctor\", true)]");
+
+		var primitiveTypeIsValueType = data.PrimitiveTypeSymbol.IsValueType;
 		if (!primitiveTypeIsValueType)
 			sb.AppendLine("#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");
 

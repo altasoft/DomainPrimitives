@@ -2,8 +2,6 @@ using AltaSoft.DomainPrimitives.Abstractions;
 
 namespace AltaSoft.DomainPrimitives.Tests;
 
-#pragma warning disable RCS1196 // Call extension method as instance method
-
 /// <summary>
 /// Test class for Utils methods.
 /// </summary>

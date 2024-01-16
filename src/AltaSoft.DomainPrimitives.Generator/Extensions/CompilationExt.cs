@@ -4,10 +4,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Text;
-using AltaSoft.DomainPrimitives.Abstractions;
 
 namespace AltaSoft.DomainPrimitives.Generator.Extensions;
 
@@ -116,7 +114,7 @@ internal static class CompilationExt
 	/// </summary>
 	/// <param name="type">The named type symbol for which to retrieve the corresponding numeric type.</param>
 	/// <returns>The <see cref="NumericType"/> enum value representing the numeric type.</returns>
-	public static NumericType GetFromNamedTypeSymbol(this INamedTypeSymbol type) => s_numericTypes[type];
+	public static NumericType GetFromNamedTypeSymbol(this INamedTypeSymbol type) => s_numericTypes[type.SpecialType];
 
 	/// <summary>
 	/// Attempts to retrieve the <see cref="DateType"/> enum value from the specified named type symbol.
@@ -126,7 +124,7 @@ internal static class CompilationExt
 	/// <returns>True if the type represents a date type; otherwise, false.</returns>
 	public static bool TryGetDateTypeSymbol(this INamedTypeSymbol type, out DateType? dateType)
 	{
-		if (type.Equals(s_dateTimeType, SymbolEqualityComparer.Default))
+		if (type.SpecialType == SpecialType.System_DateTime)
 		{
 			dateType = DateType.DateTime;
 			return true;
@@ -194,17 +192,21 @@ internal static class CompilationExt
 	{
 		while (true)
 		{
-			if (s_numericTypes.TryGetValue(type, out _)) return (PrimitiveCategory.Numeric, type);
+			if (type.SpecialType == SpecialType.System_String) return (PrimitiveCategory.String, type);
+			if (type.SpecialType == SpecialType.System_Boolean) return (PrimitiveCategory.Boolean, type);
+			if (type.SpecialType == SpecialType.System_Char) return (PrimitiveCategory.Char, type);
 
-			if (type.Equals(s_stringType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.String, type);
+			if (s_numericTypes.TryGetValue(type.SpecialType, out _)) return (PrimitiveCategory.Numeric, type);
 
-			if (type.TryGetDateTypeSymbol(out _)) return (PrimitiveCategory.DateTime, type);
+			//if (type.Equals(s_stringType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.String, type);
 
-			if (type.Equals(s_boolType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.Boolean, type);
+			//if (type.Equals(s_boolType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.Boolean, type);
 
-			if (type.Equals(s_charType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.Char, type);
+			//if (type.Equals(s_charType, SymbolEqualityComparer.Default)) return (PrimitiveCategory.Char, type);
 
 			if (type.ToDisplayString() == "System.Guid") return (PrimitiveCategory.Guid, type);
+
+			if (type.TryGetDateTypeSymbol(out _)) return (PrimitiveCategory.DateTime, type);
 
 			var domainType = type.Interfaces.FirstOrDefault(x => x.IsDomainValue());
 
@@ -228,7 +230,7 @@ internal static class CompilationExt
 	public static bool IsNumericType(this INamedTypeSymbol type, out NumericType? numericType)
 	{
 		numericType = null;
-		if (s_numericTypes.TryGetValue(type, out var n))
+		if (s_numericTypes.TryGetValue(type.SpecialType, out var n))
 		{
 			numericType = n;
 			return true;
@@ -236,10 +238,10 @@ internal static class CompilationExt
 		return false;
 	}
 
-	private static INamedTypeSymbol s_stringType = default!;
-	private static INamedTypeSymbol s_boolType = default!;
-	private static INamedTypeSymbol s_charType = default!;
-	private static INamedTypeSymbol s_dateTimeType = default!;
+	//private static INamedTypeSymbol s_stringType = default!;
+	//private static INamedTypeSymbol s_boolType = default!;
+	//private static INamedTypeSymbol s_charType = default!;
+	//private static INamedTypeSymbol s_dateTimeType = default!;
 
 	/// <summary>
 	/// Clears all cached types in the internal dictionary.
@@ -255,24 +257,24 @@ internal static class CompilationExt
 	/// <param name="compilation">The Roslyn Compilation instance.</param>
 	internal static void InitializeTypes(Compilation compilation)
 	{
-		s_stringType = compilation.GetSpecialType(SpecialType.System_String);
-		s_dateTimeType = compilation.GetSpecialType(SpecialType.System_DateTime);
-		s_boolType = compilation.GetSpecialType(SpecialType.System_Boolean);
-		s_charType = compilation.GetSpecialType(SpecialType.System_Char);
+		//s_stringType = compilation.GetSpecialType(SpecialType.System_String);
+		//s_dateTimeType = compilation.GetSpecialType(SpecialType.System_DateTime);
+		//s_boolType = compilation.GetSpecialType(SpecialType.System_Boolean);
+		//s_charType = compilation.GetSpecialType(SpecialType.System_Char);
 
 		s_numericTypes.Clear();
 
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Byte), NumericType.Byte);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_SByte), NumericType.SByte);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Int16), NumericType.Int16);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_UInt16), NumericType.UInt16);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Int32), NumericType.Int32);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_UInt32), NumericType.UInt32);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Int64), NumericType.Int64);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_UInt64), NumericType.UInt64);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Decimal), NumericType.Decimal);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Double), NumericType.Double);
-		s_numericTypes.Add(compilation.GetSpecialType(SpecialType.System_Single), NumericType.Single);
+		s_numericTypes.Add(SpecialType.System_Byte, NumericType.Byte);
+		s_numericTypes.Add(SpecialType.System_SByte, NumericType.SByte);
+		s_numericTypes.Add(SpecialType.System_Int16, NumericType.Int16);
+		s_numericTypes.Add(SpecialType.System_UInt16, NumericType.UInt16);
+		s_numericTypes.Add(SpecialType.System_Int32, NumericType.Int32);
+		s_numericTypes.Add(SpecialType.System_UInt32, NumericType.UInt32);
+		s_numericTypes.Add(SpecialType.System_Int64, NumericType.Int64);
+		s_numericTypes.Add(SpecialType.System_UInt64, NumericType.UInt64);
+		s_numericTypes.Add(SpecialType.System_Decimal, NumericType.Decimal);
+		s_numericTypes.Add(SpecialType.System_Double, NumericType.Double);
+		s_numericTypes.Add(SpecialType.System_Single, NumericType.Single);
 
 		//var i128Type = compilation.GetTypeByMetadataName("System.Int128");
 		//if (i128Type is not null)
@@ -286,7 +288,7 @@ internal static class CompilationExt
 	/// <summary>
 	/// A dictionary that maps INamedTypeSymbol instances representing numeric types to their corresponding NumericType enum values.
 	/// </summary>
-	private static readonly Dictionary<INamedTypeSymbol, NumericType> s_numericTypes = new(SymbolEqualityComparer.Default);
+	private static readonly Dictionary<SpecialType, NumericType> s_numericTypes = new();
 
 	/// <summary>
 	/// Gets the Swagger type and format for a given primitive type.
@@ -298,10 +300,9 @@ internal static class CompilationExt
 		if (primitiveType.IsNumericType(out var value))
 		{
 			var format = value.ToString();
-			if (value is NumericType.Int16 or NumericType.Int32 or NumericType.Int64) // or NumericType.Int128)
-				return ("integer", format[0] + format.Substring(1));
-
-			return ("number", format[0] + format.Substring(1));
+			return value is NumericType.Int16 or NumericType.Int32 or NumericType.Int64 // or NumericType.Int128
+				? ("integer", format[0] + format.Substring(1))
+				: ("number", format[0] + format.Substring(1));
 		}
 
 		if (primitiveType.TryGetDateTypeSymbol(out var type))

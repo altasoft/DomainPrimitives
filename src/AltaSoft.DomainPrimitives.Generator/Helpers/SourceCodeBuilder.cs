@@ -44,13 +44,13 @@ internal sealed class SourceCodeBuilder
 	public void AddSourceHeader() => AppendLine(SourceHeader).NewLine();
 
 	/// <summary>
-	/// Appends an <c>&lt;inheritdoc/&gt;</c> XML comment.
+	/// Appends a <c>&lt;inheritdoc/&gt;</c> XML comment.
 	/// </summary>
 	/// <returns>The updated <see cref="SourceCodeBuilder"/> instance.</returns>
 	public SourceCodeBuilder AppendInheritDoc() => AppendLine("/// <inheritdoc/>");
 
 	/// <summary>
-	/// Appends an <c>&lt;inheritdoc/&gt;</c> XML comment with cref.
+	/// Appends a <c>&lt;inheritdoc/&gt;</c> XML comment with cref.
 	/// </summary>
 	/// <param name="cref">The cref attribute specifying the member to inherit documentation from.</param>
 	/// <returns>The updated <see cref="SourceCodeBuilder"/> instance.</returns>
@@ -164,7 +164,7 @@ internal sealed class SourceCodeBuilder
 	/// </summary>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
 	public SourceCodeBuilder CloseBracket() => AppendLine("}");
-	
+
 	/// <summary>
 	/// Appends a line of text to the source code without adding a newline character, if the input line is not null.
 	/// </summary>
@@ -194,13 +194,13 @@ internal sealed class SourceCodeBuilder
 	/// <param name="ensureTabs">A boolean indicating whether to ensure proper indentation.</param>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
 	public SourceCodeBuilder Append(string line, bool ensureTabs = true) => InternalAppend(line, false, ensureTabs);
-	
+
 	/// <summary>
 	/// Appends a series of lines, separated by newline characters, to the source code.
 	/// </summary>
 	/// <param name="lines">A string containing multiple lines of text to be appended.</param>
 	/// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-	public SourceCodeBuilder AppendLines(string lines) => AppendLines(lines.Split(new[] { "\n", "\r\n" }, StringSplitOptions.None));
+	public SourceCodeBuilder AppendLines(string lines) => AppendLines(lines.Split(["\n", "\r\n"], StringSplitOptions.None));
 
 	/// <summary>
 	/// Appends a collection of lines to the source code, each as a separate line.

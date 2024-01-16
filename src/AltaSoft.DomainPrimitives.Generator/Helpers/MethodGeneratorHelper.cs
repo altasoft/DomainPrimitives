@@ -46,7 +46,7 @@ internal static class MethodGeneratorHelper
 
 		foreach (var (_, type, _, _, _) in types)
 		{
-			sb.AppendLine($"/// <see cref=\"{type}\"/>");
+			sb.Append("/// <see cref=\"").Append(type).AppendLine("\" />");
 		}
 		sb.AppendLine("/// </remarks>");
 
@@ -101,11 +101,11 @@ internal static class MethodGeneratorHelper
 				.OpenBracket()
 				.AppendLine("try")
 				.OpenBracket()
-				.AppendLine($"return {data.ClassName}.Parse(s,culture);")
+				.Append("return ").Append(data.ClassName).AppendLine(".Parse(s, culture);")
 				.CloseBracket()
 				.AppendLine("catch (InvalidDomainValueException ex)")
 				.OpenBracket()
-				.AppendLine($"throw new FormatException(\"Cannot parse {data.ClassName}\", ex);")
+				.Append("throw new FormatException(\"Cannot parse ").AppendLine("\", ex);")
 				.CloseBracket()
 				.CloseBracket()
 				.NewLine()
@@ -122,6 +122,7 @@ internal static class MethodGeneratorHelper
 			.CloseBracket()
 			.AppendLine("catch (InvalidDomainValueException ex)")
 			.OpenBracket()
+			.Append("throw new FormatException(\"Cannot parse ").Append(data.ClassName).AppendLine("\", ex);")
 			.AppendLine($"throw new FormatException(\"Cannot parse {data.ClassName}\", ex);")
 			.CloseBracket();
 		}
@@ -161,26 +162,25 @@ internal static class MethodGeneratorHelper
 		sb.AppendSummary($"JsonConverter for <see cref = \"{data.ClassName}\"/>");
 		sb.AppendClass("public sealed", data.ClassName + "JsonConverter", $" JsonConverter<{data.ClassName}>");
 
-		sb.AppendInheritDoc().AppendLine(
-				$"public override {data.ClassName} Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)")
+		sb.AppendInheritDoc()
+			.Append("public override ").Append(data.ClassName).AppendLine(" Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)")
 			.OpenBracket();
 		if (data.SerializationFormat is null)
 		{
 			sb.AppendLine("try")
 				.OpenBracket()
-				.AppendLine(
-					$"return JsonInternalConverters.{converterName}Converter.Read(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")};")
+				.AppendLine($"return JsonInternalConverters.{converterName}Converter.Read(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")};")
 				.CloseBracket();
 		}
 		else
 		{
 			sb.AppendLine("if (reader.TokenType != JsonTokenType.String)")
-				.AppendLine($"\tthrow new JsonException(\"Expected a string value to deserialize {data.ClassName}\");")
+				.Append("\tthrow new JsonException(\"Expected a string value to deserialize ").Append(data.ClassName).AppendLine("\");")
 				.NewLine()
-				.AppendLine($"var str = reader.GetString() ?? throw new JsonException(\"Expected a non-null string value to deserialize {data.ClassName}\");")
+				.Append("var str = reader.GetString() ?? throw new JsonException(\"Expected a non-null string value to deserialize ").Append(data.ClassName).AppendLine("\");")
 				.AppendLine("try")
 				.OpenBracket()
-				.AppendLine($"return {data.ClassName}.Parse(str, CultureInfo.InvariantCulture);")
+				.Append("return ").Append(data.ClassName).AppendLine(".Parse(str, CultureInfo.InvariantCulture);")
 				.CloseBracket();
 		}
 
@@ -198,7 +198,7 @@ internal static class MethodGeneratorHelper
 			.NewLine();
 
 		sb.AppendInheritDoc()
-			.AppendLine($"public override {data.ClassName} ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)")
+			.Append("public override ").Append(data.ClassName).AppendLine(" ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)")
 			.OpenBracket();
 
 		if (data.SerializationFormat is null)
@@ -211,12 +211,12 @@ internal static class MethodGeneratorHelper
 		else
 		{
 			sb.AppendLine("if (reader.TokenType != JsonTokenType.String)")
-				.AppendLine($"\tthrow new JsonException(\"Expected a string value to deserialize {data.ClassName}\");")
+				.Append("\tthrow new JsonException(\"Expected a string value to deserialize ").Append(data.ClassName).AppendLine("\");")
 				.NewLine()
-				.AppendLine($"var str = reader.GetString() ?? throw new JsonException(\"Expected a non-null string value to deserialize {data.ClassName}\");")
+				.Append("var str = reader.GetString() ?? throw new JsonException(\"Expected a non-null string value to deserialize ").Append(data.ClassName).AppendLine("\");")
 				.AppendLine("try")
 				.OpenBracket()
-				.AppendLine($"return {data.ClassName}.Parse(str, CultureInfo.InvariantCulture);")
+				.Append("return ").Append(data.ClassName).AppendLine(".Parse(str, CultureInfo.InvariantCulture);")
 				.CloseBracket();
 		}
 
@@ -227,7 +227,8 @@ internal static class MethodGeneratorHelper
 			.CloseBracket()
 			.NewLine();
 
-		sb.AppendInheritDoc().AppendLine($"public override void WriteAsPropertyName(Utf8JsonWriter writer, {data.ClassName} value, JsonSerializerOptions options)")
+		sb.AppendInheritDoc()
+			.Append("public override void WriteAsPropertyName(Utf8JsonWriter writer, ").Append(data.ClassName).AppendLine(" value, JsonSerializerOptions options)")
 			.OpenBracket()
 				.AppendLineIf(data.SerializationFormat is null, $"JsonInternalConverters.{converterName}Converter.WriteAsPropertyName(writer, ({data.PrimitiveTypeFriendlyName})value, options);")
 			.AppendLineIf(data.SerializationFormat is not null, $"writer.WritePropertyName(value.ToString(\"{data.SerializationFormat}\", CultureInfo.InvariantCulture));")
@@ -236,21 +237,6 @@ internal static class MethodGeneratorHelper
 		sb.CloseBracket();
 
 		context.AddSource($"{data.ClassName}JsonConverter.g.cs", sb.ToString());
-	}
-
-	/// <summary>
-	/// Generates a method for formatting to UTF-8 if the condition NET8_0_OR_GREATER is met.
-	/// </summary>
-	/// <param name="sb">The SourceCodeBuilder to append the generated code.</param>
-	internal static void GenerateUtf8Formattable(SourceCodeBuilder sb)
-	{
-		sb.AppendPreProcessorDirective("if NET8_0_OR_GREATER")
-			.AppendInheritDoc("IUtf8SpanFormattable.TryFormat")
-			.AppendLine("public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)")
-			.OpenBracket()
-			.AppendLine("return ((IUtf8SpanFormattable)_valueOrDefault).TryFormat(utf8Destination, out bytesWritten, format, provider);")
-			.CloseBracket()
-			.AppendPreProcessorDirective("endif");
 	}
 
 	/// <summary>
@@ -470,14 +456,31 @@ internal static class MethodGeneratorHelper
 	/// <param name="fieldName">The name of the field.</param>
 	public static void GenerateSpanFormattable(SourceCodeBuilder sb, string fieldName)
 	{
-		sb.AppendInheritDoc().AppendLine($"public string ToString(string? format, IFormatProvider? formatProvider) => {fieldName}.ToString(format, formatProvider);")
+		sb.AppendInheritDoc()
+			.AppendLine($"public string ToString(string? format, IFormatProvider? formatProvider) => {fieldName}.ToString(format, formatProvider);")
 			.NewLine();
 
 		sb.AppendInheritDoc().AppendLine("public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)")
 			.OpenBracket()
-			.AppendLine($"return ((ISpanFormattable){fieldName}).TryFormat(destination, out charsWritten, format, provider);")
+			.Append("return ((ISpanFormattable)").Append(fieldName).AppendLine(").TryFormat(destination, out charsWritten, format, provider);")
 			.CloseBracket()
 			.NewLine();
+	}
+
+	/// <summary>
+	/// Generates a method for formatting to UTF-8 if the condition NET8_0_OR_GREATER is met.
+	/// </summary>
+	/// <param name="sb">The SourceCodeBuilder to append the generated code.</param>
+	/// <param name="fieldName">The name of the field.</param>
+	internal static void GenerateUtf8Formattable(SourceCodeBuilder sb, string fieldName)
+	{
+		sb.AppendPreProcessorDirective("if NET8_0_OR_GREATER")
+			.AppendInheritDoc("IUtf8SpanFormattable.TryFormat")
+			.AppendLine("public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)")
+			.OpenBracket()
+			.Append("return ((IUtf8SpanFormattable)").Append(fieldName).AppendLine(").TryFormat(utf8Destination, out bytesWritten, format, provider);")
+			.CloseBracket()
+			.AppendPreProcessorDirective("endif");
 	}
 
 	/// <summary>
@@ -592,7 +595,7 @@ internal static class MethodGeneratorHelper
 		sb.AppendLine("public void ReadXml(XmlReader reader)")
 			.OpenBracket()
 			.Append("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = reader.ReadElementContentAs").Append(typeName).AppendLine("();")
-			.AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true")
+			.AppendLineIf(data.GenerateIsInitializedField, "System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true")
 			.CloseBracket()
 			.NewLine();
 

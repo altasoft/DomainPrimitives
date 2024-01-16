@@ -1,4 +1,5 @@
-﻿using AltaSoft.DomainPrimitives.Abstractions;
+﻿using System;
+using AltaSoft.DomainPrimitives.Abstractions;
 using Microsoft.CodeAnalysis;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
@@ -8,6 +9,25 @@ namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 /// </summary>
 internal static class DiagnosticHelper
 {
+	/// <summary>
+	/// Creates a diagnostic for general error
+	/// </summary>
+	/// <param name="location">The location where the diagnostic occurs.</param>
+	/// <param name="ex"></param>
+	/// <returns>A diagnostic indicating that the general error happened.</returns>
+	internal static Diagnostic GeneralError(Location? location, Exception ex)
+	{
+		return Diagnostic.Create(
+			new DiagnosticDescriptor(
+				"AL1000",
+				"An exception was thrown by the AltaSoft.DomainPrimitiveGenerator generator",
+				"An exception was thrown by the AltaSoft.DomainPrimitiveGenerator generator: `{0}`\n\r{1}",
+				"General",
+				DiagnosticSeverity.Error,
+				isEnabledByDefault: true),
+			location, ex, ex.StackTrace);
+	}
+
 	/// <summary>
 	/// Creates a diagnostic for an invalid exception type being thrown.
 	/// </summary>
@@ -87,7 +107,7 @@ internal static class DiagnosticHelper
 	{
 		return Diagnostic.Create(
 			new DiagnosticDescriptor(
-				"AL1000",
+				"AL1002",
 				"Class must be partial to generate Empty constructor",
 				"Class must be partial to generate Empty constructor",
 				"General",
@@ -108,7 +128,7 @@ internal static class DiagnosticHelper
 			new DiagnosticDescriptor(
 				"AL1015",
 				"Type should be a value type",
-				"Type '{0}' should be a value type as it's wrapping a value type of `{1}`",
+				"Type `{0}` should be a value type as it's wrapping a value type of `{1}`",
 				"General",
 				DiagnosticSeverity.Error,
 				isEnabledByDefault: true), location, className, baseTypeName);
@@ -126,7 +146,7 @@ internal static class DiagnosticHelper
 			new DiagnosticDescriptor(
 				"AL1011",
 				"Domain Primitives must not have a parameterized constructor to successfully generate members",
-				"Type '{0}' must not have a parameterized constructor to successfully generate members",
+				"Type `{0}` must not have a parameterized constructor to successfully generate members",
 				"General",
 				DiagnosticSeverity.Error,
 				isEnabledByDefault: true), location, className);
@@ -144,7 +164,7 @@ internal static class DiagnosticHelper
 			new DiagnosticDescriptor(
 				"AL1003",
 				"Domain Primitives Should not have non obsolete empty constructors, either delete or add an obsolete attribute with Error=true",
-				"Type '{0}' Should not have non obsolete empty constructors, either delete or add an obsolete attribute with Error=true",
+				"Type `{0}` Should not have non obsolete empty constructors, either delete or add an obsolete attribute with Error=true",
 				"General",
 				DiagnosticSeverity.Error,
 				isEnabledByDefault: true), location, className);
