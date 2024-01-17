@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -156,19 +157,24 @@ internal static class CompilationExt
 		if (underlyingType.IsNumeric())
 		{
 			var format = underlyingType.ToString();
-			return underlyingType is DomainPrimitiveUnderlyingType.Int16 or DomainPrimitiveUnderlyingType.Int32 or DomainPrimitiveUnderlyingType.Int64 // or NumericType.Int128
-				? ("integer", format[0] + format.Substring(1)) //TODO temo. Why?
-				: ("number", format[0] + format.Substring(1));
+			return underlyingType.IsFloatingPoint()
+				? ("number", format.ToLower(CultureInfo.InvariantCulture))
+				: ("integer", format.ToLower(CultureInfo.InvariantCulture));
 		}
 
 		return underlyingType switch
 		{
+			DomainPrimitiveUnderlyingType.Boolean => ("boolean", ""),
+			DomainPrimitiveUnderlyingType.Guid => ("string", "uuid"),
+			DomainPrimitiveUnderlyingType.Char => ("string", ""),
+
 			DomainPrimitiveUnderlyingType.DateTime => ("string", "date-time"),
 			DomainPrimitiveUnderlyingType.DateOnly => ("string", "yyyy-MM-dd"),
 			DomainPrimitiveUnderlyingType.TimeOnly => ("string", "HH:mm:ss"),
 			DomainPrimitiveUnderlyingType.DateTimeOffset => ("string", "date-time"),
 			DomainPrimitiveUnderlyingType.TimeSpan => ("integer", "int64"),
-			_ => ("string", ""),//todo
+
+			_ => ("string", "")
 		};
 	}
 

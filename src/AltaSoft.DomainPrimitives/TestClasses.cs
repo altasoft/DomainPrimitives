@@ -7,13 +7,13 @@ using AltaSoft.DomainPrimitives.Abstractions;
 
 namespace AltaSoft.DomainPrimitives;
 
-public readonly partial struct X1 : IDomainValue<int>
+public readonly partial struct X1 : IDomainValue<SByte>
 {
-	public static void Validate(int value)
+	public static void Validate(SByte value)
 	{
 	}
 
-	public static int Default => default;
+	public static SByte Default => default;
 }
 
 public readonly partial struct X2 : IDomainValue<int>

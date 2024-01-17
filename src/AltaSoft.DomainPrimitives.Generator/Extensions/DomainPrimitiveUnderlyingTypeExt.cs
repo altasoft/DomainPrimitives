@@ -108,6 +108,18 @@ internal static class DomainPrimitiveUnderlyingTypeExt
 		};
 	}
 
+	public static bool IsFloatingPoint(this DomainPrimitiveUnderlyingType underlyingType)
+	{
+		return underlyingType switch
+		{
+			DomainPrimitiveUnderlyingType.Decimal => true,
+			DomainPrimitiveUnderlyingType.Double => true,
+			DomainPrimitiveUnderlyingType.Single => true,
+
+			_ => false
+		};
+	}
+
 	public static bool IsByteOrShort(this DomainPrimitiveUnderlyingType underlyingType)
 	{
 		return underlyingType switch

@@ -1,8 +1,10 @@
 ﻿using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Security.Claims;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
@@ -17,8 +19,7 @@ internal static class MethodGeneratorHelper
 	/// <param name="projectNs">The project's namespace.</param>
 	/// <param name="types">A list of custom types to add Swagger mappings for.</param>
 	/// <param name="context">The source production context.</param>
-	internal static void AddSwaggerOptions(string projectNs, List<(string ns, string @class, bool isValueType, string? specifiedFormat, INamedTypeSymbol primitiveType)> types,
-		SourceProductionContext context)
+	internal static void AddSwaggerOptions(string projectNs, List<GeneratorData> types, SourceProductionContext context)
 	{
 		if (types.Count == 0)
 			return;
@@ -26,7 +27,7 @@ internal static class MethodGeneratorHelper
 		var sb = new SourceCodeBuilder();
 		sb.AddSourceHeader();
 
-		var usings = types.ConvertAll(x => x.ns);
+		var usings = types.ConvertAll(x => x.Namespace);
 		usings.Add("Microsoft.Extensions.DependencyInjection");
 		usings.Add("Swashbuckle.AspNetCore.SwaggerGen");
 		usings.Add("Microsoft.OpenApi.Models");
@@ -44,28 +45,65 @@ internal static class MethodGeneratorHelper
 		sb.AppendLine("/// <remarks>");
 		sb.AppendLine("/// The method adds Swagger mappings for the following types:");
 
-		foreach (var (_, type, _, _, _) in types)
+		foreach (var data in types)
 		{
-			sb.Append("/// <see cref=\"").Append(type).AppendLine("\" />");
+			sb.Append("/// <see cref=\"").Append(data.ClassName).AppendLine("\" />");
 		}
 		sb.AppendLine("/// </remarks>");
 
 		sb.AppendLine("public static void AddSwaggerMappings(this SwaggerGenOptions options)")
 			.OpenBracket();
 
-		foreach (var (_, @class, isValueType, specifiedFormat, primitiveType) in types)
+		foreach (var data in types)
 		{
-			var (type, format) = primitiveType.GetSwaggerTypeAndFormat();
+			var (typeName, format) = data.PrimitiveTypeSymbol.GetSwaggerTypeAndFormat();
 
-			sb.AppendLine($"options.MapType<{@class}>(() => new OpenApiSchema {{ Type = \"{type}\", Format = \"{specifiedFormat ?? format}\" }});");
+			// Get the XML documentation comment for the namedTypeSymbol
+			var xmlDocumentation = data.Type.GetDocumentationCommentXml();
 
-			if (isValueType)
-				sb.AppendLine($"options.MapType<{@class}?>(() => new OpenApiSchema {{ Type = \"{type}\", Format = \"{specifiedFormat ?? format}\" }});");
+			AddMapping(false);
+			if (data.Type.IsValueType)
+				AddMapping(true);
+			continue;
+
+			void AddMapping(bool isNullable)
+			{
+				sb.Append("options.MapType<").Append(data.ClassName);
+				if (isNullable)
+					sb.Append("?");
+				sb.Append(">(() => new OpenApiSchema { Type = ").Append(Quote(typeName));
+				if (!string.IsNullOrEmpty(format))
+					sb.Append(", Format = ").Append(Quote(data.SerializationFormat ?? format));
+				if (isNullable)
+					sb.Append(", Nullable = true");
+				var title = isNullable ? $"Nullable<{data.ClassName}>" : data.ClassName;
+				sb.Append(", Title = ").Append(Quote(title));
+				if (!string.IsNullOrEmpty(xmlDocumentation))
+				{
+					var xmlDoc = new System.Xml.XmlDocument();
+					xmlDoc.LoadXml(xmlDocumentation);
+
+					// Select the <summary> node
+					var summaryNode = xmlDoc.SelectSingleNode("member/summary");
+
+					if (summaryNode is not null)
+					{
+						sb.Append(", Description = @").Append(Quote(summaryNode.InnerText.Trim()));
+					}
+				}
+
+				sb.AppendLine(" });");
+			}
 		}
+
 		sb.CloseBracket();
 		sb.CloseBracket();
 
 		context.AddSource("SwaggerTypeHelper.g.cs", sb.ToString());
+
+		return;
+
+		static string Quote(string? value) => '\"' + value?.Replace("\"", "\"\"") + '\"';
 	}
 
 	/// <summary>

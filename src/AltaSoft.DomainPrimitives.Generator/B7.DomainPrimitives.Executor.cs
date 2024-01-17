@@ -35,7 +35,7 @@ internal static class Executor
 		if (typesToGenerate.IsDefaultOrEmpty)
 			return;
 
-		var swaggerTypes = new List<(string, string, bool, string?, INamedTypeSymbol primitiveType)>(typesToGenerate.Length);
+		var swaggerTypes = new List<GeneratorData>(typesToGenerate.Length);
 		var cachedOperationsAttributes = new Dictionary<INamedTypeSymbol, SupportedOperationsAttribute>(SymbolEqualityComparer.Default);
 
 		try
@@ -70,7 +70,7 @@ internal static class Executor
 				}
 
 				if (globalOptions.GenerateSwaggerConverters)
-					swaggerTypes.Add((generatorData.Namespace, generatorData.ClassName, generatorData.Type.IsValueType, generatorData.SerializationFormat, generatorData.PrimitiveTypeSymbol));
+					swaggerTypes.Add(generatorData);
 			}
 
 			MethodGeneratorHelper.AddSwaggerOptions(assemblyName, swaggerTypes, context);
@@ -608,6 +608,8 @@ internal static class Executor
 
 		static string CreateInheritedInterfaces(GeneratorData data, string className)
 		{
+			var hasAtLeastOneInterface = false;
+
 			var sb = new StringBuilder();
 
 			if (data.GenerateAdditionOperators)
@@ -673,26 +675,21 @@ internal static class Executor
 
 			if (data.GenerateUtf8SpanFormattable)
 			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
-				else
-					sb.AppendLine();
-
-				sb.AppendLine("#if NET8_0_OR_GREATER")
-					.AppendLine("\t\tIUtf8SpanFormattable")
-					.AppendLine("#endif");
+				sb.AppendLine().Append("#if NET8_0_OR_GREATER");
+				AppendInterface(sb, "IUtf8SpanFormattable");
+				sb.AppendLine().AppendLine("#endif");
 			}
 
 			return sb.ToString();
 
-			static StringBuilder AppendInterface(StringBuilder sb, string interfaceName)
+			StringBuilder AppendInterface(StringBuilder sb, string interfaceName)
 			{
-				if (sb.Length != 0)
-					sb.AppendLine(",");
+				if (!hasAtLeastOneInterface)
+					sb.AppendLine().Append("\t\t");
 				else
-					sb.AppendLine();
-
-				return sb.Append("\t\t").Append(interfaceName);
+					sb.AppendLine().Append("\t\t, ");
+				hasAtLeastOneInterface = true;
+				return sb.Append(interfaceName);
 			}
 		}
 	}
