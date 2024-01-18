@@ -97,7 +97,7 @@ public static class ToXmlStringExt
 	}
 
 	/// <summary>
-	/// Converts an <see cref="int" /> value to its XML string representation.
+	/// Converts a <see cref="int" /> value to its XML string representation.
 	/// </summary>
 	/// <param name="value">The value to convert.</param>
 	/// <returns>The XML string representation of the integer value.</returns>

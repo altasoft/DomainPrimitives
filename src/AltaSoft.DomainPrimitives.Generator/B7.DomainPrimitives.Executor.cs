@@ -42,6 +42,9 @@ internal static class Executor
 		{
 			foreach (var typeSymbol in typesToGenerate)
 			{
+				if (typeSymbol is null) // Will never happen
+					continue;
+
 				var generatorData = CreateGeneratorData(context, typeSymbol, globalOptions, cachedOperationsAttributes);
 				if (generatorData is null)
 					continue;
@@ -581,11 +584,9 @@ internal static class Executor
 
 		static string CreateInheritedInterfaces(GeneratorData data, string className)
 		{
-			var hasAtLeastOneInterface = false;
-
 			var sb = new StringBuilder();
 
-			AppendInterface(sb, "IEquatable<").Append(className).Append('>');
+			sb.AppendLine().Append("\t\tIEquatable<").Append(className).Append('>');
 
 			AppendInterface(sb, nameof(IComparable));
 			AppendInterface(sb, "IComparable<").Append(className).Append('>');
@@ -649,15 +650,7 @@ internal static class Executor
 
 			return sb.ToString();
 
-			StringBuilder AppendInterface(StringBuilder sb, string interfaceName)
-			{
-				if (!hasAtLeastOneInterface)
-					sb.AppendLine().Append("\t\t");
-				else
-					sb.AppendLine().Append("\t\t, ");
-				hasAtLeastOneInterface = true;
-				return sb.Append(interfaceName);
-			}
+			static StringBuilder AppendInterface(StringBuilder sb, string interfaceName) => sb.AppendLine().Append("\t\t, ").Append(interfaceName);
 		}
 	}
 
