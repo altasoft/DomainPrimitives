@@ -3,6 +3,7 @@ using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
@@ -14,10 +15,10 @@ internal static class MethodGeneratorHelper
 	/// <summary>
 	/// Adds Swagger mappings for specific custom types to ensure proper OpenAPI documentation generation.
 	/// </summary>
-	/// <param name="projectNs">The project's namespace.</param>
+	/// <param name="assemblyName">The AssemblyName of the project.</param>
 	/// <param name="types">A list of custom types to add Swagger mappings for.</param>
 	/// <param name="context">The source production context.</param>
-	internal static void AddSwaggerOptions(string projectNs, List<GeneratorData> types, SourceProductionContext context)
+	internal static void AddSwaggerOptions(string assemblyName, List<GeneratorData> types, SourceProductionContext context)
 	{
 		if (types.Count == 0)
 			return;
@@ -31,9 +32,11 @@ internal static class MethodGeneratorHelper
 		usings.Add("Microsoft.OpenApi.Models");
 		sb.AppendUsings(usings);
 
-		sb.AppendNamespace(projectNs + ".Converters.Extensions");
+		var ns = string.Join(".", assemblyName.Split('.').Select(s => char.IsDigit(s[0]) ? '_' + s : s));
 
-		sb.AppendSummary($"Helper class providing methods to configure Swagger mappings for DomainPrimitive types of {projectNs}");
+		sb.AppendNamespace(ns + ".Converters.Extensions");
+
+		sb.AppendSummary($"Helper class providing methods to configure Swagger mappings for DomainPrimitive types of {assemblyName}");
 
 		sb.AppendClass("public static", "SwaggerTypeHelper");
 

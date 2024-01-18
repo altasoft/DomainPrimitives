@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using AltaSoft.DomainPrimitives.Abstractions;
 
 namespace AltaSoft.DomainPrimitives;
@@ -10,7 +6,7 @@ namespace AltaSoft.DomainPrimitives;
 /// <summary>
 /// <para>Type: <see cref = "bool"/></para>
 ///</summary>
-public partial struct YesNoIndicator : IDomainValue<bool>
+public readonly partial struct YesNoIndicator : IDomainValue<bool>
 {
 	/// <inheritdoc/>
 	public static void Validate(bool value)
@@ -92,9 +88,7 @@ public readonly partial struct X5 : IDomainValue<int>
 	{
 		get
 		{
-			if (true)
-				return 0;
-			return 1;
+			return default(int);
 		}
 	}
 }
