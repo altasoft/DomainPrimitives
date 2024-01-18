@@ -26,7 +26,7 @@ internal sealed class GeneratorData
 	/// <summary>
 	/// Gets or sets the type symbol.
 	/// </summary>
-	public INamedTypeSymbol Type { get; set; } = default!;
+	public INamedTypeSymbol TypeSymbol { get; set; } = default!;
 
 	/// <summary>
 	/// Gets or sets the Domain Primitive type.
@@ -51,7 +51,7 @@ internal sealed class GeneratorData
 	/// <summary>
 	/// Gets the class name.
 	/// </summary>
-	public string ClassName => Type.Name;
+	public string ClassName => TypeSymbol.Name;
 
 	/// <summary>
 	/// Gets or sets a value indicating whether to generate _isInitialized field.
@@ -94,11 +94,6 @@ internal sealed class GeneratorData
 	public bool GenerateParsable { get; set; }
 
 	/// <summary>
-	/// Gets or sets a value indicating whether to generate IComparable methods.
-	/// </summary>
-	public bool GenerateComparable { get; set; }
-
-	/// <summary>
 	/// Gets or sets a value indicating whether to generate implicit operators.
 	/// </summary>
 	public bool GenerateImplicitOperators { get; set; }
@@ -112,11 +107,6 @@ internal sealed class GeneratorData
 	/// Gets or sets a value indicating whether to generate ISpanFormattable methods.
 	/// </summary>
 	public bool GenerateSpanFormattable { get; set; }
-
-	/// <summary>
-	/// Gets or sets a value indicating whether to generate IEquatable operators.
-	/// </summary>
-	public bool GenerateEquatableOperators { get; set; }
 
 	/// <summary>
 	/// Gets or sets a value indicating whether to generate IConvertible methods.

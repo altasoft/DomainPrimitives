@@ -7,51 +7,72 @@ using AltaSoft.DomainPrimitives.Abstractions;
 
 namespace AltaSoft.DomainPrimitives;
 
+/// <inheritdoc/>
 public readonly partial struct X1 : IDomainValue<SByte>
 {
+	/// <inheritdoc/>
 	public static void Validate(SByte value)
 	{
+		if (value < 10 || value > 20)
+			throw new InvalidDomainValueException("Value must be between 10 and 20");
 	}
 
+	/// <inheritdoc/>
 	public static SByte Default => default;
 }
 
+/// <inheritdoc/>
 public readonly partial struct X2 : IDomainValue<int>
 {
+	/// <inheritdoc/>
 	public static void Validate(int value)
 	{
+		if (value < 10)
+			throw new InvalidDomainValueException("Value must be between 10 and 20");
+		if (value > 20)
+			throw new InvalidDomainValueException("Value must be between 10 and 20");
 	}
 
+	/// <inheritdoc/>
 	public static int Default => 0;
 }
 
+/// <inheritdoc/>
 public readonly partial struct X3 : IDomainValue<int>
 {
+	/// <inheritdoc/>
 	public static void Validate(int value)
 	{
 	}
 
+	/// <inheritdoc/>
 	public static int Default => 1 - 1;
 }
 
+/// <inheritdoc/>
 public readonly partial struct X4 : IDomainValue<int>
 {
+	/// <inheritdoc/>
 	public static void Validate(int value)
 	{
 	}
 
+	/// <inheritdoc/>
 	public static int Default
 	{
 		get { return 0; }
 	}
 }
 
+/// <inheritdoc/>
 public readonly partial struct X5 : IDomainValue<int>
 {
+	/// <inheritdoc/>
 	public static void Validate(int value)
 	{
 	}
 
+	/// <inheritdoc/>
 	public static int Default
 	{
 		get

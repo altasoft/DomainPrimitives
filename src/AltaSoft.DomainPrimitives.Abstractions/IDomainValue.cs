@@ -1,11 +1,13 @@
-﻿namespace AltaSoft.DomainPrimitives.Abstractions;
+﻿using System;
+
+namespace AltaSoft.DomainPrimitives.Abstractions;
 
 /// <summary>
 /// Defines a contract for domain-specific values ensuring type safety and constraints.
 /// This interface serves as a foundation for encapsulating and validating domain-specific values.
 /// </summary>
 /// <typeparam name="T">The type of the domain value.</typeparam>
-public interface IDomainValue<T> where T : notnull
+public interface IDomainValue<T> where T : notnull, IEquatable<T>, IComparable, IComparable<T>
 {
 	/// <summary>
 	/// Validates the specified value against domain-specific rules.

@@ -27,7 +27,7 @@ internal static class Executor
 	/// <param name="globalOptions">The global options for domain primitive generation.</param>
 	/// <param name="context">The source production context.</param>
 	internal static void Execute(
-			in ImmutableArray<DomainPrimitiveToGenerate?> typesToGenerate,
+			in ImmutableArray<INamedTypeSymbol?> typesToGenerate,
 			in string assemblyName,
 			in DomainPrimitiveGlobalOptions globalOptions,
 			in SourceProductionContext context)
@@ -40,20 +40,15 @@ internal static class Executor
 
 		try
 		{
-			foreach (var typeToGenerate in typesToGenerate)
+			foreach (var typeSymbol in typesToGenerate)
 			{
-				if (!typeToGenerate.HasValue)
-					continue; // Should never happen
-
-				var @class = typeToGenerate.Value.TypeSymbol;
-
-				var generatorData = CreateGeneratorData(context, @class, globalOptions, cachedOperationsAttributes);
+				var generatorData = CreateGeneratorData(context, typeSymbol, globalOptions, cachedOperationsAttributes);
 				if (generatorData is null)
 					continue;
 
-				if (generatorData.PrimitiveTypeSymbol.IsValueType && !generatorData.Type.IsValueType)
+				if (generatorData.PrimitiveTypeSymbol.IsValueType && !generatorData.TypeSymbol.IsValueType)
 				{
-					context.ReportDiagnostic(DiagnosticHelper.TypeShouldBeValueType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName, @class.Locations.FirstOrDefault()));
+					context.ReportDiagnostic(DiagnosticHelper.TypeShouldBeValueType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName, typeSymbol.Locations.FirstOrDefault()));
 				}
 
 				if (!ProcessType(generatorData, globalOptions, context))
@@ -85,29 +80,29 @@ internal static class Executor
 	/// Creates generator data for a specified class symbol.
 	/// </summary>
 	/// <returns>The GeneratorData for the class or null if not applicable.</returns>
-	private static GeneratorData? CreateGeneratorData(SourceProductionContext context, INamedTypeSymbol type, DomainPrimitiveGlobalOptions globalOptions, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
+	private static GeneratorData? CreateGeneratorData(SourceProductionContext context, INamedTypeSymbol typeSymbol, DomainPrimitiveGlobalOptions globalOptions, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
 	{
-		var interfaceType = type.AllInterfaces.First(x => x.IsDomainValue());
+		var interfaceType = typeSymbol.AllInterfaces.First(x => x.IsDomainValue());
 
 		if (interfaceType.TypeArguments[0] is not INamedTypeSymbol primitiveType)
 		{
-			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(type.Locations.FirstOrDefault()));
+			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(typeSymbol.Locations.FirstOrDefault()));
 			return null;
 		}
 
 		var parentSymbols = new List<INamedTypeSymbol>();
-		var (underlyingType, typeSymbol) = primitiveType.GetUnderlyingPrimitiveType(parentSymbols);
+		var (underlyingType, underlyingTypeSymbol) = primitiveType.GetUnderlyingPrimitiveType(parentSymbols);
 
 		if (underlyingType == DomainPrimitiveUnderlyingType.Other)
 		{
-			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(type.Locations.FirstOrDefault()));
+			context.ReportDiagnostic(DiagnosticHelper.InvalidBaseTypeSpecified(typeSymbol.Locations.FirstOrDefault()));
 			return null;
 		}
 
-		var hasOverridenHashCode = type.GetMembersOfType<IMethodSymbol>().Any(x => x.OverriddenMethod?.Name == "GetHashCode");
+		var hasOverridenHashCode = typeSymbol.GetMembersOfType<IMethodSymbol>().Any(x => x.OverriddenMethod?.Name == "GetHashCode");
 
 		var generateIsInitializedField = true;
-		var defaultProperty = type.GetMembersOfType<IPropertySymbol>().FirstOrDefault(x => x.Name == "Default");
+		var defaultProperty = typeSymbol.GetMembersOfType<IPropertySymbol>().FirstOrDefault(x => x.Name == "Default");
 		if (defaultProperty is not null)
 		{
 			generateIsInitializedField = !DefaultPropertyReturnsDefaultValue(defaultProperty, underlyingType);
@@ -119,16 +114,16 @@ internal static class Executor
 			GenerateIsInitializedField = generateIsInitializedField,
 			GenerateHashCode = !hasOverridenHashCode,
 			UnderlyingType = underlyingType,
-			Type = type,
-			PrimitiveTypeSymbol = typeSymbol,
-			PrimitiveTypeFriendlyName = typeSymbol.GetFriendlyName(),
-			Namespace = type.ContainingNamespace.ToDisplayString(),
+			TypeSymbol = typeSymbol,
+			PrimitiveTypeSymbol = underlyingTypeSymbol,
+			PrimitiveTypeFriendlyName = underlyingTypeSymbol.GetFriendlyName(),
+			Namespace = typeSymbol.ContainingNamespace.ToDisplayString(),
 			GenerateImplicitOperators = true,
 			ParentSymbols = parentSymbols,
 			GenerateConvertibles = underlyingType != DomainPrimitiveUnderlyingType.Guid
 		};
 
-		var attributes = type.GetAttributes();
+		var attributes = typeSymbol.GetAttributes();
 		var attributeData = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SupportedOperationsAttribute).FullName);
 		var serializationAttribute = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SerializationFormatAttribute).FullName);
 
@@ -137,13 +132,13 @@ internal static class Executor
 
 		if (!isNumeric && attributeData is not null)
 		{
-			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeNumericType(attributeData.GetAttributeLocation(), type.Name));
+			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeNumericType(attributeData.GetAttributeLocation(), typeSymbol.Name));
 			return null;
 		}
 
 		if (!isDateOrTime && serializationAttribute is not null)
 		{
-			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeDateType(serializationAttribute.GetAttributeLocation(), type.Name));
+			context.ReportDiagnostic(DiagnosticHelper.TypeMustBeDateType(serializationAttribute.GetAttributeLocation(), typeSymbol.Name));
 			return null;
 		}
 
@@ -155,30 +150,26 @@ internal static class Executor
 
 		if (isNumeric)
 		{
-			var supportedOperationsAttribute = GetSupportedOperationsAttributes(type, underlyingType, parentSymbols, cachedOperationsAttributes);
+			var supportedOperationsAttribute = GetSupportedOperationsAttributes(typeSymbol, underlyingType, parentSymbols, cachedOperationsAttributes);
 
-			generatorData.GenerateAdditionOperators = supportedOperationsAttribute.Addition && !type.ImplementsInterface("System.Numerics.IAdditionOperators");
+			generatorData.GenerateAdditionOperators = supportedOperationsAttribute.Addition && !typeSymbol.ImplementsInterface("System.Numerics.IAdditionOperators");
 
-			generatorData.GenerateSubtractionOperators = supportedOperationsAttribute.Subtraction && !type.ImplementsInterface("System.Numerics.ISubtractionOperators");
+			generatorData.GenerateSubtractionOperators = supportedOperationsAttribute.Subtraction && !typeSymbol.ImplementsInterface("System.Numerics.ISubtractionOperators");
 
-			generatorData.GenerateDivisionOperators = supportedOperationsAttribute.Division && !type.ImplementsInterface("System.Numerics.IDivisionOperators");
+			generatorData.GenerateDivisionOperators = supportedOperationsAttribute.Division && !typeSymbol.ImplementsInterface("System.Numerics.IDivisionOperators");
 
-			generatorData.GenerateMultiplyOperators = supportedOperationsAttribute.Multiplication && !type.ImplementsInterface("System.Numerics.IMultiplyOperators");
+			generatorData.GenerateMultiplyOperators = supportedOperationsAttribute.Multiplication && !typeSymbol.ImplementsInterface("System.Numerics.IMultiplyOperators");
 
-			generatorData.GenerateModulusOperator = supportedOperationsAttribute.Modulus && !type.ImplementsInterface("System.Numerics.IModulusOperator");
+			generatorData.GenerateModulusOperator = supportedOperationsAttribute.Modulus && !typeSymbol.ImplementsInterface("System.Numerics.IModulusOperator");
 		}
 
-		generatorData.GenerateComparable = underlyingType is not DomainPrimitiveUnderlyingType.Boolean && !type.ImplementsInterface("System.IComparable");
+		generatorData.GenerateParsable = !typeSymbol.ImplementsInterface("System.IParsable");
 
-		generatorData.GenerateParsable = !type.ImplementsInterface("System.IParsable");
+		generatorData.GenerateComparison = (isNumeric || (underlyingType == DomainPrimitiveUnderlyingType.Char || underlyingType.IsDateOrTime())) && !typeSymbol.ImplementsInterface("System.Numerics.IComparisonOperators");
 
-		generatorData.GenerateComparison = (isNumeric || (underlyingType == DomainPrimitiveUnderlyingType.Char || underlyingType.IsDateOrTime())) && !type.ImplementsInterface("System.Numerics.IComparisonOperators");
+		generatorData.GenerateSpanFormattable = (underlyingType == DomainPrimitiveUnderlyingType.Guid || underlyingType.IsDateOrTime()) && !typeSymbol.ImplementsInterface("System.ISpanFormattable");
 
-		generatorData.GenerateSpanFormattable = (underlyingType == DomainPrimitiveUnderlyingType.Guid || underlyingType.IsDateOrTime()) && !type.ImplementsInterface("System.ISpanFormattable");
-
-		generatorData.GenerateUtf8SpanFormattable = primitiveType.ImplementsInterface("System.IUtf8SpanFormattable") && !type.ImplementsInterface("System.IUtf8SpanFormattable");
-
-		generatorData.GenerateEquatableOperators = !type.ImplementsInterface("System.IEquatable");
+		generatorData.GenerateUtf8SpanFormattable = primitiveType.ImplementsInterface("System.IUtf8SpanFormattable") && !typeSymbol.ImplementsInterface("System.IUtf8SpanFormattable");
 
 		generatorData.GenerateXmlSerializableMethods = globalOptions.GenerateXmlSerialization;
 
@@ -387,7 +378,7 @@ internal static class Executor
 			return false;
 		}
 
-		var validateMethod = data.Type.GetMembersOfType<IMethodSymbol>().FirstOrDefault(x => x.Name == "Validate");
+		var validateMethod = data.TypeSymbol.GetMembersOfType<IMethodSymbol>().FirstOrDefault(x => x.Name == "Validate");
 		if (validateMethod is not null)
 			ExceptionHelper.VerifyException(validateMethod, context);
 
@@ -404,11 +395,11 @@ internal static class Executor
 	/// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
 	private static void Process(GeneratorData data, string? ctorCode, DomainPrimitiveGlobalOptions options, SourceProductionContext context)
 	{
-		var modifiers = data.Type.GetModifiers() ?? "public partial";
+		var modifiers = data.TypeSymbol.GetModifiers() ?? "public partial";
 
 		if (!modifiers.Contains("partial"))
 		{
-			context.ReportDiagnostic(DiagnosticHelper.ClassMustBePartial(data.Type.Locations.FirstOrDefault()));
+			context.ReportDiagnostic(DiagnosticHelper.ClassMustBePartial(data.TypeSymbol.Locations.FirstOrDefault()));
 		}
 
 		var sb = new SourceCodeBuilder();
@@ -467,7 +458,7 @@ internal static class Executor
 
 		sb.AppendLine($"[DebuggerDisplay(\"{{{data.FieldName}}}\")]");
 
-		if (!data.Type.IsValueType)
+		if (!data.TypeSymbol.IsValueType)
 			sb.AppendClass(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
 		else
 			sb.AppendStruct(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
@@ -475,18 +466,6 @@ internal static class Executor
 		if (ctorCode is not null)
 		{
 			sb.AppendLines(ctorCode);
-		}
-
-		if (data is
-			{
-				GenerateComparable: false, GenerateAdditionOperators: false, GenerateDivisionOperators: false,
-				GenerateMultiplyOperators: false, GenerateSubtractionOperators: false, GenerateModulusOperator: false, GenerateComparison: false,
-				GenerateImplicitOperators: false, GenerateParsable: false, GenerateEquatableOperators: false, GenerateHashCode: false,
-				GenerateSpanFormattable: false, GenerateConvertibles: false, GenerateUtf8SpanFormattable: false, GenerateXmlSerializableMethods: false
-			})
-
-		{
-			return;
 		}
 
 		if (needsMathOperators && isByteOrShort)
@@ -502,6 +481,12 @@ internal static class Executor
 				.CloseBracket()
 				.NewLine();
 		}
+
+		MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.FieldName, data.TypeSymbol.IsValueType, sb);
+		sb.NewLine();
+
+		MethodGeneratorHelper.GenerateComparableCode(data.ClassName, data.FieldName, data.TypeSymbol.IsValueType, sb);
+		sb.NewLine();
 
 		if (data.GenerateImplicitOperators)
 		{
@@ -537,12 +522,6 @@ internal static class Executor
 			sb.NewLine();
 		}
 
-		if (data.GenerateComparable)
-		{
-			MethodGeneratorHelper.GenerateComparableCode(data.ClassName, data.FieldName, data.Type.IsValueType, sb);
-			sb.NewLine();
-		}
-
 		if (data.GenerateComparison)
 		{
 			MethodGeneratorHelper.GenerateComparisonCode(data.ClassName, data.FieldName, sb);
@@ -567,12 +546,6 @@ internal static class Executor
 			sb.NewLine();
 		}
 
-		if (data.GenerateEquatableOperators)
-		{
-			MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.FieldName, data.Type.IsValueType, sb);
-			sb.NewLine();
-		}
-
 		if (data.GenerateHashCode)
 		{
 			sb.AppendInheritDoc();
@@ -590,7 +563,7 @@ internal static class Executor
 		}
 
 		var baseType = data.ParentSymbols.Count == 0 ? data.PrimitiveTypeSymbol : data.ParentSymbols[0];
-		var hasExplicitToStringMethod = data.Type.GetMembersOfType<IMethodSymbol>().Any(x =>
+		var hasExplicitToStringMethod = data.TypeSymbol.GetMembersOfType<IMethodSymbol>().Any(x =>
 			x.Name == "ToString" && x is { IsStatic: true, Parameters.Length: 1 } &&
 			x.Parameters[0].Type.Equals(baseType, SymbolEqualityComparer.Default));
 
@@ -611,6 +584,11 @@ internal static class Executor
 			var hasAtLeastOneInterface = false;
 
 			var sb = new StringBuilder();
+
+			AppendInterface(sb, "IEquatable<").Append(className).Append('>');
+
+			AppendInterface(sb, nameof(IComparable));
+			AppendInterface(sb, "IComparable<").Append(className).Append('>');
 
 			if (data.GenerateAdditionOperators)
 			{
@@ -647,20 +625,9 @@ internal static class Executor
 				AppendInterface(sb, "ISpanFormattable");
 			}
 
-			if (data.GenerateComparable)
-			{
-				AppendInterface(sb, nameof(IComparable));
-				AppendInterface(sb, "IComparable<").Append(className).Append('>');
-			}
-
 			if (data.GenerateParsable)
 			{
 				AppendInterface(sb, "IParsable<").Append(className).Append('>');
-			}
-
-			if (data.GenerateEquatableOperators)
-			{
-				AppendInterface(sb, "IEquatable<").Append(className).Append('>');
 			}
 
 			if (data.GenerateConvertibles)
@@ -703,9 +670,9 @@ internal static class Executor
 	{
 		var friendlyName = data.PrimitiveTypeFriendlyName;
 
-		if (data.Type.IsValueType)
+		if (data.TypeSymbol.IsValueType)
 		{
-			sb.AppendSummary($"<summary>Implicit conversion from <see cref = \"{friendlyName}\"/> to <see cref = \"{data.ClassName}\"/></summary>")
+			sb.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> to <see cref = \"{data.ClassName}\"/>")
 				.Append($"public static implicit operator {data.ClassName}({friendlyName} value)")
 			.AppendLine(" => new(value);")
 			.NewLine();
@@ -713,7 +680,7 @@ internal static class Executor
 
 		var type = data.PrimitiveTypeSymbol;
 
-		sb.AppendSummary($"<summary>Implicit conversion from <see cref = \"{friendlyName}?\"/> to <see cref = \"{data.ClassName}?\"/></summary>")
+		sb.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> (nullable) to <see cref = \"{data.ClassName}\"/> (nullable)")
 			.AppendLine("[return: NotNullIfNotNull(nameof(value))]")
 			.Append($"public static implicit operator {data.ClassName}?({friendlyName}? value)")
 			.AppendLine($" => value is null ? null : new(value{(type.IsValueType ? ".Value" : "")});")
@@ -721,20 +688,20 @@ internal static class Executor
 
 		if (data.ParentSymbols.Count != 0)
 		{
-			sb.AppendSummary($"<summary>Implicit conversion from <see cref = \"{data.ParentSymbols[0].Name}\"/> to <see cref = \"{data.ClassName}\"/></summary>")
+			sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ParentSymbols[0].Name}\"/> to <see cref = \"{data.ClassName}\"/>")
 			.Append($"public static implicit operator {data.ClassName}({data.ParentSymbols[0].Name} value)")
 				.AppendLine(" => new(value);")
 				.NewLine();
 		}
 
-		sb.AppendSummary($"<summary>Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"{friendlyName}\"/></summary>")
+		sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"{friendlyName}\"/>")
 		.Append($"public static implicit operator {friendlyName}({data.ClassName} value)")
 			.AppendLine($" => ({friendlyName})value.{data.FieldName};")
 			.NewLine();
 
 		if (data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
 		{
-			sb.AppendSummary($"<summary>Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"DateTime\"/></summary>")
+			sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"DateTime\"/>")
 				.Append($"public static implicit operator DateTime({data.ClassName} value)")
 				.AppendLine($" => (({friendlyName})value.{data.FieldName}).ToDateTime();")
 				.NewLine();
@@ -750,7 +717,7 @@ internal static class Executor
 	/// <returns>A boolean indicating whether the constructor processing was successful.</returns>
 	private static bool ProcessConstructor(GeneratorData data, SourceCodeBuilder sb, SourceProductionContext context)
 	{
-		var type = data.Type;
+		var type = data.TypeSymbol;
 		if (type.HasDefaultConstructor(out _))
 		{
 			var emptyCtor = type.Constructors.First(x => x.IsPublic() && x.Parameters.Length == 0);
@@ -798,7 +765,9 @@ internal static class Executor
 		if (!type.IsValueType)
 			return true;
 
-		sb.NewLine().AppendLine("[Obsolete(\"Domain primitive cannot be created using empty Ctor\", true)]");
+		sb.NewLine()
+			.AppendLine("/// <inheritdoc/>")
+			.AppendLine("[Obsolete(\"Domain primitive cannot be created using empty Ctor\", true)]");
 
 		var primitiveTypeIsValueType = data.PrimitiveTypeSymbol.IsValueType;
 		if (!primitiveTypeIsValueType)

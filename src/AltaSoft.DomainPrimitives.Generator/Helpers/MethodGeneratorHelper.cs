@@ -1,10 +1,8 @@
 ﻿using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
-using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Security.Claims;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
@@ -59,11 +57,12 @@ internal static class MethodGeneratorHelper
 			var (typeName, format) = data.PrimitiveTypeSymbol.GetSwaggerTypeAndFormat();
 
 			// Get the XML documentation comment for the namedTypeSymbol
-			var xmlDocumentation = data.Type.GetDocumentationCommentXml();
+			var xmlDocumentation = data.TypeSymbol.GetDocumentationCommentXml();
 
 			AddMapping(false);
-			if (data.Type.IsValueType)
+			if (data.TypeSymbol.IsValueType)
 				AddMapping(true);
+
 			continue;
 
 			void AddMapping(bool isNullable)
@@ -78,6 +77,7 @@ internal static class MethodGeneratorHelper
 					sb.Append(", Nullable = true");
 				var title = isNullable ? $"Nullable<{data.ClassName}>" : data.ClassName;
 				sb.Append(", Title = ").Append(Quote(title));
+
 				if (!string.IsNullOrEmpty(xmlDocumentation))
 				{
 					var xmlDoc = new System.Xml.XmlDocument();
@@ -161,7 +161,6 @@ internal static class MethodGeneratorHelper
 			.AppendLine("catch (InvalidDomainValueException ex)")
 			.OpenBracket()
 			.Append("throw new FormatException(\"Cannot parse ").Append(data.ClassName).AppendLine("\", ex);")
-			.AppendLine($"throw new FormatException(\"Cannot parse {data.ClassName}\", ex);")
 			.CloseBracket();
 		}
 		sb.CloseBracket().CloseBracket();
@@ -568,11 +567,11 @@ internal static class MethodGeneratorHelper
 
 		if (isString)
 		{
-			sb.AppendLine("if(s is null)");
+			sb.AppendLine("if (s is null)");
 		}
 		else if (isChar)
 		{
-			sb.AppendLine("if(!char.TryParse(s,out var value))");
+			sb.AppendLine("if (!char.TryParse(s, out var value))");
 		}
 		else
 		{

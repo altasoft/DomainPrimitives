@@ -1,7 +1,5 @@
 ﻿#if DEBUG
 
-using System.Diagnostics;
-
 #endif
 
 using AltaSoft.DomainPrimitives.Generator.Extensions;
@@ -57,7 +55,7 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 	/// and implements one or more interfaces marked as domain value types.
 	/// </remarks>
 	/// <seealso cref="DomainPrimitiveGenerator"/>
-	private static DomainPrimitiveToGenerate? GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
+	private static INamedTypeSymbol? GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
 	{
 		var typeSyntax = (TypeDeclarationSyntax)context.Node;
 
@@ -66,12 +64,7 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 		if (symbol is not INamedTypeSymbol typeSymbol)
 			return null;
 
-		if (!typeSymbol.IsAbstract && typeSymbol.AllInterfaces.Any(x => x.IsDomainValue()))
-		{
-			return new DomainPrimitiveToGenerate(typeSyntax, typeSymbol);
-		}
-
-		return null;
+		return !typeSymbol.IsAbstract && typeSymbol.AllInterfaces.Any(x => x.IsDomainValue()) ? typeSymbol : null;
 	}
 
 	/// <summary>
