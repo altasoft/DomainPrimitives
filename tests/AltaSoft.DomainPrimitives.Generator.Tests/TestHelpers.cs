@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
 
 namespace AltaSoft.DomainPrimitives.Generator.Tests;
 
@@ -69,7 +70,7 @@ internal static class TestHelpers
 				_options = options;
 			}
 
-			public override bool TryGetValue(string key, out string? value)
+			public override bool TryGetValue(string key, [NotNullWhen(true)] out string? value)
 			{
 				switch (key)
 				{

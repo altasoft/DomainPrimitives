@@ -7,6 +7,21 @@ using AltaSoft.DomainPrimitives.Abstractions;
 
 namespace AltaSoft.DomainPrimitives;
 
+/// <summary>
+/// <para>Type: <see cref = "bool"/></para>
+///</summary>
+public partial struct YesNoIndicator : IDomainValue<bool>
+{
+	/// <inheritdoc/>
+	public static void Validate(bool value)
+	{
+		//ValidationHelper.Validate(value);
+	}
+
+	/// <inheritdoc/>
+	public static bool Default => default;
+}
+
 /// <inheritdoc/>
 public readonly partial struct X1 : IDomainValue<SByte>
 {

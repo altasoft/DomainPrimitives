@@ -543,6 +543,7 @@ internal static class MethodGeneratorHelper
 
 		var isString = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.String;
 		var isChar = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.Char;
+		var isBool = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.Boolean;
 
 		if (isString)
 		{
@@ -552,6 +553,11 @@ internal static class MethodGeneratorHelper
 		if (isChar)
 		{
 			sb.AppendLine("char.Parse(s);");
+		}
+		else
+		if (isBool)
+		{
+			sb.AppendLine("bool.Parse(s);");
 		}
 		else
 		{
@@ -569,9 +575,15 @@ internal static class MethodGeneratorHelper
 		{
 			sb.AppendLine("if (s is null)");
 		}
-		else if (isChar)
+		else
+		if (isChar)
 		{
 			sb.AppendLine("if (!char.TryParse(s, out var value))");
+		}
+		else
+		if (isBool)
+		{
+			sb.AppendLine("if (!bool.TryParse(s, out var value))");
 		}
 		else
 		{
