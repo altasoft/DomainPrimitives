@@ -758,20 +758,22 @@ internal static class Executor
 		if (!type.IsValueType)
 			return true;
 
-		sb.NewLine()
-			.AppendLine("/// <inheritdoc/>")
-			.AppendLine("[Obsolete(\"Domain primitive cannot be created using empty Ctor\", true)]");
-
 		var primitiveTypeIsValueType = data.PrimitiveTypeSymbol.IsValueType;
 		if (!primitiveTypeIsValueType)
 			sb.AppendLine("#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");
 
-		sb.Append("public ").Append(type.Name).AppendLine("() : this(Default)");
+		sb.NewLine()
+			.AppendLine("/// <inheritdoc/>")
+			.AppendLine("[Obsolete(\"Domain primitive cannot be created using empty Ctor\", true)]");
+
+		sb.AppendLine($"public {type.Name}()")
+			.OpenBracket()
+			.AppendLine("_value = Default;")
+			.AppendLineIf(data.GenerateIsInitializedField, "_isInitialized = true;")
+			.CloseBracket();
 
 		if (!primitiveTypeIsValueType)
 			sb.AppendLine("#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");
-
-		sb.OpenBracket().CloseBracket();
 
 		return true;
 	}
