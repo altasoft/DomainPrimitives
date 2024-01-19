@@ -5,6 +5,7 @@ namespace AltaSoft.DomainPrimitives;
 /// <summary>
 /// Represents an XML gYearMonth value object, providing operations for parsing and handling gYearMonth values.
 /// </summary>
+/// <example>2024-12</example>
 [SerializationFormat("yyyy-MM")]
 public readonly partial struct GYearMonth : IDomainValue<DateOnly>
 {

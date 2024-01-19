@@ -1,11 +1,11 @@
-﻿
-using System;
+﻿using System;
 
 namespace AltaSoft.DomainPrimitives;
 
 /// <summary>
 /// Represents an XML gDay value object, providing operations for parsing and handling gDay values.
 /// </summary>
+/// <example>31</example>
 [SerializationFormat("dd")]
 public readonly partial struct GDay : IDomainValue<DateOnly>
 {
