@@ -1,5 +1,4 @@
-﻿using AltaSoft.DomainPrimitives.Abstractions;
-using AltaSoft.DomainPrimitives.Generator.Extensions;
+﻿using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Helpers;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
@@ -434,7 +433,7 @@ internal static class Executor
 			usings.Add("System.Xml");
 			usings.Add("System.Xml.Schema");
 			usings.Add("System.Xml.Serialization");
-			usings.Add("AltaSoft.DomainPrimitives.Abstractions");
+			usings.Add("AltaSoft.DomainPrimitives");
 		}
 
 		var needsMathOperators = data.GenerateAdditionOperators || data.GenerateDivisionOperators ||
@@ -445,7 +444,7 @@ internal static class Executor
 
 		if ((needsMathOperators && isByteOrShort) || data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
 		{
-			usings.Add("AltaSoft.DomainPrimitives.Abstractions");
+			usings.Add("AltaSoft.DomainPrimitives");
 		}
 
 		sb.AddSourceHeader();

@@ -3,21 +3,23 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives", "src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj", "{E5F41084-26EF-4BA5-A4F9-74105F550CB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.XmlDataTypes", "src\AltaSoft.DomainPrimitives.XmlDataTypes\AltaSoft.DomainPrimitives.XmlDataTypes.csproj", "{E5F41084-26EF-4BA5-A4F9-74105F550CB9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.Abstractions", "src\AltaSoft.DomainPrimitives.Abstractions\AltaSoft.DomainPrimitives.Abstractions.csproj", "{B1032BBF-96EB-4693-A807-A99DECFA45FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives", "src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj", "{B1032BBF-96EB-4693-A807-A99DECFA45FF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.Generator", "src\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj", "{01537E81-E36F-41A0-B843-D1089E0D76AB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF9447CC-2D00-495A-A8C3-D4890EADB01B}"
 	ProjectSection(SolutionItems) = preProject
+		AltaSoft.DomainPrimitives.nuspec = AltaSoft.DomainPrimitives.nuspec
+		build.bat = build.bat
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		LICENSE.txt = LICENSE.txt
 		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.Tests", "tests\AltaSoft.DomainPrimitives.Tests\AltaSoft.DomainPrimitives.Tests.csproj", "{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.XmlDataTypes.Tests", "tests\AltaSoft.DomainPrimitives.XmlDataTypes.Tests\AltaSoft.DomainPrimitives.XmlDataTypes.Tests.csproj", "{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

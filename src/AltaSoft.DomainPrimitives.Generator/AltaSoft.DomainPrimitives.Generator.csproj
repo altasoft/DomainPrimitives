@@ -56,8 +56,8 @@
 		</ItemGroup>
 	</Target>
 	<ItemGroup>
-		<Compile Include="..\AltaSoft.DomainPrimitives.Abstractions\SerializationFormatAttribute.cs" Link="SerializationFormatAttribute.cs" />
-		<Compile Include="..\AltaSoft.DomainPrimitives.Abstractions\SupportedOperationsAttribute.cs" Link="SupportedOperationsAttribute.cs" />
+		<Compile Include="..\AltaSoft.DomainPrimitives\SerializationFormatAttribute.cs" Link="SerializationFormatAttribute.cs" />
+		<Compile Include="..\AltaSoft.DomainPrimitives\SupportedOperationsAttribute.cs" Link="SupportedOperationsAttribute.cs" />
 	</ItemGroup>
 
 	<!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
