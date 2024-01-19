@@ -111,7 +111,8 @@ internal static class MethodGeneratorHelper
 					}
 				}
 
-				sb.TryRemoveLastLineComma();
+				sb.Length -= 3;
+				sb.NewLine();
 				sb.AppendLine("});");
 			}
 		}
