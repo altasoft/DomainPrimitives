@@ -323,7 +323,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Globalization;
 using System.Text.Json.Serialization.Metadata;
-using AltaSoft.DomainPrimitives.Abstractions;
+
 
 namespace AltaSoft.DomainPrimitives.Converters;
 
@@ -387,7 +387,7 @@ using AltaSoft.DomainPrimitives;
 using System;
 using System.ComponentModel;
 using System.Globalization;
-using AltaSoft.DomainPrimitives.Abstractions;
+
 
 namespace AltaSoft.DomainPrimitives.Converters;
 

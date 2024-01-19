@@ -1,6 +1,5 @@
-﻿using System;
-using AltaSoft.DomainPrimitives.Abstractions;
-using Microsoft.CodeAnalysis;
+﻿using Microsoft.CodeAnalysis;
+using System;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 

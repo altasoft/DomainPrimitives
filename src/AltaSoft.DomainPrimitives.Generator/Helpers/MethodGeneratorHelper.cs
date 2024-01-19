@@ -2,7 +2,6 @@
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
@@ -126,7 +125,7 @@ internal static class MethodGeneratorHelper
 			"System",
 			"System.ComponentModel",
 			"System.Globalization",
-			"AltaSoft.DomainPrimitives.Abstractions"
+			"AltaSoft.DomainPrimitives"
 		});
 
 		sb.AppendNamespace(data.Namespace + ".Converters");
@@ -191,7 +190,7 @@ internal static class MethodGeneratorHelper
 					"System.Text.Json.Serialization",
 					"System.Globalization",
 					"System.Text.Json.Serialization.Metadata",
-					"AltaSoft.DomainPrimitives.Abstractions",
+					"AltaSoft.DomainPrimitives",
 				};
 
 		var converterName = data.UnderlyingType.ToString();
@@ -286,7 +285,10 @@ internal static class MethodGeneratorHelper
 	/// <param name="sb">The source code builder.</param>
 	internal static void GenerateConvertibles(GeneratorData data, SourceCodeBuilder sb)
 	{
-		var fieldName = data.GetFieldNameForConvertible();
+		var fieldName = $"({data.UnderlyingType}){data.FieldName}";
+
+		if (data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
+			fieldName = '(' + fieldName + ").ToDateTime()";
 
 		sb.AppendInheritDoc();
 		sb.Append("TypeCode IConvertible.GetTypeCode()")
@@ -644,24 +646,32 @@ internal static class MethodGeneratorHelper
 		sb.AppendLine("public XmlSchema? GetSchema() => null;")
 			.NewLine();
 
-		var typeName = CapitalizeFirstLetter(data.PrimitiveTypeFriendlyName);
+		//var typeName = CapitalizeFirstLetter(data.PrimitiveTypeFriendlyName);
+
+		var method = data.PrimitiveTypeFriendlyName switch
+		{
+			"string" => "ReadElementContentAsString",
+			"bool" => "ReadElementContentAsBoolean",
+			_ => $"ReadElementContentAs<{data.PrimitiveTypeFriendlyName}>"
+		};
 
 		sb.AppendInheritDoc();
 		sb.AppendLine("public void ReadXml(XmlReader reader)")
 			.OpenBracket()
-			.Append("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = reader.ReadElementContentAs").Append(typeName).AppendLine("();")
-			.AppendLineIf(data.GenerateIsInitializedField, "System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true")
+			.Append("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = reader.").Append(method).AppendLine("();")
+			.AppendLineIf(data.GenerateIsInitializedField, "System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;")
 			.CloseBracket()
 			.NewLine();
 
 		sb.AppendInheritDoc();
-		sb.AppendLine(data.PrimitiveTypeFriendlyName == "string"
-			? "public void WriteXml(XmlWriter writer) => writer.WriteString(_valueOrDefault);"
-			: "public void WriteXml(XmlWriter writer) => writer.WriteString(_valueOrDefault.ToXmlString());");
+
+		if (data.PrimitiveTypeFriendlyName == "string")
+			sb.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName});");
+		else
+		if (data.SerializationFormat is null)
+			sb.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteValue((({data.PrimitiveTypeFriendlyName}){data.FieldName}).ToXmlString());");
+		else
+			sb.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName}.ToString(\"{data.SerializationFormat}\"));");
 		sb.NewLine();
-
-		return;
-
-		static string CapitalizeFirstLetter(string input) => string.IsNullOrEmpty(input) ? input : char.ToUpper(input[0], CultureInfo.InvariantCulture) + input.Substring(1);
 	}
 }

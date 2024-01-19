@@ -22,8 +22,7 @@ internal static class CompilationExt
 	/// <returns>True if the type implements the IDomainValue interface; otherwise, false.</returns>
 	public static bool IsDomainValue(this INamedTypeSymbol x)
 	{
-		return x is { IsGenericType: true, Name: "IDomainValue" } &&
-			   x.ContainingNamespace.ToDisplayString() == "AltaSoft.DomainPrimitives.Abstractions";
+		return x is { IsGenericType: true, Name: "IDomainValue" } && x.ContainingNamespace.ToDisplayString() == "AltaSoft.DomainPrimitives";
 	}
 
 	/// <summary>

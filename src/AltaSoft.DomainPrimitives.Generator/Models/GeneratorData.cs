@@ -122,14 +122,4 @@ internal sealed class GeneratorData
 	/// Gets or sets a value indicating whether the generate IXmlSerializable methods.
 	/// </summary>
 	public bool GenerateXmlSerializableMethods { get; set; }
-
-	/// <summary>
-	/// Gets the field name for convertible types, including conversions for DateOnly and TimeOnly.
-	/// </summary>
-	public string GetFieldNameForConvertible()
-	{
-		return UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly
-			? FieldName + ".ToDateTime()"
-			: FieldName;
-	}
 }
