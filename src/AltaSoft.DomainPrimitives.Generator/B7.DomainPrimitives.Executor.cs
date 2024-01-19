@@ -698,6 +698,11 @@ internal static class Executor
 				.Append($"public static implicit operator DateTime({data.ClassName} value)")
 				.AppendLine($" => (({friendlyName})value.{data.FieldName}).ToDateTime();")
 				.NewLine();
+
+			sb.AppendSummary($"Implicit conversion from <see cref = \"DateTime\"/> to <see cref = \"{data.ClassName}\"/>")
+				.Append($"public static implicit operator {data.ClassName}(DateTime value)")
+				.AppendLine($" => {data.UnderlyingType}.FromDateTime(value);")
+				.NewLine();
 		}
 	}
 

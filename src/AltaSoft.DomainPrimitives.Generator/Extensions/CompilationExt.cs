@@ -169,7 +169,7 @@ internal static class CompilationExt
 			DomainPrimitiveUnderlyingType.Char => ("string", ""),
 
 			DomainPrimitiveUnderlyingType.DateTime => ("string", "date-time"),
-			DomainPrimitiveUnderlyingType.DateOnly => ("string", "yyyy-MM-dd"),
+			DomainPrimitiveUnderlyingType.DateOnly => ("date", "yyyy-MM-dd"),
 			DomainPrimitiveUnderlyingType.TimeOnly => ("string", "HH:mm:ss"),
 			DomainPrimitiveUnderlyingType.DateTimeOffset => ("string", "date-time"),
 			DomainPrimitiveUnderlyingType.TimeSpan => ("integer", "int64"),
