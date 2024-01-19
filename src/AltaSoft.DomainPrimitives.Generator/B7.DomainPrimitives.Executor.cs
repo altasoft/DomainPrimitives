@@ -405,7 +405,7 @@ internal static class Executor
 		}
 
 		var sb = new SourceCodeBuilder();
-		var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics" };
+		var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics", "System.Runtime.CompilerServices" };
 
 		if (data.ParentSymbols.Count > 0)
 		{
@@ -551,7 +551,9 @@ internal static class Executor
 		if (data.GenerateHashCode)
 		{
 			sb.AppendInheritDoc();
+			sb.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
 			sb.AppendLine($"public override int GetHashCode() => {data.FieldName}.GetHashCode();");
+			sb.NewLine();
 		}
 
 		if (data.GenerateConvertibles)
@@ -570,6 +572,7 @@ internal static class Executor
 			x.Parameters[0].Type.Equals(baseType, SymbolEqualityComparer.Default));
 
 		sb.AppendInheritDoc();
+		sb.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
 		if (hasExplicitToStringMethod)
 			sb.AppendLine($"public override string ToString() => ToString({data.FieldName});").NewLine();
 		else
@@ -665,6 +668,7 @@ internal static class Executor
 		if (data.TypeSymbol.IsValueType)
 		{
 			sb.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> to <see cref = \"{data.ClassName}\"/>")
+				.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 				.Append($"public static implicit operator {data.ClassName}({friendlyName} value)")
 			.AppendLine(" => new(value);")
 			.NewLine();
@@ -673,6 +677,7 @@ internal static class Executor
 		var type = data.PrimitiveTypeSymbol;
 
 		sb.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> (nullable) to <see cref = \"{data.ClassName}\"/> (nullable)")
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.AppendLine("[return: NotNullIfNotNull(nameof(value))]")
 			.Append($"public static implicit operator {data.ClassName}?({friendlyName}? value)")
 			.AppendLine($" => value is null ? null : new(value{(type.IsValueType ? ".Value" : "")});")
@@ -681,24 +686,28 @@ internal static class Executor
 		if (data.ParentSymbols.Count != 0)
 		{
 			sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ParentSymbols[0].Name}\"/> to <see cref = \"{data.ClassName}\"/>")
-			.Append($"public static implicit operator {data.ClassName}({data.ParentSymbols[0].Name} value)")
+				.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+				.Append($"public static implicit operator {data.ClassName}({data.ParentSymbols[0].Name} value)")
 				.AppendLine(" => new(value);")
 				.NewLine();
 		}
 
 		sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"{friendlyName}\"/>")
-		.Append($"public static implicit operator {friendlyName}({data.ClassName} value)")
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+			.Append($"public static implicit operator {friendlyName}({data.ClassName} value)")
 			.AppendLine($" => ({friendlyName})value.{data.FieldName};")
 			.NewLine();
 
 		if (data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
 		{
 			sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"DateTime\"/>")
+				.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 				.Append($"public static implicit operator DateTime({data.ClassName} value)")
 				.AppendLine($" => (({friendlyName})value.{data.FieldName}).ToDateTime();")
 				.NewLine();
 
 			sb.AppendSummary($"Implicit conversion from <see cref = \"DateTime\"/> to <see cref = \"{data.ClassName}\"/>")
+				.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 				.Append($"public static implicit operator {data.ClassName}(DateTime value)")
 				.AppendLine($" => {data.UnderlyingType}.FromDateTime(value);")
 				.NewLine();

@@ -340,6 +340,7 @@ internal static class MethodGeneratorHelper
 			fieldName = '(' + fieldName + ").ToDateTime()";
 
 		sb.AppendInheritDoc();
+		sb.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
 		sb.Append("TypeCode IConvertible.GetTypeCode()")
 			.AppendLine($" => ((IConvertible){fieldName}).GetTypeCode();")
 			.NewLine();
@@ -434,6 +435,7 @@ internal static class MethodGeneratorHelper
 	internal static void GenerateAdditionCode(string className, string fieldName, SourceCodeBuilder sb)
 	{
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static {className} operator +({className} left, {className} right)")
 			.AppendLine($" => new(left.{fieldName} + right.{fieldName});");
 	}
@@ -470,21 +472,25 @@ internal static class MethodGeneratorHelper
 	internal static void GenerateComparisonCode(string className, string fieldName, SourceCodeBuilder sb)
 	{
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static bool operator <({className} left, {className} right)")
 			.AppendLine($" => left.{fieldName} < right.{fieldName};")
 			.NewLine();
 
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static bool operator <=({className} left, {className} right)")
 			.AppendLine($" => left.{fieldName} <= right.{fieldName};")
 			.NewLine();
 
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static bool operator >({className} left, {className} right)")
 			.AppendLine($" => left.{fieldName} > right.{fieldName};")
 			.NewLine();
 
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static bool operator >=({className} left, {className} right)")
 			.AppendLine($" => left.{fieldName} >= right.{fieldName};")
 			.NewLine();
@@ -499,6 +505,7 @@ internal static class MethodGeneratorHelper
 	public static void GenerateDivisionCode(string className, string fieldName, SourceCodeBuilder sb)
 	{
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static {className} operator /({className} left, {className} right)")
 			.AppendLine($" => new(left.{fieldName} / right.{fieldName});");
 	}
@@ -512,6 +519,7 @@ internal static class MethodGeneratorHelper
 	public static void GenerateMultiplyCode(string className, string fieldName, SourceCodeBuilder sb)
 	{
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static {className} operator *({className} left, {className} right)")
 			.AppendLine($" => new(left.{fieldName} * right.{fieldName});");
 	}
@@ -525,6 +533,7 @@ internal static class MethodGeneratorHelper
 	public static void GenerateSubtractionCode(string className, string fieldName, SourceCodeBuilder sb)
 	{
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static {className} operator -({className} left, {className} right)")
 			.AppendLine($" => new(left.{fieldName} - right.{fieldName});");
 	}
@@ -538,6 +547,7 @@ internal static class MethodGeneratorHelper
 	public static void GenerateModulusCode(string className, string fieldName, SourceCodeBuilder sb)
 	{
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static {className} operator %({className} left, {className} right)")
 			.AppendLine($" => new(left.{fieldName} % right.{fieldName});");
 	}
@@ -550,10 +560,13 @@ internal static class MethodGeneratorHelper
 	public static void GenerateSpanFormattable(SourceCodeBuilder sb, string fieldName)
 	{
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.AppendLine($"public string ToString(string? format, IFormatProvider? formatProvider) => {fieldName}.ToString(format, formatProvider);")
 			.NewLine();
 
-		sb.AppendInheritDoc().AppendLine("public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)")
+		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+			.AppendLine("public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)")
 			.OpenBracket()
 			.Append("return ((ISpanFormattable)").Append(fieldName).AppendLine(").TryFormat(destination, out charsWritten, format, provider);")
 			.CloseBracket()
@@ -569,6 +582,7 @@ internal static class MethodGeneratorHelper
 	{
 		sb.AppendPreProcessorDirective("if NET8_0_OR_GREATER")
 			.AppendInheritDoc("IUtf8SpanFormattable.TryFormat")
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.AppendLine("public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)")
 			.OpenBracket()
 			.Append("return ((IUtf8SpanFormattable)").Append(fieldName).AppendLine(").TryFormat(utf8Destination, out bytesWritten, format, provider);")
@@ -593,6 +607,7 @@ internal static class MethodGeneratorHelper
 		var format = data.SerializationFormat;
 
 		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
 			.Append($"public static {dataClassName} Parse(string s, IFormatProvider? provider) => ");
 
 		var isString = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.String;
@@ -673,15 +688,23 @@ internal static class MethodGeneratorHelper
 	/// <param name="sb">The source code builder.</param>
 	public static void GenerateEquatableOperators(string className, string fieldName, bool isValueType, SourceCodeBuilder sb)
 	{
-		sb.AppendInheritDoc().AppendLine($"public override bool Equals(object? obj) => obj is {className} other && Equals(other);");
+		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+			.AppendLine($"public override bool Equals(object? obj) => obj is {className} other && Equals(other);");
 
 		var nullable = isValueType ? "" : "?";
 
-		sb.AppendInheritDoc().AppendLine($"public bool Equals({className}{nullable} other) => {fieldName} == other{nullable}.{fieldName};");
+		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+			.AppendLine($"public bool Equals({className}{nullable} other) => {fieldName} == other{nullable}.{fieldName};");
 
-		sb.AppendInheritDoc().AppendLine($"public static bool operator ==({className} left, {className} right) => left.Equals(right);");
+		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+			.AppendLine($"public static bool operator ==({className} left, {className} right) => left.Equals(right);");
 
-		sb.AppendInheritDoc().AppendLine($"public static bool operator !=({className} left, {className} right) => !(left == right);");
+		sb.AppendInheritDoc()
+			.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+			.AppendLine($"public static bool operator !=({className} left, {className} right) => !(left == right);");
 	}
 
 	/// <summary>
