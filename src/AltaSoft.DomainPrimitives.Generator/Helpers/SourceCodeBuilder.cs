@@ -37,17 +37,15 @@ internal sealed class SourceCodeBuilder
 		if (startingIndent > 0)
 			_tabs.Append(Tab, startingIndent);
 	}
-
-	public bool TryRemoveLastLineComma()
+	/// <summary>Gets or sets the length of the current <see cref="T:System.Text.StringBuilder" /> object.</summary>
+	/// <exception cref="T:System.ArgumentOutOfRangeException">The value specified for a set operation is less than zero or greater than <see cref="P:System.Text.StringBuilder.MaxCapacity" />.</exception>
+	/// <returns>The length of this instance.</returns>
+	public int Length
 	{
-		var lastComma = _sb.ToString().LastIndexOf(',');
-
-		if (lastComma <= 0)
-			return false;
-
-		_sb.Remove(lastComma, 1);
-		return true;
+		get => _sb.Length;
+		set => _sb.Length = value;
 	}
+
 	/// <summary>
 	/// Adds the auto-generated comment to the source code.
 	/// </summary>
@@ -236,6 +234,8 @@ internal sealed class SourceCodeBuilder
 	/// <param name="directive">The preprocessor directive to append.</param>
 	/// <returns>A reference to the updated SourceCodeBuilder instance.</returns>
 	public SourceCodeBuilder AppendPreProcessorDirective(string directive) => AppendLine($"#{directive}", false);
+
+
 
 	/// <summary>
 	/// Appends the specified line to the source code with an optional indentation and a newline.
