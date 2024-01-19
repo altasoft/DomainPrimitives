@@ -38,6 +38,16 @@ internal sealed class SourceCodeBuilder
 			_tabs.Append(Tab, startingIndent);
 	}
 
+	public bool TryRemoveLastLineComma()
+	{
+		var lastComma = _sb.ToString().LastIndexOf(',');
+
+		if (lastComma <= 0)
+			return false;
+
+		_sb.Remove(lastComma, 1);
+		return true;
+	}
 	/// <summary>
 	/// Adds the auto-generated comment to the source code.
 	/// </summary>

@@ -30,6 +30,7 @@ internal static class MethodGeneratorHelper
 		usings.Add("Microsoft.Extensions.DependencyInjection");
 		usings.Add("Swashbuckle.AspNetCore.SwaggerGen");
 		usings.Add("Microsoft.OpenApi.Models");
+		usings.Add("Microsoft.OpenApi.Any");
 		sb.AppendUsings(usings);
 
 		var ns = string.Join(".", assemblyName.Split('.').Select(s => char.IsDigit(s[0]) ? '_' + s : s));
@@ -73,13 +74,22 @@ internal static class MethodGeneratorHelper
 				sb.Append("options.MapType<").Append(data.ClassName);
 				if (isNullable)
 					sb.Append("?");
-				sb.Append(">(() => new OpenApiSchema { Type = ").Append(Quote(typeName));
+				sb.Append(">(() => new OpenApiSchema")
+					.OpenBracket()
+
+					.Append("Type = ").Append(Quote(typeName)).AppendLine(",");
 				if (!string.IsNullOrEmpty(format))
-					sb.Append(", Format = ").Append(Quote(data.SerializationFormat ?? format));
+					sb.Append("Format = ").Append(Quote(data.SerializationFormat ?? format)).AppendLine(",");
 				if (isNullable)
-					sb.Append(", Nullable = true");
+					sb.AppendLine("Nullable = true,");
+
 				var title = isNullable ? $"Nullable<{data.ClassName}>" : data.ClassName;
-				sb.Append(", Title = ").Append(Quote(title));
+				sb.Append("Title = ").Append(Quote(title)).AppendLine(",");
+
+				var defaultValue = CreateDefaultValue(data.UnderlyingType, data.ClassName, data.SerializationFormat);
+
+				if (defaultValue is not null)
+					sb.Append("Default = ").Append(defaultValue).AppendLine(",");
 
 				if (!string.IsNullOrEmpty(xmlDocumentation))
 				{
@@ -91,11 +101,19 @@ internal static class MethodGeneratorHelper
 
 					if (summaryNode is not null)
 					{
-						sb.Append(", Description = @").Append(Quote(summaryNode.InnerText.Trim()));
+						sb.Append("Description = @").Append(Quote(summaryNode.InnerText.Trim())).AppendLine(",");
+					}
+
+					var example = xmlDoc.SelectSingleNode("member/example");
+					if (example is not null)
+					{
+						var exampleValue = example.InnerText.Trim().Replace("\"", "\\\"");
+						sb.Append("Example = new OpenApiString(").Append("\"" + exampleValue + "\"").AppendLine("),");
 					}
 				}
 
-				sb.AppendLine(" });");
+				sb.TryRemoveLastLineComma();
+				sb.AppendLine("});");
 			}
 		}
 
@@ -107,6 +125,36 @@ internal static class MethodGeneratorHelper
 		return;
 
 		static string Quote(string? value) => '\"' + value?.Replace("\"", "\"\"") + '\"';
+
+		static string? CreateDefaultValue(DomainPrimitiveUnderlyingType underlyingType, string className, string? serializationFormat)
+		{
+			return (underlyingType) switch
+			{
+				DomainPrimitiveUnderlyingType.String => $"new OpenApiString({className}.Default)",
+				DomainPrimitiveUnderlyingType.Guid => $"new OpenApiString({className}.Default.ToString())",
+				DomainPrimitiveUnderlyingType.Boolean => $"new OpenApiBoolean({className}.Default)",
+				DomainPrimitiveUnderlyingType.SByte => $"new OpenApiByte((byte){className}.Default)",
+				DomainPrimitiveUnderlyingType.Byte => $"new OpenApiByte({className}.Default)",
+				DomainPrimitiveUnderlyingType.Int16 => $"new OpenApiInteger({className}.Default)",
+				DomainPrimitiveUnderlyingType.UInt16 => $"new OpenApiInteger((short){className}.Default)",
+				DomainPrimitiveUnderlyingType.Int32 => $"new OpenApiInteger({className}.Default)",
+				DomainPrimitiveUnderlyingType.UInt32 => $"new OpenApiInteger((int){className}.Default)",
+				DomainPrimitiveUnderlyingType.Int64 => $"new OpenApiLong({className}.Default)",
+				DomainPrimitiveUnderlyingType.UInt64 => $"new OpenApiLong((long){className}.Default)",
+				DomainPrimitiveUnderlyingType.Decimal => $"new OpenApiDouble(decimal.ToDouble({className}.Default))",
+				DomainPrimitiveUnderlyingType.Single => $"new OpenApiFloat({className}.Default)",
+				DomainPrimitiveUnderlyingType.Double => $"new OpenApiDouble({className}.Default)",
+				DomainPrimitiveUnderlyingType.DateTime when serializationFormat is null => $"new OpenApiDateTime({className}.Default)",
+				DomainPrimitiveUnderlyingType.DateTime => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat}\", null))",
+				DomainPrimitiveUnderlyingType.DateOnly => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "YYYY-MM-DD"}\", null))",
+				DomainPrimitiveUnderlyingType.TimeOnly => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "hh:mm:ss"}\", null))",
+				DomainPrimitiveUnderlyingType.TimeSpan => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "hh:mm:ss"}\", null))",
+				DomainPrimitiveUnderlyingType.DateTimeOffset when serializationFormat is null => $"new OpenApiDateTime(((DateTimeOffset){className}.Default).DateTime)",
+				DomainPrimitiveUnderlyingType.DateTimeOffset => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat}\", null))",
+				DomainPrimitiveUnderlyingType.Char => $"new OpenApiString({className}.Default.ToString())",
+				_ => null
+			};
+		}
 	}
 
 	/// <summary>
