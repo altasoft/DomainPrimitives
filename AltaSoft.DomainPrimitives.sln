@@ -11,8 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.G
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF9447CC-2D00-495A-A8C3-D4890EADB01B}"
 	ProjectSection(SolutionItems) = preProject
-		AltaSoft.DomainPrimitives.nuspec = AltaSoft.DomainPrimitives.nuspec
-		build.bat = build.bat
+		Directory.Build.props = Directory.Build.props
 		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		LICENSE.txt = LICENSE.txt
 		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml

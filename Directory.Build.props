@@ -1,0 +1,32 @@
+<Project>
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<Nullable>enable</Nullable>
+		<LangVersion>Latest</LangVersion>
+		<GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+		<Authors>ALTA Software llc.</Authors>
+		<Product>Domain Primitives</Product>
+		<Company>ALTA Software llc.</Company>
+		<Copyright>Copyright © 2024 ALTA Software llc.</Copyright>
+		<Version>1.0.35</Version>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<ProjectUrl>https://github.com/altasoft/DomainPrimitives</ProjectUrl>
+		<RepositoryUrl>https://github.com/altasoft/DomainPrimitives</RepositoryUrl>
+		<RepositoryType>git</RepositoryType>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<PackageProjectUrl>https://github.com/altasoft/DomainPrimitives</PackageProjectUrl>
+		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
+		<EnableNETAnalyzers>True</EnableNETAnalyzers>
+		<PackageTags>ddd;domain;entity;dotnet-core;value-object;strongly-typed;</PackageTags>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+</Project>

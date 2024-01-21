@@ -1,0 +1,6 @@
+<Project>
+	<ItemGroup>
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
+	</ItemGroup>
+</Project>
