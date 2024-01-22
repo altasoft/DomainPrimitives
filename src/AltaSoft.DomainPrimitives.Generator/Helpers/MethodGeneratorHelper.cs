@@ -1,8 +1,9 @@
-﻿using AltaSoft.DomainPrimitives.Generator.Extensions;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
-using System.Linq;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
@@ -11,6 +12,17 @@ namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 /// </summary>
 internal static class MethodGeneratorHelper
 {
+    /// <summary>
+    /// Represents the length of a new line character sequence.
+    /// </summary>
+    internal static readonly int s_newLineLength = GetNewLineLength();
+
+    /// <summary>
+    /// Retrieves the length of a new line character sequence.
+    /// </summary>
+    /// <returns>The length of a new line character sequence.</returns>
+    private static int GetNewLineLength() => new StringBuilder().AppendLine().Length;
+
     /// <summary>
     /// Adds Swagger mappings for specific custom types to ensure proper OpenAPI documentation generation.
     /// </summary>
@@ -111,7 +123,7 @@ internal static class MethodGeneratorHelper
                     }
                 }
 
-                sb.Length -= 3;
+                sb.Length -= s_newLineLength + 1;
                 sb.NewLine();
                 sb.AppendLine("});");
             }
