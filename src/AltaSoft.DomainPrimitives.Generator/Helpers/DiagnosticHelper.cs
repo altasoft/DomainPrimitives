@@ -115,6 +115,25 @@ internal static class DiagnosticHelper
 	}
 
 	/// <summary>
+	/// Creates a diagnostic for a type that should be a reference type.
+	/// </summary>
+	/// <param name="className">The name of the class that violates the rule.</param>
+	/// <param name="baseTypeName">The name of the expected base type.</param>
+	/// <param name="location">The location where the diagnostic occurs.</param>
+	/// <returns>A diagnostic indicating that the type should be a reference type.</returns>
+	internal static Diagnostic TypeShouldBeReferenceType(string className, string baseTypeName, Location? location)
+	{
+		return Diagnostic.Create(
+			new DiagnosticDescriptor(
+				"AL1016",
+				"Type should be a reference type",
+				"Type `{0}` should be a reference type as it's wrapping a reference type of `{1}`",
+				"General",
+				DiagnosticSeverity.Error,
+				isEnabledByDefault: true), location, className, baseTypeName);
+	}
+
+	/// <summary>
 	/// Creates a diagnostic for a type that should be a value type.
 	/// </summary>
 	/// <param name="className">The name of the class that violates the rule.</param>

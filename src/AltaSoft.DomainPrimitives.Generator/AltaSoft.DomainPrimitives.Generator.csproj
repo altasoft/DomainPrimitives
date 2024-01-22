@@ -28,6 +28,8 @@
 
 	<ItemGroup>
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateSwaggerConverters" />
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
 	</ItemGroup>
 

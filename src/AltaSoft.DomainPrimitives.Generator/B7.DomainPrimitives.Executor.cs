@@ -48,9 +48,15 @@ internal static class Executor
 				if (generatorData is null)
 					continue;
 
-				if (generatorData.PrimitiveTypeSymbol.IsValueType && !generatorData.TypeSymbol.IsValueType)
+				switch (generatorData.PrimitiveTypeSymbol.IsValueType)
 				{
-					context.ReportDiagnostic(DiagnosticHelper.TypeShouldBeValueType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName, typeSymbol.Locations.FirstOrDefault()));
+					case true when !generatorData.TypeSymbol.IsValueType:
+						context.ReportDiagnostic(DiagnosticHelper.TypeShouldBeValueType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName, typeSymbol.Locations.FirstOrDefault()));
+						break;
+
+					case false when generatorData.TypeSymbol.IsValueType:
+						context.ReportDiagnostic(DiagnosticHelper.TypeShouldBeReferenceType(generatorData.ClassName, generatorData.PrimitiveTypeFriendlyName, typeSymbol.Locations.FirstOrDefault()));
+						break;
 				}
 
 				if (!ProcessType(generatorData, globalOptions, context))
