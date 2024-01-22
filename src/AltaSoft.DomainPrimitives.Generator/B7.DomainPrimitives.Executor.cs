@@ -773,9 +773,6 @@ internal static class Executor
 			.AppendLineIf(data.GenerateIsInitializedField, "_isInitialized = true;")
 			.CloseBracket();
 
-		if (!type.IsValueType)
-			return true;
-
 		var primitiveTypeIsValueType = data.PrimitiveTypeSymbol.IsValueType;
 		if (!primitiveTypeIsValueType)
 			sb.AppendLine("#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");

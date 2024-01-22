@@ -11,11 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.G
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF9447CC-2D00-495A-A8C3-D4890EADB01B}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\build_nuget_dont_publish.yml = .github\workflows\build_nuget_dont_publish.yml
 		Directory.Build.props = Directory.Build.props
-		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
 		LICENSE.txt = LICENSE.txt
-		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
@@ -24,6 +21,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{09A03F75-1F18-45BC-9D0A-289AC607DAD0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.Generator.Tests", "tests\AltaSoft.DomainPrimitives.Generator.Tests\AltaSoft.DomainPrimitives.Generator.Tests.csproj", "{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubActions", "GitHubActions", "{A7BFF96E-3DFF-4132-AD2B-7C529C14A3E8}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build_nuget_dont_publish.yml = .github\workflows\build_nuget_dont_publish.yml
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -58,6 +62,7 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
 		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
+		{A7BFF96E-3DFF-4132-AD2B-7C529C14A3E8} = {BF9447CC-2D00-495A-A8C3-D4890EADB01B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {84804F7F-F00C-454C-A90E-4013B6EA6263}
