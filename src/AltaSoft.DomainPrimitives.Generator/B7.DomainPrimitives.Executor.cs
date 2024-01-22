@@ -601,27 +601,27 @@ internal static class Executor
 
 			if (data.GenerateAdditionOperators)
 			{
-				AppendInterface(sb, "IAdditionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "IAdditionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append('>');
 			}
 
 			if (data.GenerateSubtractionOperators)
 			{
-				AppendInterface(sb, "ISubtractionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "ISubtractionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append('>');
 			}
 
 			if (data.GenerateMultiplyOperators)
 			{
-				AppendInterface(sb, "IMultiplyOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "IMultiplyOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append('>');
 			}
 
 			if (data.GenerateDivisionOperators)
 			{
-				AppendInterface(sb, "IDivisionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "IDivisionOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append('>');
 			}
 
 			if (data.GenerateModulusOperator)
 			{
-				AppendInterface(sb, "IModulusOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append(">");
+				AppendInterface(sb, "IModulusOperators<").Append(className).Append(", ").Append(className).Append(", ").Append(className).Append('>');
 			}
 
 			if (data.GenerateComparison)

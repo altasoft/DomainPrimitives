@@ -8,7 +8,7 @@ namespace AltaSoft.DomainPrimitives;
 /// <remarks>
 /// The AsciiString ensures that its value contains only ASCII characters.
 /// </remarks>
-public readonly partial struct AsciiString : IDomainValue<string>
+public partial class AsciiString : IDomainValue<string>
 {
 	/// <inheritdoc/>
 	public static void Validate(string value)

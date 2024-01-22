@@ -637,7 +637,7 @@ internal static class MethodGeneratorHelper
 		sb.NewLine();
 
 		sb.AppendInheritDoc()
-			.AppendLine($"public static bool TryParse(string? s, IFormatProvider? provider, out {dataClassName} result)")
+			.AppendLine($"public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out {dataClassName} result)")
 			.OpenBracket();
 
 		if (isString)

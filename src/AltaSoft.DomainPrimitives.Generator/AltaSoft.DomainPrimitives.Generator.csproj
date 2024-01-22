@@ -22,7 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Include="..\AltaSoft.DomainPrimitives\SerializationFormatAttribute.cs" Link="SerializationFormatAttribute.cs" />
+		<Compile Include="..\AltaSoft.DomainPrimitives\SerializationFormatAttribute.cs" Link="SerializationFormatAttribute.cs"  />
 		<Compile Include="..\AltaSoft.DomainPrimitives\SupportedOperationsAttribute.cs" Link="SupportedOperationsAttribute.cs" />
 	</ItemGroup>
 

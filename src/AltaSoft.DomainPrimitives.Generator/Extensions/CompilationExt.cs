@@ -89,7 +89,7 @@ internal static class CompilationExt
 		if (type.TypeArguments.Length == 0)
 			return builder.ToString();
 
-		builder.Append("<");
+		builder.Append('<');
 		for (var index = 0; index < type.TypeArguments.Length; index++)
 		{
 			var arg = type.TypeArguments[index];
@@ -99,7 +99,7 @@ internal static class CompilationExt
 				builder.Append(", ");
 		}
 
-		builder.Append(">");
+		builder.Append('>');
 
 		return builder.ToString();
 	}
