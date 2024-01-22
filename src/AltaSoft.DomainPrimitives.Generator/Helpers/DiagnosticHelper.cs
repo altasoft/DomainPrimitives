@@ -148,7 +148,7 @@ internal static class DiagnosticHelper
 				"Type should be a value type",
 				"Type `{0}` should be a value type as it's wrapping a value type of `{1}`",
 				"General",
-				DiagnosticSeverity.Error,
+				DiagnosticSeverity.Warning,
 				isEnabledByDefault: true), location, className, baseTypeName);
 	}
 
