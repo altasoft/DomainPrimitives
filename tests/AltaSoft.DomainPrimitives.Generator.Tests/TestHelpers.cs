@@ -1,10 +1,13 @@
-﻿using AltaSoft.DomainPrimitives.Abstractions;
-using AltaSoft.DomainPrimitives.Generator.Models;
+﻿using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
+
+// ReSharper disable ConvertToPrimaryConstructor
+
+#pragma warning disable IDE0290
 
 namespace AltaSoft.DomainPrimitives.Generator.Tests;
 
@@ -16,8 +19,8 @@ internal static class TestHelpers
 	{
 		var syntaxTree = CSharpSyntaxTree.ParseText(source);
 		var references = AppDomain.CurrentDomain.GetAssemblies()
-			.Where(_ => !_.IsDynamic && !string.IsNullOrWhiteSpace(_.Location))
-			.Select(_ => MetadataReference.CreateFromFile(_.Location))
+			.Where(x => !x.IsDynamic && !string.IsNullOrWhiteSpace(x.Location))
+			.Select(x => MetadataReference.CreateFromFile(x.Location))
 			.Concat(new[]
 			{
 				MetadataReference.CreateFromFile(typeof(T).Assembly.Location),

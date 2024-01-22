@@ -1,4 +1,4 @@
-﻿namespace AltaSoft.DomainPrimitives.Tests;
+﻿namespace AltaSoft.DomainPrimitives.XmlDataTypes.Tests;
 
 /// <summary>
 /// This class contains unit tests for the Positive class.

@@ -20,6 +20,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.XmlDataTypes.Tests", "tests\AltaSoft.DomainPrimitives.XmlDataTypes.Tests\AltaSoft.DomainPrimitives.XmlDataTypes.Tests.csproj", "{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{09A03F75-1F18-45BC-9D0A-289AC607DAD0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.Generator.Tests", "tests\AltaSoft.DomainPrimitives.Generator.Tests\AltaSoft.DomainPrimitives.Generator.Tests.csproj", "{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,9 +46,17 @@ Global
 		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {84804F7F-F00C-454C-A90E-4013B6EA6263}

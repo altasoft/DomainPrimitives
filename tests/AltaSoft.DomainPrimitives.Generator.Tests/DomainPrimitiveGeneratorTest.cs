@@ -10,29 +10,29 @@ public class DomainPrimitiveGeneratorTest
 	public Task StringValue_GeneratesAllInterfacesAndConverters()
 	{
 		const string source = """
-		             using System;
-		             using System.Collections.Generic;
-		             using System.Linq;
-		             using System.Text;
-		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		                      using System;
+		                      using System.Collections.Generic;
+		                      using System.Linq;
+		                      using System.Text;
+		                      using System.Threading.Tasks;
+		                      using AltaSoft.DomainPrimitives.Abstractions;
 
-		             namespace AltaSoft.DomainPrimitives;
+		                      namespace AltaSoft.DomainPrimitives;
 
-		             /// <inheritdoc/>
-		             public readonly partial struct StringValue : IDomainValue<string>
-		             {
-		             	/// <inheritdoc/>
-		             	public static void Validate(string value)
-		             	{
-		             		if (value=="Test")
-		             			throw new InvalidDomainValueException("Invalid Value");
-		             	}
+		                      /// <inheritdoc/>
+		                      public readonly partial struct StringValue : IDomainValue<string>
+		                      {
+		                      /// <inheritdoc/>
+		                      public static void Validate(string value)
+		                      {
+		                          if (value=="Test")
+		                              throw new InvalidDomainValueException("Invalid Value");
+		                      }
 
-		             	/// <inheritdoc/>
-		             	public static string Default => default;
-		             }
-		             """;
+		                      /// <inheritdoc/>
+		                      public static string Default => default;
+		                      }
+		                      """;
 
 		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
 	}
@@ -630,6 +630,7 @@ public class DomainPrimitiveGeneratorTest
 			var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, options);
 
 			additionalChecks?.Invoke(diagnostics, output, driver);
+
 			return Verifier.Verify(driver).UseDirectory("Snapshots");
 		}
 	}

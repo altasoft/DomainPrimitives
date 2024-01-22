@@ -1,8 +1,4 @@
-﻿#if DEBUG
-
-#endif
-
-using AltaSoft.DomainPrimitives.Generator.Extensions;
+﻿using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -25,7 +21,7 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 	public void Initialize(IncrementalGeneratorInitializationContext context)
 	{
 		//#if DEBUG
-		//		Debugger.Launch();
+		//		System.Diagnostics.Debugger.Launch();
 		//#endif
 
 		var domainPrimitivesToGenerate = context.SyntaxProvider.CreateSyntaxProvider(

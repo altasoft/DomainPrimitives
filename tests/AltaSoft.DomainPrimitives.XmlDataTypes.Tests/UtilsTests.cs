@@ -1,6 +1,6 @@
 
 
-namespace AltaSoft.DomainPrimitives.Tests;
+namespace AltaSoft.DomainPrimitives.XmlDataTypes.Tests;
 
 /// <summary>
 /// Test class for Utils methods.

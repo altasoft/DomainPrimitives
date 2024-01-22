@@ -1,6 +1,4 @@
-﻿
-
-namespace AltaSoft.DomainPrimitives.Tests;
+﻿namespace AltaSoft.DomainPrimitives.XmlDataTypes.Tests;
 
 /// <summary>
 /// Contains unit tests for the NonEmptyString class.

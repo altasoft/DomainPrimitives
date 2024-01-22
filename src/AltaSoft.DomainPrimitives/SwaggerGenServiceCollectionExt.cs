@@ -3,6 +3,8 @@ using System;
 using System.Linq;
 using System.Reflection;
 
+// ReSharper disable UnusedMember.Global
+
 namespace AltaSoft.DomainPrimitives;
 
 /// <summary>
@@ -22,7 +24,7 @@ public static class SwaggerGenOptionsExt
 
 		// Retrieves all types from all loaded assemblies that have a static SwaggerTypeHelper.AddSwaggerMappings method.
 		var typesWithAddSwaggerMappings = loadedAssemblies
-			.SelectMany(assembly => assembly.GetExportedTypes().Where(type => type.IsPublic && type.Name == "SwaggerTypeHelper"))
+			.SelectMany(assembly => assembly.GetExportedTypes().Where(type => type is { IsPublic: true, Name: "SwaggerTypeHelper" }))
 			.Select(type => type.GetMethod("AddSwaggerMappings", BindingFlags.Public | BindingFlags.Static));
 
 		// Calls the AddSwaggerMappings method for each type.

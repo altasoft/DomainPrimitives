@@ -8,6 +8,9 @@ using System.Text.Json.Serialization.Metadata;
 
 namespace AltaSoft.DomainPrimitives;
 
+/// <summary>
+/// Provides a set of static methods for retrieving JSON converters for various data types.
+/// </summary>
 public static class JsonInternalConverters
 {
 	/// <summary>
@@ -185,6 +188,7 @@ public static class JsonInternalConverters
 		var internalConverterProp = type.GetProperty("IsInternalConverter", BindingFlags.Instance | BindingFlags.NonPublic)
 									?? throw new Exception("Cannot convert to value");
 
+		// ReSharper disable once UseCollectionExpression
 		internalConverterProp.SetMethod!.Invoke(instance, new object[] { false });
 		return instance;
 	}

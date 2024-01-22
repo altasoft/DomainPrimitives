@@ -3,6 +3,8 @@ using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Xml;
 
+// ReSharper disable StringLiteralTypo
+// ReSharper disable CommentTypo
 // ReSharper disable UnusedMember.Global
 
 namespace AltaSoft.DomainPrimitives;
