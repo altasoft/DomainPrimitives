@@ -86,7 +86,7 @@ In your project file add references as follows:
 ```xml
 <ItemGroup>
   <PackageReference Include="AltaSoft.DomainPrimitives" Version="x.x.x" />
-  <PackageReference Include="AltaSoft.DomainPrimitives.Generator" Version="x.x.x"  PrivateAssets="all" />
+  <PackageReference Include="AltaSoft.DomainPrimitives.Generator" Version="x.x.x" PrivateAssets="all" />
 </ItemGroup>
 ```
 
@@ -601,17 +601,18 @@ public readonly partial struct GDay : IDomainValue<DateOnly>
 
 # Disable Generation of Converters 
 
-To disable the generation of Converters or Swagger Mappers in csproj file follow the below described steps.However,please note that if Swagger is **enabled** then you'll need to add reference to the  **Swashbuckle.AspNetCore.SwaggerGen**
+To disable the generation of Converters, Swagger Mappers or XML serialization, in .csproj file follow the below described steps.
 
 ```xml
   <PropertyGroup>
     <DomainPrimitiveGenerator_GenerateJsonConverters>false</DomainPrimitiveGenerator_GenerateJsonConverters>
     <DomainPrimitiveGenerator_GenerateTypeConverters>false</DomainPrimitiveGenerator_GenerateTypeConverters>
     <DomainPrimitiveGenerator_GenerateSwaggerConverters>false</DomainPrimitiveGenerator_GenerateSwaggerConverters>
-    <DomainPrimitiveGenerator_GenerateXmlSerialization>true</DomainPrimitiveGenerator_GenerateXmlSerialization> 
+    <DomainPrimitiveGenerator_GenerateXmlSerialization>false</DomainPrimitiveGenerator_GenerateXmlSerialization> 
   </PropertyGroup>
 ```
-Please note that `DomainPrimitiveGenerator_GenerateXmlSerialization` value by default is `false`.
+
+:warning: Please note that `DomainPrimitiveGenerator_GenerateXmlSerialization` value by default is `false`.
 
 # Additional Features 
 
