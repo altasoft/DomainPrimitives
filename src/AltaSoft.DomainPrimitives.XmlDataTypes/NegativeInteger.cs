@@ -1,4 +1,4 @@
-﻿namespace AltaSoft.DomainPrimitives;
+﻿namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 /// <summary>
 /// A domain primitive type representing a negative integer.

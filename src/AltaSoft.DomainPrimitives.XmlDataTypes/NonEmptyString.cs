@@ -1,4 +1,4 @@
-﻿namespace AltaSoft.DomainPrimitives;
+﻿namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 /// <summary>
 /// A domain primitive representing a non-empty string.

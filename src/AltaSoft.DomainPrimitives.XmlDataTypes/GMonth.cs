@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AltaSoft.DomainPrimitives;
+namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 /// <summary>
 /// Represents an XML gMonth value object, providing operations for parsing and handling gMonth values.

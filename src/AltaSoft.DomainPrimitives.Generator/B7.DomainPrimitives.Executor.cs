@@ -35,7 +35,7 @@ internal static class Executor
 			return;
 
 		var swaggerTypes = new List<GeneratorData>(typesToGenerate.Length);
-		var cachedOperationsAttributes = new Dictionary<INamedTypeSymbol, SupportedOperationsAttribute>(SymbolEqualityComparer.Default);
+		var cachedOperationsAttributes = new Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData>(SymbolEqualityComparer.Default);
 
 		try
 		{
@@ -88,7 +88,7 @@ internal static class Executor
 	/// Creates generator data for a specified class symbol.
 	/// </summary>
 	/// <returns>The GeneratorData for the class or null if not applicable.</returns>
-	private static GeneratorData? CreateGeneratorData(SourceProductionContext context, INamedTypeSymbol typeSymbol, DomainPrimitiveGlobalOptions globalOptions, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
+	private static GeneratorData? CreateGeneratorData(SourceProductionContext context, INamedTypeSymbol typeSymbol, DomainPrimitiveGlobalOptions globalOptions, Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData> cachedOperationsAttributes)
 	{
 		var interfaceType = typeSymbol.AllInterfaces.First(x => x.IsDomainValue());
 
@@ -132,8 +132,8 @@ internal static class Executor
 		};
 
 		var attributes = typeSymbol.GetAttributes();
-		var attributeData = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SupportedOperationsAttribute).FullName);
-		var serializationAttribute = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SerializationFormatAttribute).FullName);
+		var attributeData = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == Constants.SupportedOperationsAttributeFullName);
+		var serializationAttribute = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == Constants.SerializationFormatAttributeFullName);
 
 		var isNumeric = underlyingType.IsNumeric();
 		var isDateOrTime = underlyingType.IsDateOrTime();
@@ -158,17 +158,17 @@ internal static class Executor
 
 		if (isNumeric)
 		{
-			var supportedOperationsAttribute = GetSupportedOperationsAttributes(typeSymbol, underlyingType, parentSymbols, cachedOperationsAttributes);
+			var supportedOperationsAttributeData = GetSupportedOperationsAttributeData(typeSymbol, underlyingType, parentSymbols, cachedOperationsAttributes);
 
-			generatorData.GenerateAdditionOperators = supportedOperationsAttribute.Addition && !typeSymbol.ImplementsInterface("System.Numerics.IAdditionOperators");
+			generatorData.GenerateAdditionOperators = supportedOperationsAttributeData.Addition && !typeSymbol.ImplementsInterface("System.Numerics.IAdditionOperators");
 
-			generatorData.GenerateSubtractionOperators = supportedOperationsAttribute.Subtraction && !typeSymbol.ImplementsInterface("System.Numerics.ISubtractionOperators");
+			generatorData.GenerateSubtractionOperators = supportedOperationsAttributeData.Subtraction && !typeSymbol.ImplementsInterface("System.Numerics.ISubtractionOperators");
 
-			generatorData.GenerateDivisionOperators = supportedOperationsAttribute.Division && !typeSymbol.ImplementsInterface("System.Numerics.IDivisionOperators");
+			generatorData.GenerateDivisionOperators = supportedOperationsAttributeData.Division && !typeSymbol.ImplementsInterface("System.Numerics.IDivisionOperators");
 
-			generatorData.GenerateMultiplyOperators = supportedOperationsAttribute.Multiplication && !typeSymbol.ImplementsInterface("System.Numerics.IMultiplyOperators");
+			generatorData.GenerateMultiplyOperators = supportedOperationsAttributeData.Multiplication && !typeSymbol.ImplementsInterface("System.Numerics.IMultiplyOperators");
 
-			generatorData.GenerateModulusOperator = supportedOperationsAttribute.Modulus && !typeSymbol.ImplementsInterface("System.Numerics.IModulusOperator");
+			generatorData.GenerateModulusOperator = supportedOperationsAttributeData.Modulus && !typeSymbol.ImplementsInterface("System.Numerics.IModulusOperator");
 		}
 
 		generatorData.GenerateParsable = !typeSymbol.ImplementsInterface("System.IParsable");
@@ -257,22 +257,21 @@ internal static class Executor
 	}
 
 	/// <summary>
-	/// Retrieves the SupportedOperationsAttribute for a specified class, considering inheritance.
+	/// Retrieves the SupportedOperationsAttributeData for a specified class, considering inheritance.
 	/// </summary>
-	/// <returns>The combined SupportedOperationsAttribute for the class and its inherited types.</returns>
-	private static SupportedOperationsAttribute GetSupportedOperationsAttributes(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, List<INamedTypeSymbol> parentSymbols, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
+	/// <returns>The combined SupportedOperationsAttributeData for the class and its inherited types.</returns>
+	private static SupportedOperationsAttributeData GetSupportedOperationsAttributeData(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, List<INamedTypeSymbol> parentSymbols, Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData> cachedOperationsAttributes)
 	{
 		return CreateCombinedAttribute(@class, underlyingType, parentSymbols.Count, cachedOperationsAttributes);
 
-		static SupportedOperationsAttribute CreateCombinedAttribute(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, int parentCount, Dictionary<INamedTypeSymbol, SupportedOperationsAttribute> cachedOperationsAttributes)
+		static SupportedOperationsAttributeData CreateCombinedAttribute(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, int parentCount, Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData> cachedOperationsAttributes)
 		{
 			if (cachedOperationsAttributes.TryGetValue(@class, out var parentAttribute))
 			{
 				return parentAttribute;
 			}
 
-			var attributeData = @class.GetAttributes()
-				.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == typeof(SupportedOperationsAttribute).FullName);
+			var attributeData = @class.GetAttributes().FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == Constants.SupportedOperationsAttributeFullName);
 
 			var attribute = attributeData is null ? null : GetAttributeFromData(attributeData);
 
@@ -292,12 +291,12 @@ internal static class Executor
 			return attr;
 		}
 
-		static SupportedOperationsAttribute CombineAttribute(SupportedOperationsAttribute? attribute, SupportedOperationsAttribute parentAttribute)
+		static SupportedOperationsAttributeData CombineAttribute(SupportedOperationsAttributeData? attribute, SupportedOperationsAttributeData parentAttribute)
 		{
 			if (attribute is null)
 				return parentAttribute;
 
-			return new SupportedOperationsAttribute
+			return new SupportedOperationsAttributeData
 			{
 				Addition = attribute.Addition && parentAttribute.Addition,
 				Subtraction = attribute.Subtraction && parentAttribute.Subtraction,
@@ -309,15 +308,15 @@ internal static class Executor
 	}
 
 	/// <summary>
-	/// Gets the default SupportedOperationsAttribute based on the given NumericType.
+	/// Gets the default SupportedOperationsAttributeData based on the given NumericType.
 	/// </summary>
 	/// <param name="underlyingType">The NumericType for which to determine default attribute values.</param>
-	/// <returns>The default SupportedOperationsAttribute with attributes set based on the NumericType.</returns>
-	private static SupportedOperationsAttribute GetDefaultAttributeData(DomainPrimitiveUnderlyingType underlyingType)
+	/// <returns>The default SupportedOperationsAttributeData with attributes set based on the NumericType.</returns>
+	private static SupportedOperationsAttributeData GetDefaultAttributeData(DomainPrimitiveUnderlyingType underlyingType)
 	{
 		var @default = DefaultAttributeValue(underlyingType);
 
-		return new SupportedOperationsAttribute
+		return new SupportedOperationsAttributeData
 		{
 			Addition = @default,
 			Subtraction = @default,
@@ -349,19 +348,19 @@ internal static class Executor
 	}
 
 	/// <summary>
-	/// Creates a SupportedOperationsAttribute from the provided AttributeData.
+	/// Creates a SupportedOperationsAttributeData from the provided AttributeData.
 	/// </summary>
-	/// <param name="attributeData">The AttributeData from which to create the SupportedOperationsAttribute.</param>
-	/// <returns>The SupportedOperationsAttribute with attributes based on the provided AttributeData.</returns>
-	private static SupportedOperationsAttribute GetAttributeFromData(AttributeData attributeData)
+	/// <param name="attributeData">The AttributeData from which to create the SupportedOperationsAttributeData.</param>
+	/// <returns>The SupportedOperationsAttributeData with attributes based on the provided AttributeData.</returns>
+	private static SupportedOperationsAttributeData GetAttributeFromData(AttributeData attributeData)
 	{
-		return new SupportedOperationsAttribute
+		return new SupportedOperationsAttributeData
 		{
-			Addition = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttribute.Addition)),
-			Subtraction = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttribute.Subtraction)),
-			Multiplication = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttribute.Multiplication)),
-			Division = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttribute.Division)),
-			Modulus = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttribute.Modulus))
+			Addition = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttributeData.Addition)),
+			Subtraction = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttributeData.Subtraction)),
+			Multiplication = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttributeData.Multiplication)),
+			Division = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttributeData.Division)),
+			Modulus = CreateAttributeValue(attributeData, nameof(SupportedOperationsAttributeData.Modulus))
 		};
 
 		static bool CreateAttributeValue(AttributeData? parentAttributeData, string property)

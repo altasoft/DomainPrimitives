@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AltaSoft.DomainPrimitives;
+namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 /// <summary>
 /// A domain primitive type representing an ASCII string.
