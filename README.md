@@ -41,7 +41,7 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 * **Interface Implementations:** All DomainPritmitives Implement `IConvertible`, `IComparable`, `IComparable<T>`, `IEquatable<T>`, `IEqualityComparer<T>`, `IParsable` interfaces.
 * **NumberType Operations:** Automatically generates basic arithmetic and comparison operators, by implementing Static abstract interfaces. [More details regarding numeric types](#number-types-attribute)
 * **IParsable Implementation:** Automatically generates parsing for non-string types.
-* **XML Serialiaziton** Generates IXmlSerializable interface implmenetation. To serialize and deserialize xml classes
+* **XML Serialiaziton** Generates IXmlSerializable interface implementation, to serialize and deserialize from/to xml.
 
 ## Supported Underlying types 
 1. `string`
@@ -540,7 +540,7 @@ Mathematical operators for particular numeric types can be customized using the 
 ### using `SupportedOperationsAttribute`
 
 ```csharp
-[SupportedOperations(Addition = false,Division = false,Modulus = false,Multiplication = true,Subtraction = true)]
+[SupportedOperations(Addition = false, Division = false, Modulus = false, Multiplication = true, Subtraction = true)]
 public readonly partial struct PositiveInteger : IDomainValue<int>
 {
 	public static void Validate(int value)
@@ -563,8 +563,10 @@ public readonly partial struct PositiveInteger :
 		if (value <= 0)
 			throw new InvalidDomainValueException("Number must be positive");
 	}
+
 	public static int Default => 1;
-	//custom + operator
+	
+	// custom + operator
 	public static PositiveInteger operator +(PositiveInteger left, PositiveInteger right)
 	{
 		return (left._value + right._value + 1);
@@ -591,8 +593,8 @@ public readonly partial struct GDay : IDomainValue<DateOnly>
 	/// <inheritdoc/>
 	public static DateOnly Default => default;
 
-	/// <inheritdoc/>
 	// Customized string representation of DateOnly
+	/// <inheritdoc/>
 	public static string ToString(DateOnly value) => value.ToString("dd");
 }
 ```
@@ -606,9 +608,8 @@ To disable the generation of Converters or Swagger Mappers in csproj file follow
     <DomainPrimitiveGenerator_GenerateJsonConverters>false</DomainPrimitiveGenerator_GenerateJsonConverters>
     <DomainPrimitiveGenerator_GenerateTypeConverters>false</DomainPrimitiveGenerator_GenerateTypeConverters>
     <DomainPrimitiveGenerator_GenerateSwaggerConverters>false</DomainPrimitiveGenerator_GenerateSwaggerConverters>
-	<DomainPrimitiveGenerator_GenerateXmlSerialization>true</DomainPrimitiveGenerator_GenerateXmlSerialization> 
+    <DomainPrimitiveGenerator_GenerateXmlSerialization>true</DomainPrimitiveGenerator_GenerateXmlSerialization> 
   </PropertyGroup>
-
 ```
 Please note that `DomainPrimitiveGenerator_GenerateXmlSerialization` value by default is `false`.
 
@@ -623,14 +624,14 @@ Please note that `DomainPrimitiveGenerator_GenerateXmlSerialization` value by de
 
     ```csharp
     public readonly partial struct PositiveInteger : IDomainValue<int>
+	{
+		public static void Validate(int value)
 		{
-			public static void Validate(int value)
-			{
-				if (value <= 0)
-					throw new InvalidDomainValueException("Number must be positive");
-			}
-			public static int Default => 1;
+			if (value <= 0)
+				throw new InvalidDomainValueException("Number must be positive");
 		}
+		public static int Default => 1;
+	}
 
     public readonly partial struct BetweenOneAnd100 : IDomainValue<PositiveInteger>
     {
@@ -642,18 +643,20 @@ Please note that `DomainPrimitiveGenerator_GenerateXmlSerialization` value by de
 		public static PositiveInteger Default => 1; // using implicit operators this is possible.
     }
     ```
-	Defined type `BetweenOneAnd100`  automatically inherits restrictions from PositiveInteger. Operators restricted in PositiveInteger are also inherited. Further restrictions on operators can be added using the `SupportedOperationsAttribute`:	
-	```csharp
+1. 
+	Defined type `BetweenOneAnd100` automatically inherits restrictions from PositiveInteger. Operators restricted in PositiveInteger are also inherited. Further restrictions on operators can be added using the `SupportedOperationsAttribute`:	
+	
+1. ```csharp
 	[SupportedOperations(Addition=false)]
 	public readonly partial struct BetweenOneAnd100 : IDomainValue<PositiveInteger>
+	{
+		public static void Validate(PositiveInteger value)
 		{
-			public static void Validate(PositiveInteger value)
-			{
-					if (value < 100)
-						throw new InvalidDomainValueException("Value must be less than 100");
-			}
-			public static PositiveInteger Default => 1; // using implicit operators this is possible.
+				if (value < 100)
+					throw new InvalidDomainValueException("Value must be less than 100");
 		}
+		public static PositiveInteger Default => 1; // using implicit operators this is possible.
+	}
 	```
 
 
