@@ -41,6 +41,15 @@ public partial class StringValue :
 			Validate(value);
 			_value = value;
 	}
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+	
+	/// <inheritdoc/>
+	[Obsolete("Domain primitive cannot be created using empty Ctor", true)]
+	public StringValue()
+	{
+			_value = Default;
+	}
+#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 	
 	/// <inheritdoc/>
 	[MethodImpl(MethodImplOptions.AggressiveInlining)]

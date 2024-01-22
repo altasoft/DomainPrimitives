@@ -6,10 +6,10 @@ namespace AltaSoft.DomainPrimitives.Generator.Tests;
 
 public class DomainPrimitiveGeneratorTest
 {
-	[Fact]
-	public Task StringValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task StringValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		                      using System;
 		                      using System.Collections.Generic;
 		                      using System.Linq;
@@ -34,13 +34,13 @@ public class DomainPrimitiveGeneratorTest
 		                      }
 		                      """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task GuidValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task GuidValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -65,13 +65,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task BoolValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task BoolValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -96,13 +96,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task SByteValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task SByteValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -127,13 +127,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task ByteValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task ByteValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -158,13 +158,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task Int16Value_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task Int16Value_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -189,13 +189,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task UInt16Value_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task UInt16Value_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -220,13 +220,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task IntValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task IntValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -251,13 +251,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task UIntValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task UIntValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -282,13 +282,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task LongValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task LongValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -313,13 +313,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task ULongValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task ULongValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -344,13 +344,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task DecimalValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task DecimalValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -374,13 +374,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task FloatValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task FloatValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -404,13 +404,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task DoubleValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task DoubleValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -434,13 +434,13 @@ public class DomainPrimitiveGeneratorTest
 		             }
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task DateTimeValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task DateTimeValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -465,13 +465,13 @@ public class DomainPrimitiveGeneratorTest
 
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task DateOnlyValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task DateOnlyValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -496,13 +496,13 @@ public class DomainPrimitiveGeneratorTest
 
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task TimeOnlyValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task TimeOnlyValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -527,13 +527,13 @@ public class DomainPrimitiveGeneratorTest
 
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task TimeSpanValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task TimeSpanValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -558,13 +558,13 @@ public class DomainPrimitiveGeneratorTest
 
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task DateTimeOffsetValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task DateTimeOffsetValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		             using System;
 		             using System.Collections.Generic;
 		             using System.Linq;
@@ -589,13 +589,13 @@ public class DomainPrimitiveGeneratorTest
 
 		             """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	[Fact]
-	public Task CharValue_GeneratesAllInterfacesAndConverters()
-	{
-		const string source = """
+    [Fact]
+    public Task CharValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
 		                      using System;
 		                      using System.Collections.Generic;
 		                      using System.Linq;
@@ -620,18 +620,18 @@ public class DomainPrimitiveGeneratorTest
 
 		                      """;
 
-		return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
-	}
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
 
-	public static class TestHelper
-	{
-		internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)
-		{
-			var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, options);
+    public static class TestHelper
+    {
+        internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)
+        {
+            var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, options);
 
-			additionalChecks?.Invoke(diagnostics, output, driver);
+            additionalChecks?.Invoke(diagnostics, output, driver);
 
-			return Verifier.Verify(driver).UseDirectory("Snapshots");
-		}
-	}
+            return Verifier.Verify(driver).UseDirectory("Snapshots");
+        }
+    }
 }

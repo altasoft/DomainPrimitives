@@ -7,50 +7,50 @@ namespace AltaSoft.DomainPrimitives.XmlDataTypes.Tests;
 /// </summary>
 public class JsonInternalConvertersTests
 {
-	[Fact]
-	public void SingleConverter_ReturnsJsonConverterForFloat()
-	{
-		var converter = JsonInternalConverters.SingleConverter;
+    [Fact]
+    public void SingleConverter_ReturnsJsonConverterForFloat()
+    {
+        var converter = JsonInternalConverters.SingleConverter;
 
-		Assert.NotNull(converter);
-		Assert.IsAssignableFrom<JsonConverter<float>>(converter);
-	}
+        Assert.NotNull(converter);
+        Assert.IsAssignableFrom<JsonConverter<float>>(converter);
+    }
 
-	[Fact]
-	public void GuidConverter_ReturnsJsonConverterForGuid()
-	{
-		var converter = JsonInternalConverters.GuidConverter;
+    [Fact]
+    public void GuidConverter_ReturnsJsonConverterForGuid()
+    {
+        var converter = JsonInternalConverters.GuidConverter;
 
-		Assert.NotNull(converter);
-		Assert.IsAssignableFrom<JsonConverter<Guid>>(converter);
-	}
+        Assert.NotNull(converter);
+        Assert.IsAssignableFrom<JsonConverter<Guid>>(converter);
+    }
 
-	[Fact]
-	public void BooleanConverter_ReturnsJsonConverterForBool()
-	{
-		var converter = JsonInternalConverters.BooleanConverter;
+    [Fact]
+    public void BooleanConverter_ReturnsJsonConverterForBool()
+    {
+        var converter = JsonInternalConverters.BooleanConverter;
 
-		Assert.NotNull(converter);
-		Assert.IsAssignableFrom<JsonConverter<bool>>(converter);
-	}
+        Assert.NotNull(converter);
+        Assert.IsAssignableFrom<JsonConverter<bool>>(converter);
+    }
 
-	[Fact]
-	public void ByteConverter_ReturnsJsonConverterForByte()
-	{
-		var converter = JsonInternalConverters.ByteConverter;
+    [Fact]
+    public void ByteConverter_ReturnsJsonConverterForByte()
+    {
+        var converter = JsonInternalConverters.ByteConverter;
 
-		Assert.NotNull(converter);
-		Assert.IsAssignableFrom<JsonConverter<byte>>(converter);
-	}
+        Assert.NotNull(converter);
+        Assert.IsAssignableFrom<JsonConverter<byte>>(converter);
+    }
 
-	// Add more tests for other converters...
+    // Add more tests for other converters...
 
-	[Fact]
-	public void GetConverter_ReturnsJsonConverterForType()
-	{
-		var converter = JsonInternalConverters.GetConverter<int>();
+    [Fact]
+    public void GetConverter_ReturnsJsonConverterForType()
+    {
+        var converter = JsonInternalConverters.GetConverter<int>();
 
-		Assert.NotNull(converter);
-		Assert.IsAssignableFrom<JsonConverter<int>>(converter);
-	}
+        Assert.NotNull(converter);
+        Assert.IsAssignableFrom<JsonConverter<int>>(converter);
+    }
 }

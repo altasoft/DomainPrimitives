@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
@@ -9,13 +10,13 @@ namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 [SerializationFormat("dd")]
 public readonly partial struct GDay : IDomainValue<DateOnly>
 {
-	/// <inheritdoc/>
-	public static void Validate(DateOnly value)
-	{ }
+    /// <inheritdoc/>
+    public static void Validate(DateOnly value)
+    { }
 
-	/// <inheritdoc/>
-	public static DateOnly Default => default;
+    /// <inheritdoc/>
+    public static DateOnly Default => default;
 
-	/// <inheritdoc/>
-	public static string ToString(DateOnly value) => value.ToString("dd");
+    /// <inheritdoc/>
+    public static string ToString(DateOnly value) => value.ToString("dd", CultureInfo.InvariantCulture);
 }

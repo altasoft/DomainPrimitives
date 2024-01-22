@@ -5,34 +5,34 @@
 /// </summary>
 public class AsciiStringTests
 {
-	[Fact]
-	public void Validate_ValidAsciiString_DoesNotThrowException()
-	{
-		// Arrange
-		const string validString = "Hello";
+    [Fact]
+    public void Validate_ValidAsciiString_DoesNotThrowException()
+    {
+        // Arrange
+        const string validString = "Hello";
 
-		// Act & Assert
-		var exception = Record.Exception(() => AsciiString.Validate(validString));
-		Assert.Null(exception);
-	}
+        // Act & Assert
+        var exception = Record.Exception(() => AsciiString.Validate(validString));
+        Assert.Null(exception);
+    }
 
-	[Fact]
-	public void Validate_InvalidAsciiString_ThrowsException()
-	{
-		// Arrange
-		const string invalidString = "Hello😊";
+    [Fact]
+    public void Validate_InvalidAsciiString_ThrowsException()
+    {
+        // Arrange
+        const string invalidString = "Hello😊";
 
-		// Act & Assert
-		Assert.Throws<InvalidDomainValueException>(() => AsciiString.Validate(invalidString));
-	}
+        // Act & Assert
+        Assert.Throws<InvalidDomainValueException>(() => AsciiString.Validate(invalidString));
+    }
 
-	[Fact]
-	public void Default_ReturnsEmptyString()
-	{
-		// Act
-		var defaultValue = AsciiString.Default;
+    [Fact]
+    public void Default_ReturnsEmptyString()
+    {
+        // Act
+        var defaultValue = AsciiString.Default;
 
-		// Assert
-		Assert.Equal(string.Empty, defaultValue);
-	}
+        // Assert
+        Assert.Equal(string.Empty, defaultValue);
+    }
 }

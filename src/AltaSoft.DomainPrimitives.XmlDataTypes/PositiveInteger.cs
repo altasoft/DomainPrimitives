@@ -8,13 +8,13 @@
 /// </remarks>
 public readonly partial struct PositiveInteger : IDomainValue<int>
 {
-	/// <inheritdoc/>
-	public static void Validate(int value)
-	{
-		if (value <= 0)
-			throw new InvalidDomainValueException("value is non-positive");
-	}
+    /// <inheritdoc/>
+    public static void Validate(int value)
+    {
+        if (value <= 0)
+            throw new InvalidDomainValueException("value is non-positive");
+    }
 
-	/// <inheritdoc/>
-	public static int Default => 1;
+    /// <inheritdoc/>
+    public static int Default => 1;
 }
