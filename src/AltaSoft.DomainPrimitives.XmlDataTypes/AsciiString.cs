@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace AltaSoft.DomainPrimitives;
+namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 /// <summary>
 /// A domain primitive type representing an ASCII string.
@@ -8,7 +8,7 @@ namespace AltaSoft.DomainPrimitives;
 /// <remarks>
 /// The AsciiString ensures that its value contains only ASCII characters.
 /// </remarks>
-public readonly partial struct AsciiString : IDomainValue<string>
+public sealed partial class AsciiString : IDomainValue<string>
 {
 	/// <inheritdoc/>
 	public static void Validate(string value)

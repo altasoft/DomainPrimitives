@@ -1,4 +1,4 @@
-﻿namespace AltaSoft.DomainPrimitives;
+﻿namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 /// <summary>
 /// A domain primitive representing a non-empty string.
@@ -6,7 +6,7 @@
 /// <remarks>
 /// The NonEmptyString ensures that its value is a non-empty string.
 /// </remarks>
-public readonly partial struct NonEmptyString : IDomainValue<string>
+public sealed partial class NonEmptyString : IDomainValue<string>
 {
 	/// <inheritdoc/>
 	public static void Validate(string value)

@@ -72,7 +72,7 @@ internal static class DiagnosticHelper
 		return Diagnostic.Create(
 			new DiagnosticDescriptor(
 				"AL1012",
-				$"{nameof(SerializationFormatAttribute)} can only be used with  Date types",
+				$"{Constants.SerializationFormatAttribute} can only be used with  Date types",
 				"Type {0} cannot have SerializationFormatAttribute as it's not a date type",
 				"General",
 				DiagnosticSeverity.Error,
@@ -90,7 +90,7 @@ internal static class DiagnosticHelper
 		return Diagnostic.Create(
 			new DiagnosticDescriptor(
 				"AL1012",
-				$"{nameof(SupportedOperationsAttribute)} can only be used with Operational Numeric types",
+				$"{Constants.SupportedOperationsAttribute} can only be used with Operational Numeric types",
 				"Type {0} cannot have SupportedOperationsAttribute as it's not an operational numeric type",
 				"General",
 				DiagnosticSeverity.Error,

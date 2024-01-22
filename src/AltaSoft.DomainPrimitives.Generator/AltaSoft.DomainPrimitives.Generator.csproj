@@ -21,10 +21,10 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
 	</ItemGroup>
 
-	<ItemGroup>
+	<!--<ItemGroup>
 		<Compile Include="..\AltaSoft.DomainPrimitives\SerializationFormatAttribute.cs" Link="SerializationFormatAttribute.cs" />
 		<Compile Include="..\AltaSoft.DomainPrimitives\SupportedOperationsAttribute.cs" Link="SupportedOperationsAttribute.cs" />
-	</ItemGroup>
+	</ItemGroup>-->
 
 	<ItemGroup>
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
