@@ -3,68 +3,35 @@
 	<PropertyGroup>
 		<TargetFramework>netstandard2.0</TargetFramework>
 		<IncludeBuildOutput>false</IncludeBuildOutput>
-		<IsRoslynComponent>true</IsRoslynComponent>
-		<Nullable>enable</Nullable>
-		<LangVersion>Latest</LangVersion>
-		<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-
-		<Authors>ALTA Software llc.</Authors>
-		<Product>Domain Primitives</Product>
-		<AssemblyTitle>Domain Primitives Generator</AssemblyTitle>
-		<Description>Domain Primitives source generator for C#.</Description>
-		<Company>ALTA Software llc.</Company>
-		<Copyright>Copyright © 2024 ALTA Software llc.</Copyright>
-		<Version>1.0.3</Version>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<PackageReadmeFile>README.md</PackageReadmeFile>
-		<ProjectUrl>https://github.com/altasoft/DomainPrimitives</ProjectUrl>
-		<RepositoryUrl>https://github.com/altasoft/DomainPrimitives</RepositoryUrl>
-		<RepositoryType>git</RepositoryType>
-		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<IsRoslynComponent>true</IsRoslynComponent>
+
+		<!-- This ensures the output of this project is treated as an analyzer by projects that reference it -->
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<!-- Specify that this is a development dependency, which won't be included transitively by projects using your package -->
+		<DevelopmentDependency>true</DevelopmentDependency>
+
+		<Title>AltaSoft.DomainPrimitives.Generator</Title>
 	</PropertyGroup>
 
-	<ItemGroup>
-		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
-	</ItemGroup>
-	
 	<ItemGroup>
 		<PackageReference Include="Microsoft.CodeAnalysis.Analyzers" Version="3.3.4" PrivateAssets="all" />
-		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.7.0" PrivateAssets="all" />
-	</ItemGroup>
-	<ItemGroup>
-		<None Remove="bin\*" />
+		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" Version="4.8.0" PrivateAssets="all" />
 	</ItemGroup>
 
-
-	<PropertyGroup>
-		<GetTargetPathDependsOn>$(GetTargetPathDependsOn);GetDependencyTargetPaths</GetTargetPathDependsOn>
-	</PropertyGroup>
-
-	<Target Name="GetDependencyTargetPaths" AfterTargets="ResolvePackageDependenciesForBuild">
-		<ItemGroup>
-			<TargetPathWithTargetPlatformMoniker Include="@(ResolvedCompileFileDefinitions)" IncludeRuntimeDependency="false" />
-		</ItemGroup>
-	</Target>
-
-
-	<!--Nuget needs this-->
-	<Target Name="AddGenerationTimeReferences" AfterTargets="ResolvePackageDependenciesForBuild">
-		<ItemGroup>
-			<None Include="@(ResolvedCompileFileDefinitions)" Pack="true" PackagePath="analyzers/dotnet/cs" />
-		</ItemGroup>
-	</Target>
 	<ItemGroup>
-		<Compile Include="..\AltaSoft.DomainPrimitives.Abstractions\SerializationFormatAttribute.cs" Link="SerializationFormatAttribute.cs" />
-		<Compile Include="..\AltaSoft.DomainPrimitives.Abstractions\SupportedOperationsAttribute.cs" Link="SupportedOperationsAttribute.cs" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateSwaggerConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
 	</ItemGroup>
 
 	<!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
 	<ItemGroup>
 		<None Include="$(OutputPath)\$(AssemblyName).dll" Pack="true" PackagePath="analyzers/dotnet/cs" Visible="false" />
+		<None Include="buildTransitive\*.props" Pack="true" PackagePath="buildTransitive\" />
+		<None Include="lib\netstandard2.0\_._" Pack="true" PackagePath="lib\netstandard2.0\" />
 	</ItemGroup>
-
-
 </Project>
-

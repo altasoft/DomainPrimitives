@@ -3,21 +3,31 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives", "src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj", "{E5F41084-26EF-4BA5-A4F9-74105F550CB9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.XmlDataTypes", "src\AltaSoft.DomainPrimitives.XmlDataTypes\AltaSoft.DomainPrimitives.XmlDataTypes.csproj", "{E5F41084-26EF-4BA5-A4F9-74105F550CB9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.Abstractions", "src\AltaSoft.DomainPrimitives.Abstractions\AltaSoft.DomainPrimitives.Abstractions.csproj", "{B1032BBF-96EB-4693-A807-A99DECFA45FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives", "src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj", "{B1032BBF-96EB-4693-A807-A99DECFA45FF}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.Generator", "src\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj", "{01537E81-E36F-41A0-B843-D1089E0D76AB}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF9447CC-2D00-495A-A8C3-D4890EADB01B}"
 	ProjectSection(SolutionItems) = preProject
-		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		Directory.Build.props = Directory.Build.props
 		LICENSE.txt = LICENSE.txt
-		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.Tests", "tests\AltaSoft.DomainPrimitives.Tests\AltaSoft.DomainPrimitives.Tests.csproj", "{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.XmlDataTypes.Tests", "tests\AltaSoft.DomainPrimitives.XmlDataTypes.Tests\AltaSoft.DomainPrimitives.XmlDataTypes.Tests.csproj", "{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Test", "Test", "{09A03F75-1F18-45BC-9D0A-289AC607DAD0}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.Generator.Tests", "tests\AltaSoft.DomainPrimitives.Generator.Tests\AltaSoft.DomainPrimitives.Generator.Tests.csproj", "{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubActions", "GitHubActions", "{A7BFF96E-3DFF-4132-AD2B-7C529C14A3E8}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build_nuget_dont_publish.yml = .github\workflows\build_nuget_dont_publish.yml
+		.github\workflows\dotnet.yml = .github\workflows\dotnet.yml
+		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,9 +51,18 @@ Global
 		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
+		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
+		{A7BFF96E-3DFF-4132-AD2B-7C529C14A3E8} = {BF9447CC-2D00-495A-A8C3-D4890EADB01B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {84804F7F-F00C-454C-A90E-4013B6EA6263}
