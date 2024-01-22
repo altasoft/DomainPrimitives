@@ -12,6 +12,7 @@ using AltaSoft.DomainPrimitives;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
 
 namespace generator_Test.Converters.Extensions;
 
@@ -30,7 +31,20 @@ public static class SwaggerTypeHelper
 	/// </remarks>
 	public static void AddSwaggerMappings(this SwaggerGenOptions options)
 	{
-		options.MapType<DateTimeOffsetValue>(() => new OpenApiSchema { Type = "string", Format = "date-time", Title = "DateTimeOffsetValue" });
-		options.MapType<DateTimeOffsetValue?>(() => new OpenApiSchema { Type = "string", Format = "date-time", Nullable = true, Title = "Nullable<DateTimeOffsetValue>" });
+		options.MapType<DateTimeOffsetValue>(() => new OpenApiSchema
+		{
+			Type = "string",
+			Format = "date-time",
+			Title = "DateTimeOffsetValue",
+			Default = new OpenApiDateTime(((DateTimeOffset)DateTimeOffsetValue.Default).DateTime)
+		});
+		options.MapType<DateTimeOffsetValue?>(() => new OpenApiSchema
+		{
+			Type = "string",
+			Format = "date-time",
+			Nullable = true,
+			Title = "Nullable<DateTimeOffsetValue>",
+			Default = new OpenApiDateTime(((DateTimeOffset)DateTimeOffsetValue.Default).DateTime)
+		});
 	}
 }

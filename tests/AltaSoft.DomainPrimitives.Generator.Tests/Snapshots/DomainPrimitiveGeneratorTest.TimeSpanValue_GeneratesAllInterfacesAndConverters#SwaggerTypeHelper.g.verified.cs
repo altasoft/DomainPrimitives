@@ -12,6 +12,7 @@ using AltaSoft.DomainPrimitives;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
 
 namespace generator_Test.Converters.Extensions;
 
@@ -30,7 +31,20 @@ public static class SwaggerTypeHelper
 	/// </remarks>
 	public static void AddSwaggerMappings(this SwaggerGenOptions options)
 	{
-		options.MapType<TimeSpanValue>(() => new OpenApiSchema { Type = "integer", Format = "int64", Title = "TimeSpanValue" });
-		options.MapType<TimeSpanValue?>(() => new OpenApiSchema { Type = "integer", Format = "int64", Nullable = true, Title = "Nullable<TimeSpanValue>" });
+		options.MapType<TimeSpanValue>(() => new OpenApiSchema
+		{
+			Type = "integer",
+			Format = "int64",
+			Title = "TimeSpanValue",
+			Default = new OpenApiString(TimeSpanValue.Default.ToString("hh:mm:ss", null))
+		});
+		options.MapType<TimeSpanValue?>(() => new OpenApiSchema
+		{
+			Type = "integer",
+			Format = "int64",
+			Nullable = true,
+			Title = "Nullable<TimeSpanValue>",
+			Default = new OpenApiString(TimeSpanValue.Default.ToString("hh:mm:ss", null))
+		});
 	}
 }

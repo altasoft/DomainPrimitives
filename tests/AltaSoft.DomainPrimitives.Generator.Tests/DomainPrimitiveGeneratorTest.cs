@@ -20,7 +20,7 @@ public class DomainPrimitiveGeneratorTest
 		                      namespace AltaSoft.DomainPrimitives;
 
 		                      /// <inheritdoc/>
-		                      public readonly partial struct StringValue : IDomainValue<string>
+		                      public partial class StringValue : IDomainValue<string>
 		                      {
 		                      /// <inheritdoc/>
 		                      public static void Validate(string value)

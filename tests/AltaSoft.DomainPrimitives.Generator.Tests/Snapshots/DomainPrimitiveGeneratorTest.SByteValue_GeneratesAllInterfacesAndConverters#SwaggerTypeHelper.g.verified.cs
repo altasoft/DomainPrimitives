@@ -12,6 +12,7 @@ using AltaSoft.DomainPrimitives;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
 
 namespace generator_Test.Converters.Extensions;
 
@@ -30,7 +31,20 @@ public static class SwaggerTypeHelper
 	/// </remarks>
 	public static void AddSwaggerMappings(this SwaggerGenOptions options)
 	{
-		options.MapType<SByteValue>(() => new OpenApiSchema { Type = "integer", Format = "sbyte", Title = "SByteValue" });
-		options.MapType<SByteValue?>(() => new OpenApiSchema { Type = "integer", Format = "sbyte", Nullable = true, Title = "Nullable<SByteValue>" });
+		options.MapType<SByteValue>(() => new OpenApiSchema
+		{
+			Type = "integer",
+			Format = "sbyte",
+			Title = "SByteValue",
+			Default = new OpenApiByte((byte)SByteValue.Default)
+		});
+		options.MapType<SByteValue?>(() => new OpenApiSchema
+		{
+			Type = "integer",
+			Format = "sbyte",
+			Nullable = true,
+			Title = "Nullable<SByteValue>",
+			Default = new OpenApiByte((byte)SByteValue.Default)
+		});
 	}
 }

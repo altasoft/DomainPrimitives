@@ -12,6 +12,7 @@ using AltaSoft.DomainPrimitives;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
 
 namespace generator_Test.Converters.Extensions;
 
@@ -30,7 +31,20 @@ public static class SwaggerTypeHelper
 	/// </remarks>
 	public static void AddSwaggerMappings(this SwaggerGenOptions options)
 	{
-		options.MapType<TimeOnlyValue>(() => new OpenApiSchema { Type = "string", Format = "HH:mm:ss", Title = "TimeOnlyValue" });
-		options.MapType<TimeOnlyValue?>(() => new OpenApiSchema { Type = "string", Format = "HH:mm:ss", Nullable = true, Title = "Nullable<TimeOnlyValue>" });
+		options.MapType<TimeOnlyValue>(() => new OpenApiSchema
+		{
+			Type = "string",
+			Format = "HH:mm:ss",
+			Title = "TimeOnlyValue",
+			Default = new OpenApiString(TimeOnlyValue.Default.ToString("hh:mm:ss", null))
+		});
+		options.MapType<TimeOnlyValue?>(() => new OpenApiSchema
+		{
+			Type = "string",
+			Format = "HH:mm:ss",
+			Nullable = true,
+			Title = "Nullable<TimeOnlyValue>",
+			Default = new OpenApiString(TimeOnlyValue.Default.ToString("hh:mm:ss", null))
+		});
 	}
 }

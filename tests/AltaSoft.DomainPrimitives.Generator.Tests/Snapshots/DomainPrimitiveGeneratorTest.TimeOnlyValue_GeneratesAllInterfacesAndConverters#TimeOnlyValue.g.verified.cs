@@ -11,11 +11,12 @@
 using System;
 using System.Numerics;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using AltaSoft.DomainPrimitives.Converters;
 using System.ComponentModel;
-using AltaSoft.DomainPrimitives.Abstractions;
+using AltaSoft.DomainPrimitives;
 
 namespace AltaSoft.DomainPrimitives;
 
@@ -50,17 +51,22 @@ public readonly partial struct TimeOnlyValue :
 	
 	/// <inheritdoc/>
 	[Obsolete("Domain primitive cannot be created using empty Ctor", true)]
-	public TimeOnlyValue() : this(Default)
+	public TimeOnlyValue()
 	{
+			_value = Default;
 	}
 	
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public override bool Equals(object? obj) => obj is TimeOnlyValue other && Equals(other);
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public bool Equals(TimeOnlyValue other) => _value == other._value;
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool operator ==(TimeOnlyValue left, TimeOnlyValue right) => left.Equals(right);
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool operator !=(TimeOnlyValue left, TimeOnlyValue right) => !(left == right);
 
 	/// <inheritdoc/>
@@ -81,42 +87,57 @@ public readonly partial struct TimeOnlyValue :
 	/// <summary>
 	/// Implicit conversion from <see cref = "TimeOnly"/> to <see cref = "TimeOnlyValue"/>
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static implicit operator TimeOnlyValue(TimeOnly value) => new(value);
 
 	/// <summary>
 	/// Implicit conversion from <see cref = "TimeOnly"/> (nullable) to <see cref = "TimeOnlyValue"/> (nullable)
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	[return: NotNullIfNotNull(nameof(value))]
 	public static implicit operator TimeOnlyValue?(TimeOnly? value) => value is null ? null : new(value.Value);
 
 	/// <summary>
 	/// Implicit conversion from <see cref = "TimeOnlyValue"/> to <see cref = "TimeOnly"/>
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static implicit operator TimeOnly(TimeOnlyValue value) => (TimeOnly)value._value;
 
 	/// <summary>
 	/// Implicit conversion from <see cref = "TimeOnlyValue"/> to <see cref = "DateTime"/>
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static implicit operator DateTime(TimeOnlyValue value) => ((TimeOnly)value._value).ToDateTime();
 
+	/// <summary>
+	/// Implicit conversion from <see cref = "DateTime"/> to <see cref = "TimeOnlyValue"/>
+	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	public static implicit operator TimeOnlyValue(DateTime value) => TimeOnly.FromDateTime(value);
+
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool operator <(TimeOnlyValue left, TimeOnlyValue right) => left._value < right._value;
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool operator <=(TimeOnlyValue left, TimeOnlyValue right) => left._value <= right._value;
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool operator >(TimeOnlyValue left, TimeOnlyValue right) => left._value > right._value;
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool operator >=(TimeOnlyValue left, TimeOnlyValue right) => left._value >= right._value;
 
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static TimeOnlyValue Parse(string s, IFormatProvider? provider) => TimeOnly.Parse(s, provider);
 
 	/// <inheritdoc/>
-	public static bool TryParse(string? s, IFormatProvider? provider, out TimeOnlyValue result)
+	public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out TimeOnlyValue result)
 	{
 		if (!TimeOnly.TryParse(s, provider, out var value))
 		{
@@ -138,9 +159,11 @@ public readonly partial struct TimeOnlyValue :
 
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public string ToString(string? format, IFormatProvider? formatProvider) => _value.ToString(format, formatProvider);
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
 	{
 		return ((ISpanFormattable)_value).TryFormat(destination, out charsWritten, format, provider);
@@ -149,6 +172,7 @@ public readonly partial struct TimeOnlyValue :
 
 #if NET8_0_OR_GREATER
 	/// <inheritdoc cref="IUtf8SpanFormattable.TryFormat"/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
 	{
 		return ((IUtf8SpanFormattable)_value).TryFormat(utf8Destination, out bytesWritten, format, provider);
@@ -156,59 +180,63 @@ public readonly partial struct TimeOnlyValue :
 #endif
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public override int GetHashCode() => _value.GetHashCode();
-	/// <inheritdoc/>
-	TypeCode IConvertible.GetTypeCode() => ((IConvertible)_value.ToDateTime()).GetTypeCode();
 
 	/// <inheritdoc/>
-	bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToBoolean(provider);
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
+	TypeCode IConvertible.GetTypeCode() => ((IConvertible)((TimeOnly)_value).ToDateTime()).GetTypeCode();
 
 	/// <inheritdoc/>
-	byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToByte(provider);
+	bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToBoolean(provider);
 
 	/// <inheritdoc/>
-	char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToChar(provider);
+	byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToByte(provider);
 
 	/// <inheritdoc/>
-	DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToDateTime(provider);
+	char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToChar(provider);
 
 	/// <inheritdoc/>
-	decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToDecimal(provider);
+	DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToDateTime(provider);
 
 	/// <inheritdoc/>
-	double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToDouble(provider);
+	decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToDecimal(provider);
 
 	/// <inheritdoc/>
-	short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToInt16(provider);
+	double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToDouble(provider);
 
 	/// <inheritdoc/>
-	int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToInt32(provider);
+	short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToInt16(provider);
 
 	/// <inheritdoc/>
-	long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToInt64(provider);
+	int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToInt32(provider);
 
 	/// <inheritdoc/>
-	sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToSByte(provider);
+	long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToInt64(provider);
 
 	/// <inheritdoc/>
-	float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToSingle(provider);
+	sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToSByte(provider);
 
 	/// <inheritdoc/>
-	string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToString(provider);
+	float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToSingle(provider);
 
 	/// <inheritdoc/>
-	object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToType(conversionType, provider);
+	string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToString(provider);
 
 	/// <inheritdoc/>
-	ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToUInt16(provider);
+	object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToType(conversionType, provider);
 
 	/// <inheritdoc/>
-	uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToUInt32(provider);
+	ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToUInt16(provider);
 
 	/// <inheritdoc/>
-	ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)_value.ToDateTime()).ToUInt64(provider);
+	uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToUInt32(provider);
 
 	/// <inheritdoc/>
+	ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)((TimeOnly)_value).ToDateTime()).ToUInt64(provider);
+
+	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public override string ToString() => _value.ToString();
 
 }

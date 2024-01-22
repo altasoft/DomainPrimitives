@@ -12,6 +12,7 @@ using AltaSoft.DomainPrimitives;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
 
 namespace generator_Test.Converters.Extensions;
 
@@ -30,7 +31,18 @@ public static class SwaggerTypeHelper
 	/// </remarks>
 	public static void AddSwaggerMappings(this SwaggerGenOptions options)
 	{
-		options.MapType<BoolValue>(() => new OpenApiSchema { Type = "boolean", Title = "BoolValue" });
-		options.MapType<BoolValue?>(() => new OpenApiSchema { Type = "boolean", Nullable = true, Title = "Nullable<BoolValue>" });
+		options.MapType<BoolValue>(() => new OpenApiSchema
+		{
+			Type = "boolean",
+			Title = "BoolValue",
+			Default = new OpenApiBoolean(BoolValue.Default)
+		});
+		options.MapType<BoolValue?>(() => new OpenApiSchema
+		{
+			Type = "boolean",
+			Nullable = true,
+			Title = "Nullable<BoolValue>",
+			Default = new OpenApiBoolean(BoolValue.Default)
+		});
 	}
 }

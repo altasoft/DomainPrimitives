@@ -11,6 +11,7 @@
 using System;
 using System.Numerics;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using AltaSoft.DomainPrimitives.Converters;
@@ -47,17 +48,22 @@ public readonly partial struct GuidValue :
 	
 	/// <inheritdoc/>
 	[Obsolete("Domain primitive cannot be created using empty Ctor", true)]
-	public GuidValue() : this(Default)
+	public GuidValue()
 	{
+			_value = Default;
 	}
 	
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public override bool Equals(object? obj) => obj is GuidValue other && Equals(other);
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public bool Equals(GuidValue other) => _value == other._value;
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool operator ==(GuidValue left, GuidValue right) => left.Equals(right);
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static bool operator !=(GuidValue left, GuidValue right) => !(left == right);
 
 	/// <inheritdoc/>
@@ -78,24 +84,28 @@ public readonly partial struct GuidValue :
 	/// <summary>
 	/// Implicit conversion from <see cref = "Guid"/> to <see cref = "GuidValue"/>
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static implicit operator GuidValue(Guid value) => new(value);
 
 	/// <summary>
 	/// Implicit conversion from <see cref = "Guid"/> (nullable) to <see cref = "GuidValue"/> (nullable)
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	[return: NotNullIfNotNull(nameof(value))]
 	public static implicit operator GuidValue?(Guid? value) => value is null ? null : new(value.Value);
 
 	/// <summary>
 	/// Implicit conversion from <see cref = "GuidValue"/> to <see cref = "Guid"/>
 	/// </summary>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static implicit operator Guid(GuidValue value) => (Guid)value._value;
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public static GuidValue Parse(string s, IFormatProvider? provider) => Guid.Parse(s, provider);
 
 	/// <inheritdoc/>
-	public static bool TryParse(string? s, IFormatProvider? provider, out GuidValue result)
+	public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out GuidValue result)
 	{
 		if (!Guid.TryParse(s, provider, out var value))
 		{
@@ -117,9 +127,11 @@ public readonly partial struct GuidValue :
 
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public string ToString(string? format, IFormatProvider? formatProvider) => _value.ToString(format, formatProvider);
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
 	{
 		return ((ISpanFormattable)_value).TryFormat(destination, out charsWritten, format, provider);
@@ -128,6 +140,7 @@ public readonly partial struct GuidValue :
 
 #if NET8_0_OR_GREATER
 	/// <inheritdoc cref="IUtf8SpanFormattable.TryFormat"/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
 	{
 		return ((IUtf8SpanFormattable)_value).TryFormat(utf8Destination, out bytesWritten, format, provider);
@@ -135,8 +148,11 @@ public readonly partial struct GuidValue :
 #endif
 
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public override int GetHashCode() => _value.GetHashCode();
+
 	/// <inheritdoc/>
+	[MethodImpl(MethodImplOptions.AggressiveInlining)]
 	public override string ToString() => _value.ToString();
 
 }

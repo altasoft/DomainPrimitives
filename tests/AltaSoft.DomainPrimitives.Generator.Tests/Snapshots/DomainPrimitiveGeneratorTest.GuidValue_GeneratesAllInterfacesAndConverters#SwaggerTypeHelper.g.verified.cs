@@ -12,6 +12,7 @@ using AltaSoft.DomainPrimitives;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
 
 namespace generator_Test.Converters.Extensions;
 
@@ -30,7 +31,20 @@ public static class SwaggerTypeHelper
 	/// </remarks>
 	public static void AddSwaggerMappings(this SwaggerGenOptions options)
 	{
-		options.MapType<GuidValue>(() => new OpenApiSchema { Type = "string", Format = "uuid", Title = "GuidValue" });
-		options.MapType<GuidValue?>(() => new OpenApiSchema { Type = "string", Format = "uuid", Nullable = true, Title = "Nullable<GuidValue>" });
+		options.MapType<GuidValue>(() => new OpenApiSchema
+		{
+			Type = "string",
+			Format = "uuid",
+			Title = "GuidValue",
+			Default = new OpenApiString(GuidValue.Default.ToString())
+		});
+		options.MapType<GuidValue?>(() => new OpenApiSchema
+		{
+			Type = "string",
+			Format = "uuid",
+			Nullable = true,
+			Title = "Nullable<GuidValue>",
+			Default = new OpenApiString(GuidValue.Default.ToString())
+		});
 	}
 }

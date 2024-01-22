@@ -12,6 +12,7 @@ using AltaSoft.DomainPrimitives;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
 
 namespace generator_Test.Converters.Extensions;
 
@@ -30,7 +31,20 @@ public static class SwaggerTypeHelper
 	/// </remarks>
 	public static void AddSwaggerMappings(this SwaggerGenOptions options)
 	{
-		options.MapType<DateOnlyValue>(() => new OpenApiSchema { Type = "string", Format = "yyyy-MM-dd", Title = "DateOnlyValue" });
-		options.MapType<DateOnlyValue?>(() => new OpenApiSchema { Type = "string", Format = "yyyy-MM-dd", Nullable = true, Title = "Nullable<DateOnlyValue>" });
+		options.MapType<DateOnlyValue>(() => new OpenApiSchema
+		{
+			Type = "date",
+			Format = "yyyy-MM-dd",
+			Title = "DateOnlyValue",
+			Default = new OpenApiString(DateOnlyValue.Default.ToString("YYYY-MM-DD", null))
+		});
+		options.MapType<DateOnlyValue?>(() => new OpenApiSchema
+		{
+			Type = "date",
+			Format = "yyyy-MM-dd",
+			Nullable = true,
+			Title = "Nullable<DateOnlyValue>",
+			Default = new OpenApiString(DateOnlyValue.Default.ToString("YYYY-MM-DD", null))
+		});
 	}
 }

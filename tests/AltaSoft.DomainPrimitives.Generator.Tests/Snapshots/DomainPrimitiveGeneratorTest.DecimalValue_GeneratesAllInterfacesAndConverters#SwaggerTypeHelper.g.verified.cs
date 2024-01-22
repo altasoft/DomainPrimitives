@@ -12,6 +12,7 @@ using AltaSoft.DomainPrimitives;
 using Microsoft.Extensions.DependencyInjection;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
 
 namespace generator_Test.Converters.Extensions;
 
@@ -30,7 +31,20 @@ public static class SwaggerTypeHelper
 	/// </remarks>
 	public static void AddSwaggerMappings(this SwaggerGenOptions options)
 	{
-		options.MapType<DecimalValue>(() => new OpenApiSchema { Type = "number", Format = "decimal", Title = "DecimalValue" });
-		options.MapType<DecimalValue?>(() => new OpenApiSchema { Type = "number", Format = "decimal", Nullable = true, Title = "Nullable<DecimalValue>" });
+		options.MapType<DecimalValue>(() => new OpenApiSchema
+		{
+			Type = "number",
+			Format = "decimal",
+			Title = "DecimalValue",
+			Default = new OpenApiDouble(decimal.ToDouble(DecimalValue.Default))
+		});
+		options.MapType<DecimalValue?>(() => new OpenApiSchema
+		{
+			Type = "number",
+			Format = "decimal",
+			Nullable = true,
+			Title = "Nullable<DecimalValue>",
+			Default = new OpenApiDouble(decimal.ToDouble(DecimalValue.Default))
+		});
 	}
 }
