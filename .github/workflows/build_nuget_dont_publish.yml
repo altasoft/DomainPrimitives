@@ -1,0 +1,33 @@
+name: Build NuGet and Don't Publish
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with: 
+        dotnet-version: |
+          8.0.x
+          7.0.x
+
+    - name: Extract version from tag
+      run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build
+      run: dotnet build --no-restore -c Release
+
+#    - name: Test
+#      run: dotnet test --no-build
+
+    - name: Pack
+      run: dotnet pack --no-build -c Release -o nupkg -p:Version=${{ env.VERSION }}
