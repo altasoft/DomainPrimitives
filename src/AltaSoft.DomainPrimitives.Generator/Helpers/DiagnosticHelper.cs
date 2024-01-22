@@ -129,7 +129,7 @@ internal static class DiagnosticHelper
 				"Type should be a reference type",
 				"Type `{0}` should be a reference type as it's wrapping a reference type of `{1}`",
 				"General",
-				DiagnosticSeverity.Error,
+				DiagnosticSeverity.Warning,
 				isEnabledByDefault: true), location, className, baseTypeName);
 	}
 
