@@ -5,8 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
-		<IsPackable>flase</IsPackable>
-		<NoWarn>1591</NoWarn>
+	<IsPackable>flase</IsPackable>
+	<NoWarn>1591</NoWarn>
   </PropertyGroup>
 
 
