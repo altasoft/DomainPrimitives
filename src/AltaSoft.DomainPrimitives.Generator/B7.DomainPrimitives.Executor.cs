@@ -380,8 +380,8 @@ internal static class Executor
     /// <returns>True if the code generation process was successful; otherwise, false.</returns>
     private static bool ProcessType(GeneratorData data, DomainPrimitiveGlobalOptions options, SourceProductionContext context)
     {
-        var sb = new SourceCodeBuilder();
-        var isSuccess = ProcessConstructor(data, sb, context);
+        var builder = new SourceCodeBuilder();
+        var isSuccess = ProcessConstructor(data, builder, context);
         if (!isSuccess)
         {
             return false;
@@ -391,7 +391,7 @@ internal static class Executor
         if (validateMethod is not null)
             ExceptionHelper.VerifyException(validateMethod, context);
 
-        Process(data, sb.ToString(), options, context);
+        Process(data, builder.ToString(), options, context);
         return true;
     }
 
@@ -402,7 +402,7 @@ internal static class Executor
     /// <param name="ctorCode">The constructor code for the class.</param>
     /// <param name="options">The DomainPrimitiveGlobalOptions for the generator.</param>
     /// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
-    private static void Process(GeneratorData data, string? ctorCode, DomainPrimitiveGlobalOptions options, SourceProductionContext context)
+    private static void Process(GeneratorData data, string ctorCode, DomainPrimitiveGlobalOptions options, SourceProductionContext context)
     {
         var modifiers = data.TypeSymbol.GetModifiers() ?? "public partial";
 
@@ -411,7 +411,7 @@ internal static class Executor
             context.ReportDiagnostic(DiagnosticHelper.ClassMustBePartial(data.TypeSymbol.Locations.FirstOrDefault()));
         }
 
-        var sb = new SourceCodeBuilder();
+        var builder = new SourceCodeBuilder();
         var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics", "System.Runtime.CompilerServices" };
 
         if (data.ParentSymbols.Count > 0)
@@ -444,8 +444,7 @@ internal static class Executor
         }
 
         var needsMathOperators = data.GenerateAdditionOperators || data.GenerateDivisionOperators ||
-                                         data.GenerateMultiplyOperators || data.GenerateSubtractionOperators ||
-                                         data.GenerateModulusOperator;
+            data.GenerateMultiplyOperators || data.GenerateSubtractionOperators || data.GenerateModulusOperator;
 
         var isByteOrShort = data.ParentSymbols.Count == 0 && data.UnderlyingType.IsByteOrShort();
 
@@ -454,123 +453,117 @@ internal static class Executor
             usings.Add("AltaSoft.DomainPrimitives");
         }
 
-        sb.AddSourceHeader();
-        sb.AppendUsings(usings);
+        builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
 
-        sb.AppendNamespace(data.Namespace);
+        builder.AppendUsings(usings);
+
+        builder.AppendNamespace(data.Namespace);
 
         if (options.GenerateJsonConverters)
-            sb.AppendLine($"[JsonConverter(typeof({data.ClassName + "JsonConverter"}))]");
+            builder.AppendLine($"[JsonConverter(typeof({data.ClassName + "JsonConverter"}))]");
 
         if (options.GenerateTypeConverters)
-            sb.AppendLine($"[TypeConverter(typeof({data.ClassName + "TypeConverter"}))]");
+            builder.AppendLine($"[TypeConverter(typeof({data.ClassName + "TypeConverter"}))]");
 
-        sb.AppendLine($"[DebuggerDisplay(\"{{{data.FieldName}}}\")]");
+        builder.AppendLine($"[DebuggerDisplay(\"{{{data.FieldName}}}\")]");
 
         if (!data.TypeSymbol.IsValueType)
-            sb.AppendClass(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
+            builder.AppendClass(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
         else
-            sb.AppendStruct(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
+            builder.AppendStruct(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
 
-        if (ctorCode is not null)
-        {
-            sb.AppendLines(ctorCode);
-        }
+        builder.AppendLines(ctorCode);
 
         if (needsMathOperators && isByteOrShort)
         {
-            sb.AppendLine($"private {data.ClassName}(int value)")
+            // Add int constructor
+            builder.AppendComment("// Private constructor with 'int' value");
+            builder.AppendLine($"private {data.ClassName}(int value) : this(value is >= {data.PrimitiveTypeFriendlyName}.MinValue and <= {data.PrimitiveTypeFriendlyName}.MaxValue ? ({data.PrimitiveTypeFriendlyName})value : throw new InvalidDomainValueException(\"The value has exceeded a {data.PrimitiveTypeFriendlyName} limit\"))")
                 .OpenBracket()
-                .AppendLine($"if (value is < {data.PrimitiveTypeFriendlyName}.MinValue or > {data.PrimitiveTypeFriendlyName}.MaxValue)")
-                .AppendLine($"\tthrow new InvalidDomainValueException(\"The value has exceeded a {data.PrimitiveTypeFriendlyName} limit\");")
-                .NewLine()
-                .AppendLine($"var checkedValue = ({data.PrimitiveTypeFriendlyName})value;")
-                .AppendLine("Validate(checkedValue);")
-                .AppendLine("_value = checkedValue;")
                 .CloseBracket()
                 .NewLine();
         }
 
-        MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.FieldName, data.TypeSymbol.IsValueType, sb);
-        sb.NewLine();
+        MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.FieldName, data.TypeSymbol.IsValueType, builder);
+        builder.NewLine();
 
-        MethodGeneratorHelper.GenerateComparableCode(data.ClassName, data.FieldName, data.TypeSymbol.IsValueType, sb);
-        sb.NewLine();
+        MethodGeneratorHelper.GenerateComparableCode(data.ClassName, data.FieldName, data.TypeSymbol.IsValueType, builder);
+        builder.NewLine();
 
         if (data.GenerateImplicitOperators)
         {
-            GenerateImplicitOperators(data, sb);
+            GenerateImplicitOperators(data, builder);
         }
 
         if (data.GenerateAdditionOperators)
         {
-            MethodGeneratorHelper.GenerateAdditionCode(data.ClassName, data.FieldName, sb);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateAdditionCode(data.ClassName, data.FieldName, builder);
+            builder.NewLine();
         }
         if (data.GenerateSubtractionOperators)
         {
-            MethodGeneratorHelper.GenerateSubtractionCode(data.ClassName, data.FieldName, sb);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateSubtractionCode(data.ClassName, data.FieldName, builder);
+            builder.NewLine();
         }
 
         if (data.GenerateMultiplyOperators)
         {
-            MethodGeneratorHelper.GenerateMultiplyCode(data.ClassName, data.FieldName, sb);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateMultiplyCode(data.ClassName, data.FieldName, builder);
+            builder.NewLine();
         }
 
         if (data.GenerateDivisionOperators)
         {
-            MethodGeneratorHelper.GenerateDivisionCode(data.ClassName, data.FieldName, sb);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateDivisionCode(data.ClassName, data.FieldName, builder);
+            builder.NewLine();
         }
 
         if (data.GenerateModulusOperator)
         {
-            MethodGeneratorHelper.GenerateModulusCode(data.ClassName, data.FieldName, sb);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateModulusCode(data.ClassName, data.FieldName, builder);
+            builder.NewLine();
         }
 
         if (data.GenerateComparison)
         {
-            MethodGeneratorHelper.GenerateComparisonCode(data.ClassName, data.FieldName, sb);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateComparisonCode(data.ClassName, data.FieldName, builder);
+            builder.NewLine();
         }
 
         if (data.GenerateParsable)
         {
-            MethodGeneratorHelper.GenerateParsable(data, sb);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateParsable(data, builder);
+            builder.NewLine();
         }
 
         if (data.GenerateSpanFormattable)
         {
-            MethodGeneratorHelper.GenerateSpanFormattable(sb, data.FieldName);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateSpanFormattable(builder, data.FieldName);
+            builder.NewLine();
         }
 
         if (data.GenerateUtf8SpanFormattable)
         {
-            MethodGeneratorHelper.GenerateUtf8Formattable(sb, data.FieldName);
-            sb.NewLine();
+            MethodGeneratorHelper.GenerateUtf8Formattable(builder, data.FieldName);
+            builder.NewLine();
         }
 
         if (data.GenerateHashCode)
         {
-            sb.AppendInheritDoc();
-            sb.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-            sb.AppendLine($"public override int GetHashCode() => {data.FieldName}.GetHashCode();");
-            sb.NewLine();
+            builder.AppendInheritDoc();
+            builder.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+            builder.AppendLine($"public override int GetHashCode() => {data.FieldName}.GetHashCode();");
+            builder.NewLine();
         }
 
         if (data.GenerateConvertibles)
         {
-            MethodGeneratorHelper.GenerateConvertibles(data, sb);
+            MethodGeneratorHelper.GenerateConvertibles(data, builder);
         }
 
         if (data.GenerateXmlSerializableMethods)
         {
-            MethodGeneratorHelper.GenerateIXmlSerializableMethods(data, sb);
+            MethodGeneratorHelper.GenerateIXmlSerializableMethods(data, builder);
         }
 
         var baseType = data.ParentSymbols.Count == 0 ? data.PrimitiveTypeSymbol : data.ParentSymbols[0];
@@ -578,16 +571,16 @@ internal static class Executor
             x.Name == "ToString" && x is { IsStatic: true, Parameters.Length: 1 } &&
             x.Parameters[0].Type.Equals(baseType, SymbolEqualityComparer.Default));
 
-        sb.AppendInheritDoc();
-        sb.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
+        builder.AppendInheritDoc();
+        builder.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
         if (hasExplicitToStringMethod)
-            sb.AppendLine($"public override string ToString() => ToString({data.FieldName});").NewLine();
+            builder.AppendLine($"public override string ToString() => ToString({data.FieldName});");
         else
-            sb.AppendLine($"public override string ToString() => {data.FieldName}.ToString();").NewLine();
+            builder.AppendLine($"public override string ToString() => {data.FieldName}.ToString();");
 
-        sb.CloseBracket();
+        builder.CloseBracket();
 
-        context.AddSource(data.ClassName + ".g", sb.ToString());
+        context.AddSource(data.ClassName + ".g", builder.ToString());
 
         return;
 
@@ -595,7 +588,7 @@ internal static class Executor
         {
             var sb = new StringBuilder();
 
-            sb.AppendLine().Append("\t\tIEquatable<").Append(className).Append('>');
+            sb.Append("IEquatable<").Append(className).Append('>');
 
             AppendInterface(sb, nameof(IComparable));
             AppendInterface(sb, "IComparable<").Append(className).Append('>');
@@ -654,12 +647,13 @@ internal static class Executor
             {
                 sb.AppendLine().Append("#if NET8_0_OR_GREATER");
                 AppendInterface(sb, "IUtf8SpanFormattable");
-                sb.AppendLine().AppendLine("#endif");
+                sb.AppendLine().Append("#endif");
             }
 
             return sb.ToString();
 
-            static StringBuilder AppendInterface(StringBuilder sb, string interfaceName) => sb.AppendLine().Append("\t\t, ").Append(interfaceName);
+            static StringBuilder AppendInterface(StringBuilder sb, string interfaceName)
+                => sb.AppendLine().Append(SourceCodeBuilder.GetIndentation(2)).Append(", ").Append(interfaceName);
         }
     }
 
@@ -667,14 +661,14 @@ internal static class Executor
     /// Generates implicit operators for a specified class.
     /// </summary>
     /// <param name="data">The GeneratorData for the class.</param>
-    /// <param name="sb">The SourceCodeBuilder for generating source code.</param>
-    private static void GenerateImplicitOperators(GeneratorData data, SourceCodeBuilder sb)
+    /// <param name="builder">The SourceCodeBuilder for generating source code.</param>
+    private static void GenerateImplicitOperators(GeneratorData data, SourceCodeBuilder builder)
     {
         var friendlyName = data.PrimitiveTypeFriendlyName;
 
         if (data.TypeSymbol.IsValueType)
         {
-            sb.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> to <see cref = \"{data.ClassName}\"/>")
+            builder.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> to <see cref = \"{data.ClassName}\"/>")
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                 .Append($"public static implicit operator {data.ClassName}({friendlyName} value)")
             .AppendLine(" => new(value);")
@@ -683,7 +677,7 @@ internal static class Executor
 
         var type = data.PrimitiveTypeSymbol;
 
-        sb.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> (nullable) to <see cref = \"{data.ClassName}\"/> (nullable)")
+        builder.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> (nullable) to <see cref = \"{data.ClassName}\"/> (nullable)")
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
             .AppendLine("[return: NotNullIfNotNull(nameof(value))]")
             .Append($"public static implicit operator {data.ClassName}?({friendlyName}? value)")
@@ -692,14 +686,14 @@ internal static class Executor
 
         if (data.ParentSymbols.Count != 0)
         {
-            sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ParentSymbols[0].Name}\"/> to <see cref = \"{data.ClassName}\"/>")
+            builder.AppendSummary($"Implicit conversion from <see cref = \"{data.ParentSymbols[0].Name}\"/> to <see cref = \"{data.ClassName}\"/>")
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                 .Append($"public static implicit operator {data.ClassName}({data.ParentSymbols[0].Name} value)")
                 .AppendLine(" => new(value);")
                 .NewLine();
         }
 
-        sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"{friendlyName}\"/>")
+        builder.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"{friendlyName}\"/>")
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
             .Append($"public static implicit operator {friendlyName}({data.ClassName} value)")
             .AppendLine($" => ({friendlyName})value.{data.FieldName};")
@@ -707,13 +701,13 @@ internal static class Executor
 
         if (data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
         {
-            sb.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"DateTime\"/>")
+            builder.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"DateTime\"/>")
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                 .Append($"public static implicit operator DateTime({data.ClassName} value)")
                 .AppendLine($" => (({friendlyName})value.{data.FieldName}).ToDateTime();")
                 .NewLine();
 
-            sb.AppendSummary($"Implicit conversion from <see cref = \"DateTime\"/> to <see cref = \"{data.ClassName}\"/>")
+            builder.AppendSummary($"Implicit conversion from <see cref = \"DateTime\"/> to <see cref = \"{data.ClassName}\"/>")
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                 .Append($"public static implicit operator {data.ClassName}(DateTime value)")
                 .AppendLine($" => {data.UnderlyingType}.FromDateTime(value);")
@@ -725,10 +719,10 @@ internal static class Executor
     /// Processes the constructor for a specified class.
     /// </summary>
     /// <param name="data">The GeneratorData containing information about the data type.</param>
-    /// <param name="sb">The SourceCodeBuilder for generating source code.</param>
+    /// <param name="builder">The SourceCodeBuilder for generating source code.</param>
     /// <param name="context">The SourceProductionContext for reporting diagnostics.</param>
     /// <returns>A boolean indicating whether the constructor processing was successful.</returns>
-    private static bool ProcessConstructor(GeneratorData data, SourceCodeBuilder sb, SourceProductionContext context)
+    private static bool ProcessConstructor(GeneratorData data, SourceCodeBuilder builder, SourceProductionContext context)
     {
         var type = data.TypeSymbol;
         if (type.HasDefaultConstructor(out _))
@@ -752,23 +746,23 @@ internal static class Executor
 
         if (data.GenerateIsInitializedField)
         {
-            sb.AppendLine($"private {underlyingTypeName} _valueOrDefault => _isInitialized ? _value : Default;");
+            builder.AppendLine($"private {underlyingTypeName} _valueOrDefault => _isInitialized ? _value : Default;");
         }
 
-        sb.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
-        sb.AppendLine($"private readonly {underlyingTypeName} _value;");
+        builder.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
+        builder.AppendLine($"private readonly {underlyingTypeName} _value;");
 
         if (data.GenerateIsInitializedField)
         {
-            sb.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
-            sb.AppendLine("private readonly bool _isInitialized;");
+            builder.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
+            builder.AppendLine("private readonly bool _isInitialized;");
         }
-        sb.NewLine();
+        builder.NewLine();
 
-        sb.AppendSummary($"Initializes a new instance of the <see cref=\"{type.Name}\"/> class by validating the specified <see cref=\"{underlyingTypeName}\"/> value using <see cref=\"Validate\"/> static method.",
-            "The value to be validated.", "value");
+        builder.AppendSummary($"Initializes a new instance of the <see cref=\"{type.Name}\"/> class by validating the specified <see cref=\"{underlyingTypeName}\"/> value using <see cref=\"Validate\"/> static method.");
+        builder.AppendParamDescription("value", "The value to be validated.");
 
-        sb.AppendLine($"public {type.Name}({underlyingTypeName} value)")
+        builder.AppendLine($"public {type.Name}({underlyingTypeName} value)")
             .OpenBracket()
             .AppendLine("Validate(value);")
             .AppendLine("_value = value;")
@@ -777,20 +771,20 @@ internal static class Executor
 
         var primitiveTypeIsValueType = data.PrimitiveTypeSymbol.IsValueType;
         if (!primitiveTypeIsValueType)
-            sb.AppendLine("#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");
+            builder.AppendLine("#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");
 
-        sb.NewLine()
-            .AppendLine("/// <inheritdoc/>")
+        builder.NewLine()
+            .AppendInheritDoc()
             .AppendLine("[Obsolete(\"Domain primitive cannot be created using empty Ctor\", true)]");
 
-        sb.AppendLine($"public {type.Name}()")
+        builder.Append("public ").Append(type.Name).AppendLine("()")
             .OpenBracket()
             .AppendLine("_value = Default;")
             .AppendLineIf(data.GenerateIsInitializedField, "_isInitialized = true;")
             .CloseBracket();
 
         if (!primitiveTypeIsValueType)
-            sb.AppendLine("#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");
+            builder.AppendLine("#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");
 
         return true;
     }

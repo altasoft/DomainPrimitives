@@ -43,8 +43,7 @@ public class JsonInternalConvertersTests
         Assert.IsAssignableFrom<JsonConverter<byte>>(converter);
     }
 
-    // Add more tests for other converters...
-
+    // Add more tests for other converters
     [Fact]
     public void GetConverter_ReturnsJsonConverterForType()
     {

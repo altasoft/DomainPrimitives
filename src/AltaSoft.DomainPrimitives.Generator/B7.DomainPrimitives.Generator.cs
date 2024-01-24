@@ -21,7 +21,7 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
         //#if DEBUG
-        //		System.Diagnostics.Debugger.Launch();
+        //        System.Diagnostics.Debugger.Launch();
         //#endif
 
         var domainPrimitivesToGenerate = context.SyntaxProvider.CreateSyntaxProvider(
