@@ -4,8 +4,16 @@ using System;
 
 namespace AltaSoft.DomainPrimitives.Generator.Extensions;
 
+/// <summary>
+/// Extension methods for getting the underlying type of domain primitive.
+/// </summary>
 internal static class DomainPrimitiveUnderlyingTypeExt
 {
+    /// <summary>
+    /// Gets the underlying type of domain primitive based on the given INamedTypeSymbol.
+    /// </summary>
+    /// <param name="type">The INamedTypeSymbol representing the type.</param>
+    /// <returns>The DomainPrimitiveUnderlyingType of the given type.</returns>
     public static DomainPrimitiveUnderlyingType GetDomainPrimitiveUnderlyingType(this INamedTypeSymbol type)
     {
         switch (type.SpecialType)
@@ -56,24 +64,22 @@ internal static class DomainPrimitiveUnderlyingTypeExt
                 return DomainPrimitiveUnderlyingType.DateTime;
         }
 
-        if (type.ToDisplayString() == "System.Guid")
-            return DomainPrimitiveUnderlyingType.Guid;
-
-        if (type.ToDisplayString() == "System.DateOnly")
-            return DomainPrimitiveUnderlyingType.DateOnly;
-
-        if (type.ToDisplayString() == "System.TimeOnly")
-            return DomainPrimitiveUnderlyingType.TimeOnly;
-
-        if (type.ToDisplayString() == "System.TimeSpan")
-            return DomainPrimitiveUnderlyingType.TimeSpan;
-
-        if (type.ToDisplayString() == "System.DateTimeOffset")
-            return DomainPrimitiveUnderlyingType.DateTimeOffset;
-
-        return DomainPrimitiveUnderlyingType.Other;
+        return type.ToDisplayString() switch
+        {
+            "System.Guid" => DomainPrimitiveUnderlyingType.Guid,
+            "System.DateOnly" => DomainPrimitiveUnderlyingType.DateOnly,
+            "System.TimeOnly" => DomainPrimitiveUnderlyingType.TimeOnly,
+            "System.TimeSpan" => DomainPrimitiveUnderlyingType.TimeSpan,
+            "System.DateTimeOffset" => DomainPrimitiveUnderlyingType.DateTimeOffset,
+            _ => DomainPrimitiveUnderlyingType.Other
+        };
     }
 
+    /// <summary>
+    /// Determines if the given DomainPrimitiveUnderlyingType is numeric.
+    /// </summary>
+    /// <param name="underlyingType">The DomainPrimitiveUnderlyingType to check.</param>
+    /// <returns>True if the underlyingType is numeric, false otherwise.</returns>
     public static bool IsNumeric(this DomainPrimitiveUnderlyingType underlyingType)
     {
         return underlyingType switch
@@ -94,6 +100,11 @@ internal static class DomainPrimitiveUnderlyingTypeExt
         };
     }
 
+    /// <summary>
+    /// Determines if the given DomainPrimitiveUnderlyingType is a date or time type.
+    /// </summary>
+    /// <param name="underlyingType">The DomainPrimitiveUnderlyingType to check.</param>
+    /// <returns>True if the underlyingType is a date or time type, false otherwise.</returns>
     public static bool IsDateOrTime(this DomainPrimitiveUnderlyingType underlyingType)
     {
         return underlyingType switch
@@ -108,6 +119,11 @@ internal static class DomainPrimitiveUnderlyingTypeExt
         };
     }
 
+    /// <summary>
+    /// Determines if the given DomainPrimitiveUnderlyingType is a floating point type.
+    /// </summary>
+    /// <param name="underlyingType">The DomainPrimitiveUnderlyingType to check.</param>
+    /// <returns>True if the underlying type is a floating point type, false otherwise.</returns>
     public static bool IsFloatingPoint(this DomainPrimitiveUnderlyingType underlyingType)
     {
         return underlyingType switch
@@ -120,6 +136,11 @@ internal static class DomainPrimitiveUnderlyingTypeExt
         };
     }
 
+    /// <summary>
+    /// Determines if the given DomainPrimitiveUnderlyingType is a byte or short.
+    /// </summary>
+    /// <param name="underlyingType">The DomainPrimitiveUnderlyingType to check.</param>
+    /// <returns>True if the underlyingType is a byte or short, false otherwise.</returns>
     public static bool IsByteOrShort(this DomainPrimitiveUnderlyingType underlyingType)
     {
         return underlyingType switch
@@ -133,6 +154,11 @@ internal static class DomainPrimitiveUnderlyingTypeExt
         };
     }
 
+    /// <summary>
+    /// Gets the default value for the specified DomainPrimitiveUnderlyingType.
+    /// </summary>
+    /// <param name="underlyingType">The DomainPrimitiveUnderlyingType.</param>
+    /// <returns>The default value for the specified DomainPrimitiveUnderlyingType.</returns>
     public static object? GetDefaultValue(this DomainPrimitiveUnderlyingType underlyingType)
     {
         return underlyingType switch
