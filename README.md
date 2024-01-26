@@ -59,13 +59,11 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 13. `float`
 14. `bool`
 15. `char`
-16. `string`
-17. `TimeSpan`
-18. `Guid`
-19. `DateTime`
-20. `DateTimeOffset`
-21. `DateOnly`
-22. `TimeOnly`
+16. `TimeSpan`
+17. `DateTime`
+18. `DateTimeOffset`
+19. `DateOnly`
+20. `TimeOnly`
 
 
 ## Getting Started
