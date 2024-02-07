@@ -58,10 +58,17 @@ public partial class StringValue : IEquatable<StringValue>
     public bool Equals(StringValue? other) => _value == other?._value;
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator ==(StringValue left, StringValue right) => left.Equals(right);
+    public static bool operator ==(StringValue? left, StringValue? right)
+    {
+        if (ReferenceEquals(left, right))
+            return true;
+        if (left is null || right is null)
+            return false;
+        return left.Equals(right);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator !=(StringValue left, StringValue right) => !(left == right);
+    public static bool operator !=(StringValue? left, StringValue? right) => !(left == right);
 
     /// <inheritdoc/>
     public int CompareTo(object? value)

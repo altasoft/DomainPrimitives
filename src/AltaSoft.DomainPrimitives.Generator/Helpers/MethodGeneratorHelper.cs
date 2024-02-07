@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
