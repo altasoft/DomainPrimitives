@@ -701,11 +701,27 @@ internal static class MethodGeneratorHelper
 
         builder.AppendInheritDoc()
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-            .AppendLine($"public static bool operator ==({className} left, {className} right) => left.Equals(right);");
+            .Append($"public static bool operator ==({className}{nullable} left, {className}{nullable} right)");
+
+        if (isValueType)
+        {
+            builder.AppendLine(" => left.Equals(right);");
+        }
+        else
+        {
+            builder.NewLine();
+            builder.OpenBracket()
+                .AppendLine("if (ReferenceEquals(left, right))")
+                .AppendIndentation().AppendLine("return true;")
+                .AppendLine("if (left is null || right is null)")
+                .AppendIndentation().AppendLine("return false;")
+                .AppendLine("return left.Equals(right);")
+                .CloseBracket();
+        }
 
         builder.AppendInheritDoc()
-            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-            .AppendLine($"public static bool operator !=({className} left, {className} right) => !(left == right);");
+                .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+                .AppendLine($"public static bool operator !=({className}{nullable} left, {className}{nullable} right) => !(left == right);");
     }
 
     /// <summary>
