@@ -67,15 +67,15 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     public static bool operator !=(DateTimeOffsetValue left, DateTimeOffsetValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is DateTimeOffsetValue c)
+        if (obj is DateTimeOffsetValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a DateTimeOffsetValue", nameof(value));
+        throw new ArgumentException("Object is not a DateTimeOffsetValue", nameof(obj));
     }
 
     /// <inheritdoc/>

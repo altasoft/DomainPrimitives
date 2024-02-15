@@ -31,8 +31,6 @@ internal static class Executor
             in DomainPrimitiveGlobalOptions globalOptions,
             in SourceProductionContext context)
     {
-        //context.ReportDiagnostic(DiagnosticHelper.GeneratorStarted());
-
         if (typesToGenerate.IsDefaultOrEmpty)
             return;
 
@@ -100,7 +98,7 @@ internal static class Executor
             return null;
         }
 
-        var parentSymbols = new List<INamedTypeSymbol>();
+        var parentSymbols = new List<INamedTypeSymbol>(4);
         var (underlyingType, underlyingTypeSymbol) = primitiveType.GetUnderlyingPrimitiveType(parentSymbols);
 
         if (underlyingType == DomainPrimitiveUnderlyingType.Other)
@@ -109,10 +107,10 @@ internal static class Executor
             return null;
         }
 
-        var hasOverridenHashCode = typeSymbol.GetMembersOfType<IMethodSymbol>().Any(x => x.OverriddenMethod?.Name == "GetHashCode");
+        var hasOverridenHashCode = typeSymbol.GetMembersOfType<IMethodSymbol>().Any(x => string.Equals(x.OverriddenMethod?.Name, "GetHashCode", StringComparison.Ordinal));
 
         var generateIsInitializedField = true;
-        var defaultProperty = typeSymbol.GetMembersOfType<IPropertySymbol>().FirstOrDefault(x => x.Name == "Default");
+        var defaultProperty = typeSymbol.GetMembersOfType<IPropertySymbol>().FirstOrDefault(x => string.Equals(x.Name, "Default", StringComparison.Ordinal));
         if (defaultProperty is not null)
         {
             generateIsInitializedField = !DefaultPropertyReturnsDefaultValue(defaultProperty, underlyingType);
@@ -134,8 +132,8 @@ internal static class Executor
         };
 
         var attributes = typeSymbol.GetAttributes();
-        var attributeData = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == Constants.SupportedOperationsAttributeFullName);
-        var serializationAttribute = attributes.FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == Constants.SerializationFormatAttributeFullName);
+        var attributeData = attributes.FirstOrDefault(x => string.Equals(x.AttributeClass?.ToDisplayString(), Constants.SupportedOperationsAttributeFullName, StringComparison.Ordinal));
+        var serializationAttribute = attributes.FirstOrDefault(x => string.Equals(x.AttributeClass?.ToDisplayString(), Constants.SerializationFormatAttributeFullName, StringComparison.Ordinal));
 
         var isNumeric = underlyingType.IsNumeric();
         var isDateOrTime = underlyingType.IsDateOrTime();
@@ -273,7 +271,7 @@ internal static class Executor
                 return parentAttribute;
             }
 
-            var attributeData = @class.GetAttributes().FirstOrDefault(x => x.AttributeClass?.ToDisplayString() == Constants.SupportedOperationsAttributeFullName);
+            var attributeData = @class.GetAttributes().FirstOrDefault(x => string.Equals(x.AttributeClass?.ToDisplayString(), Constants.SupportedOperationsAttributeFullName, StringComparison.Ordinal));
 
             var attribute = attributeData is null ? null : GetAttributeFromData(attributeData);
 
@@ -367,7 +365,7 @@ internal static class Executor
 
         static bool CreateAttributeValue(AttributeData? parentAttributeData, string property)
         {
-            return parentAttributeData!.NamedArguments.FirstOrDefault(x => x.Key == property).Value.Value is true;
+            return parentAttributeData!.NamedArguments.FirstOrDefault(x => string.Equals(x.Key, property, StringComparison.Ordinal)).Value.Value is true;
         }
     }
 
@@ -387,7 +385,7 @@ internal static class Executor
             return false;
         }
 
-        var validateMethod = data.TypeSymbol.GetMembersOfType<IMethodSymbol>().FirstOrDefault(x => x.Name == "Validate");
+        var validateMethod = data.TypeSymbol.GetMembersOfType<IMethodSymbol>().FirstOrDefault(x => string.Equals(x.Name, "Validate", StringComparison.Ordinal));
         if (validateMethod is not null)
             ExceptionHelper.VerifyException(validateMethod, context);
 
@@ -468,7 +466,7 @@ internal static class Executor
         builder.AppendLine($"[DebuggerDisplay(\"{{{data.FieldName}}}\")]");
 
         if (!data.TypeSymbol.IsValueType)
-            builder.AppendClass(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
+            builder.AppendClass(false, modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
         else
             builder.AppendStruct(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
 
@@ -567,8 +565,7 @@ internal static class Executor
         }
 
         var baseType = data.ParentSymbols.Count == 0 ? data.PrimitiveTypeSymbol : data.ParentSymbols[0];
-        var hasExplicitToStringMethod = data.TypeSymbol.GetMembersOfType<IMethodSymbol>().Any(x =>
-            x.Name == "ToString" && x is { IsStatic: true, Parameters.Length: 1 } &&
+        var hasExplicitToStringMethod = data.TypeSymbol.GetMembersOfType<IMethodSymbol>().Any(x => string.Equals(x.Name, "ToString", StringComparison.Ordinal) && x is { IsStatic: true, Parameters.Length: 1 } &&
             x.Parameters[0].Type.Equals(baseType, SymbolEqualityComparer.Default));
 
         builder.AppendInheritDoc();
@@ -586,7 +583,7 @@ internal static class Executor
 
         static string CreateInheritedInterfaces(GeneratorData data, string className)
         {
-            var sb = new StringBuilder();
+            var sb = new StringBuilder(8096);
 
             sb.Append("IEquatable<").Append(className).Append('>');
 

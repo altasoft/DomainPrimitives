@@ -185,15 +185,15 @@ public readonly partial struct PositiveInteger : IEquatable<PositiveInteger>
 	public static bool operator !=(PositiveInteger left, PositiveInteger right) => !(left == right);
 
 	/// <inheritdoc/>
-	public int CompareTo(object? value)
+	public int CompareTo(object? obj)
 	{
-		if (value is null)
+		if (obj is null)
 			return 1;
 
-		if (value is PositiveInteger c)
+		if (obj is PositiveInteger c)
 			return CompareTo(c);
 
-		throw new ArgumentException("Object is not a PositiveInteger", nameof(value));
+		throw new ArgumentException("Object is not a PositiveInteger", nameof(obj));
 	}
 
 	/// <inheritdoc/>

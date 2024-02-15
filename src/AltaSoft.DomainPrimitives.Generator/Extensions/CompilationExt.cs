@@ -22,7 +22,7 @@ internal static class CompilationExt
     /// <returns>True if the type implements the IDomainValue interface; otherwise, false.</returns>
     public static bool IsDomainValue(this INamedTypeSymbol x)
     {
-        return x is { IsGenericType: true, Name: "IDomainValue" } && x.ContainingNamespace.ToDisplayString() == "AltaSoft.DomainPrimitives";
+        return x is { IsGenericType: true, Name: "IDomainValue" } && string.Equals(x.ContainingNamespace.ToDisplayString(), "AltaSoft.DomainPrimitives", StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -61,7 +61,7 @@ internal static class CompilationExt
 
         foreach (var syntax in declaringSyntax)
         {
-            if (syntax.GetSyntax() is TypeDeclarationSyntax typeDeclaration && typeDeclaration.GetClassName() == self.GetClassNameWithArguments())
+            if (syntax.GetSyntax() is TypeDeclarationSyntax typeDeclaration && string.Equals(typeDeclaration.GetClassName(), self.GetClassNameWithArguments(), StringComparison.Ordinal))
             {
                 var modifiers = typeDeclaration.Modifiers.ToString();
                 if (typeDeclaration is RecordDeclarationSyntax)
@@ -112,7 +112,7 @@ internal static class CompilationExt
     /// <returns>True if the type implements the interface; otherwise, false.</returns>
     public static bool ImplementsInterface(this INamedTypeSymbol type, string interfaceFullName)
     {
-        return type.Interfaces.Any(x => x.ContainingNamespace.ToDisplayString() + "." + x.Name == interfaceFullName);
+        return type.Interfaces.Any(x => string.Equals(x.ContainingNamespace.ToDisplayString() + "." + x.Name, interfaceFullName, StringComparison.Ordinal));
     }
 
     /// <summary>
@@ -137,7 +137,7 @@ internal static class CompilationExt
 
             // Recurse into the domain type
             if (domainType.TypeArguments[0] is not INamedTypeSymbol primitiveType)
-                throw new Exception("primitiveType is null");
+                throw new InvalidOperationException("primitiveType is null");
 
             domainTypes.Add(type);
             type = primitiveType;
@@ -191,30 +191,31 @@ internal static class CompilationExt
             return result;
         }
 
-        var friendlyName = type.MetadataName;
+        var friendlyName = new StringBuilder(type.MetadataName);
 
         if (!type.IsGenericType)
-            return friendlyName;
+            return friendlyName.ToString();
 
-        var iBacktick = friendlyName.IndexOf('`');
+        var iBacktick = friendlyName.ToString().IndexOf('`');
         if (iBacktick > 0)
-            friendlyName = friendlyName.Remove(iBacktick);
-        friendlyName += "<";
+            friendlyName.Length = iBacktick;
+        friendlyName.Append('<');
         var typeParameters = type.TypeArguments;
         for (var i = 0; i < typeParameters.Length; ++i)
         {
-            var typeParamName = typeParameters[i].ToString();
-            friendlyName += i == 0 ? typeParamName : "," + typeParamName;
+            if (i > 0)
+                friendlyName.Append(',');
+            friendlyName.Append(typeParameters[i]);
         }
-        friendlyName += ">";
+        friendlyName.Append('>');
 
-        return friendlyName;
+        return friendlyName.ToString();
     }
 
     /// <summary>
     /// A dictionary that provides aliases for common .NET framework types, mapping their full names to shorter aliases.
     /// </summary>
-    private static readonly Dictionary<string, string> s_typeAliases = new()
+    private static readonly Dictionary<string, string> s_typeAliases = new(StringComparer.Ordinal)
     {
         { typeof(byte).FullName, "byte" },
         { typeof(sbyte).FullName, "sbyte" },

@@ -71,15 +71,15 @@ public readonly partial struct DecimalValue : IEquatable<DecimalValue>
     public static bool operator !=(DecimalValue left, DecimalValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is DecimalValue c)
+        if (obj is DecimalValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a DecimalValue", nameof(value));
+        throw new ArgumentException("Object is not a DecimalValue", nameof(obj));
     }
 
     /// <inheritdoc/>

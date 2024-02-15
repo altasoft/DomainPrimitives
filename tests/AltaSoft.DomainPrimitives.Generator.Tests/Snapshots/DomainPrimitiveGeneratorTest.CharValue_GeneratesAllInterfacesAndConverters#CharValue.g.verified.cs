@@ -66,15 +66,15 @@ public readonly partial struct CharValue : IEquatable<CharValue>
     public static bool operator !=(CharValue left, CharValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is CharValue c)
+        if (obj is CharValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a CharValue", nameof(value));
+        throw new ArgumentException("Object is not a CharValue", nameof(obj));
     }
 
     /// <inheritdoc/>

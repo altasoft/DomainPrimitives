@@ -66,15 +66,15 @@ public readonly partial struct ShortValue : IEquatable<ShortValue>
     public static bool operator !=(ShortValue left, ShortValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is ShortValue c)
+        if (obj is ShortValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a ShortValue", nameof(value));
+        throw new ArgumentException("Object is not a ShortValue", nameof(obj));
     }
 
     /// <inheritdoc/>

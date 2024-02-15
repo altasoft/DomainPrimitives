@@ -29,7 +29,7 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
                 transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx))
             .Where(static x => x is not null);
 
-        var assemblyNames = context.CompilationProvider.Select((c, _) => c.AssemblyName ?? throw new Exception("Assembly name must be provided"));
+        var assemblyNames = context.CompilationProvider.Select((c, _) => c.AssemblyName ?? throw new InvalidOperationException("Assembly name must be provided"));
 
         var globalOptions = context.AnalyzerConfigOptionsProvider.Select((c, _) => GetGlobalOptions(c));
 

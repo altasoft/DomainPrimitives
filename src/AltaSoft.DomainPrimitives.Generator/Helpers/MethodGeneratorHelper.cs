@@ -38,7 +38,7 @@ internal static class MethodGeneratorHelper
 
         builder.AppendSummary($"Helper class providing methods to configure Swagger mappings for DomainPrimitive types of {assemblyName}");
 
-        builder.AppendClass("public static", "SwaggerTypeHelper");
+        builder.AppendClass(false, "public static", "SwaggerTypeHelper");
 
         builder.AppendSummary("Adds Swagger mappings for specific custom types to ensure proper OpenAPI documentation generation.");
         builder.AppendParamDescription("options", "The SwaggerGenOptions instance to which mappings are added.");
@@ -60,7 +60,7 @@ internal static class MethodGeneratorHelper
             var (typeName, format) = data.PrimitiveTypeSymbol.GetSwaggerTypeAndFormat();
 
             // Get the XML documentation comment for the namedTypeSymbol
-            var xmlDocumentation = data.TypeSymbol.GetDocumentationCommentXml();
+            var xmlDocumentation = data.TypeSymbol.GetDocumentationCommentXml(cancellationToken: context.CancellationToken);
 
             AddMapping(false);
             if (data.TypeSymbol.IsValueType)
@@ -179,7 +179,7 @@ internal static class MethodGeneratorHelper
 
         builder.AppendNamespace(data.Namespace + ".Converters");
         builder.AppendSummary($"TypeConverter for <see cref = \"{data.ClassName}\"/>");
-        builder.AppendClass("public sealed", data.ClassName + "TypeConverter", $"{friendlyName}Converter");
+        builder.AppendClass(false, "public sealed", data.ClassName + "TypeConverter", $"{friendlyName}Converter");
         builder.AppendInheritDoc()
             .AppendLine("public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)")
             .OpenBracket();
@@ -231,7 +231,7 @@ internal static class MethodGeneratorHelper
         builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
 
         var usingStatements =
-            new List<string>
+            new List<string>(8)
                 {
                     data.Namespace,
                     "System",
@@ -248,7 +248,7 @@ internal static class MethodGeneratorHelper
 
         builder.AppendNamespace(data.Namespace + ".Converters");
         builder.AppendSummary($"JsonConverter for <see cref = \"{data.ClassName}\"/>");
-        builder.AppendClass("public sealed", data.ClassName + "JsonConverter", $"JsonConverter<{data.ClassName}>");
+        builder.AppendClass(false, "public sealed", data.ClassName + "JsonConverter", $"JsonConverter<{data.ClassName}>");
 
         builder.AppendInheritDoc()
             .Append("public override ").Append(data.ClassName).AppendLine(" Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)")
@@ -450,13 +450,13 @@ internal static class MethodGeneratorHelper
     internal static void GenerateComparableCode(string className, string fieldName, bool isValueType, SourceCodeBuilder builder)
     {
         builder.AppendInheritDoc()
-            .AppendLine("public int CompareTo(object? value)")
+            .AppendLine("public int CompareTo(object? obj)")
             .OpenBracket()
-            .AppendLine("if (value is null)")
+            .AppendLine("if (obj is null)")
             .AppendIndentation().AppendLine("return 1;").NewLine()
-            .AppendLine($"if (value is {className} c)")
+            .AppendLine($"if (obj is {className} c)")
             .AppendIndentation().AppendLine("return CompareTo(c);").NewLine()
-            .AppendLine($"throw new ArgumentException(\"Object is not a {className}\", nameof(value));")
+            .AppendLine($"throw new ArgumentException(\"Object is not a {className}\", nameof(obj));")
             .CloseBracket();
 
         var nullable = isValueType ? "" : "?";
@@ -734,8 +734,6 @@ internal static class MethodGeneratorHelper
         builder.AppendLine("public XmlSchema? GetSchema() => null;")
             .NewLine();
 
-        //var typeName = CapitalizeFirstLetter(data.PrimitiveTypeFriendlyName);
-
         var method = data.PrimitiveTypeFriendlyName switch
         {
             "string" => "ReadElementContentAsString",
@@ -753,7 +751,7 @@ internal static class MethodGeneratorHelper
 
         builder.AppendInheritDoc();
 
-        if (data.PrimitiveTypeFriendlyName == "string")
+        if (string.Equals(data.PrimitiveTypeFriendlyName, "string", System.StringComparison.Ordinal))
             builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName});");
         else
         if (data.SerializationFormat is null)

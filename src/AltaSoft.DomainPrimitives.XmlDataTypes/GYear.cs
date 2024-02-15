@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.Runtime.InteropServices;
 
 namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
@@ -8,6 +9,7 @@ namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 /// </summary>
 /// <example>2024</example>
 [SerializationFormat("yyyy")]
+[StructLayout(LayoutKind.Auto)]
 public readonly partial struct GYear : IDomainValue<DateOnly>
 {
     /// <inheritdoc/>

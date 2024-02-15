@@ -67,15 +67,15 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
     public static bool operator !=(DateTimeValue left, DateTimeValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is DateTimeValue c)
+        if (obj is DateTimeValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a DateTimeValue", nameof(value));
+        throw new ArgumentException("Object is not a DateTimeValue", nameof(obj));
     }
 
     /// <inheritdoc/>

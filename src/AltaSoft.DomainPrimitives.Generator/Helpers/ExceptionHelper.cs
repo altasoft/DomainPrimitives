@@ -20,7 +20,7 @@ internal static class ExceptionHelper
         // Retrieve the method's syntax reference.
         var syntaxRef = method.DeclaringSyntaxReferences.FirstOrDefault();
 
-        if (syntaxRef?.GetSyntax() is not MethodDeclarationSyntax methodSyntax)
+        if (syntaxRef?.GetSyntax(context.CancellationToken) is not MethodDeclarationSyntax methodSyntax)
             return;
 
         // Find all invalid exception types within the method.
@@ -57,7 +57,7 @@ internal static class ExceptionHelper
     {
         if (throwStatement.Expression is ObjectCreationExpressionSyntax { Type: IdentifierNameSyntax identifierNameSyntax })
         {
-            return identifierNameSyntax.Identifier.ValueText != "InvalidDomainValueException";
+            return !string.Equals(identifierNameSyntax.Identifier.ValueText, "InvalidDomainValueException", System.StringComparison.Ordinal);
         }
 
         return true;

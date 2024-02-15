@@ -1,4 +1,6 @@
-﻿namespace AltaSoft.DomainPrimitives.XmlDataTypes;
+﻿using System.Runtime.InteropServices;
+
+namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 /// <summary>
 /// A domain primitive type representing a positive integer.
@@ -6,6 +8,7 @@
 /// <remarks>
 /// The PositiveInteger ensures that its value is a positive integer (greater than zero).
 /// </remarks>
+[StructLayout(LayoutKind.Auto)]
 public readonly partial struct PositiveInteger : IDomainValue<int>
 {
     /// <inheritdoc/>

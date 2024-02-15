@@ -66,15 +66,15 @@ public readonly partial struct ByteValue : IEquatable<ByteValue>
     public static bool operator !=(ByteValue left, ByteValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is ByteValue c)
+        if (obj is ByteValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a ByteValue", nameof(value));
+        throw new ArgumentException("Object is not a ByteValue", nameof(obj));
     }
 
     /// <inheritdoc/>

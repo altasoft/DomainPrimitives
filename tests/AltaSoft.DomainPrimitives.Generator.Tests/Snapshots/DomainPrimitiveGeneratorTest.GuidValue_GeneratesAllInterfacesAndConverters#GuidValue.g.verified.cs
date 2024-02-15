@@ -65,15 +65,15 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     public static bool operator !=(GuidValue left, GuidValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is GuidValue c)
+        if (obj is GuidValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a GuidValue", nameof(value));
+        throw new ArgumentException("Object is not a GuidValue", nameof(obj));
     }
 
     /// <inheritdoc/>

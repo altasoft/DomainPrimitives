@@ -71,15 +71,15 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     public static bool operator !=(DoubleValue left, DoubleValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is DoubleValue c)
+        if (obj is DoubleValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a DoubleValue", nameof(value));
+        throw new ArgumentException("Object is not a DoubleValue", nameof(obj));
     }
 
     /// <inheritdoc/>

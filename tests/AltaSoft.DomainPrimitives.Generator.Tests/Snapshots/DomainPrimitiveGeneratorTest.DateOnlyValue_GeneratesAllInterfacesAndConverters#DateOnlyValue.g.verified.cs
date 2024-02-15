@@ -68,15 +68,15 @@ public readonly partial struct DateOnlyValue : IEquatable<DateOnlyValue>
     public static bool operator !=(DateOnlyValue left, DateOnlyValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is DateOnlyValue c)
+        if (obj is DateOnlyValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a DateOnlyValue", nameof(value));
+        throw new ArgumentException("Object is not a DateOnlyValue", nameof(obj));
     }
 
     /// <inheritdoc/>

@@ -66,15 +66,15 @@ public readonly partial struct SByteValue : IEquatable<SByteValue>
     public static bool operator !=(SByteValue left, SByteValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is SByteValue c)
+        if (obj is SByteValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a SByteValue", nameof(value));
+        throw new ArgumentException("Object is not a SByteValue", nameof(obj));
     }
 
     /// <inheritdoc/>

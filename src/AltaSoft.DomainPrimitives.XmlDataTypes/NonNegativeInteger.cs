@@ -1,4 +1,6 @@
-﻿namespace AltaSoft.DomainPrimitives.XmlDataTypes;
+﻿using System.Runtime.InteropServices;
+
+namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 /// <summary>
 /// A domain primitive type representing a non-negative integer.
@@ -6,6 +8,7 @@
 /// <remarks>
 /// The NonNegativeInteger ensures that its value is a non-negative integer (greater than or equal to zero).
 /// </remarks>
+[StructLayout(LayoutKind.Auto)]
 public readonly partial struct NonNegativeInteger : IDomainValue<int>
 {
     /// <inheritdoc/>

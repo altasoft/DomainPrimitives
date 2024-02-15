@@ -34,7 +34,8 @@ internal sealed class SourceCodeBuilder
     private const string IndentationString = "    ";
 
     private bool _previousWasNewLine;
-    private int? _rollbackLength;
+    private int? _savedPosition;
+    private int _indentationLengthInSavedPosition;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SourceCodeBuilder"/> class with an optional starting indent level.
@@ -42,8 +43,8 @@ internal sealed class SourceCodeBuilder
     /// <param name="startingIndent">The starting indentation level.</param>
     public SourceCodeBuilder(int startingIndent = 0)
     {
-        _sb = new StringBuilder();
-        _indentations = new StringBuilder();
+        _sb = new StringBuilder(1024);
+        _indentations = new StringBuilder(16);
 
         if (startingIndent > 0)
         {
@@ -64,7 +65,13 @@ internal sealed class SourceCodeBuilder
     /// Returns a string containing a new line character sequence.
     /// </summary>
     /// <returns>A string with a new line character sequence.</returns>
-    private static string GetNewLineString() => new StringBuilder().AppendLine().ToString();
+    private static string GetNewLineString() => new StringBuilder(2).AppendLine().ToString();
+
+    /// <summary>
+    /// Returns the length of the new line character(s) used in the current environment.
+    /// </summary>
+    /// <returns>The length of the new line character(s).</returns>
+    public int GetNewLineLength() => s_newLineLength;
 
     /// <summary>
     /// Returns a string that represents the specified number of indentation chars.
@@ -86,7 +93,7 @@ internal sealed class SourceCodeBuilder
     /// Appends indentation to the current string.
     /// </summary>
     /// <param name="count">The number of indentation levels to append. Default is 1.</param>
-    public SourceCodeBuilder AppendIndentation(int count = 1) => Append(count == 1 ? IndentationString : string.Concat(Enumerable.Repeat(IndentationString, count)), true);
+    public SourceCodeBuilder AppendIndentation(int count = 1) => Append(count == 1 ? IndentationString : string.Concat(Enumerable.Repeat(IndentationString, count)));
 
     /// <summary>
     /// Adds the auto-generated comment to the source code, including the generator name.
@@ -150,15 +157,16 @@ internal sealed class SourceCodeBuilder
     public SourceCodeBuilder AppendComment(string commentLine, bool ensureIndentation = true) => AppendLine("// " + commentLine, ensureIndentation);
 
     /// <summary>
-    /// Appends a class declaration to the source code with the specified modifiers, class name, and optional inheritance.
+    /// Appends a class or record declaration to the source code builder.
     /// </summary>
-    /// <param name="modifiers">The modifiers for the class (e.g., "public", "internal").</param>
-    /// <param name="className">The name of the class to be appended.</param>
-    /// <param name="inheritance">Optional. The inheritance or base class for the class declaration.</param>
+    /// <param name="isRecord">True if the class is a record, false otherwise.</param>
+    /// <param name="modifiers">The modifiers for the class.</param>
+    /// <param name="className">The name of the class.</param>
+    /// <param name="inheritance">Optional inheritance for the class.</param>
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-    public SourceCodeBuilder AppendClass(string modifiers, string className, string? inheritance = null)
+    public SourceCodeBuilder AppendClass(bool isRecord, string modifiers, string className, string? inheritance = null)
     {
-        Append(modifiers).Continue(" class ").Continue(className)
+        Append(modifiers).Continue(isRecord ? " record " : " class ").Continue(className)
             .ContinueIf(!string.IsNullOrEmpty(inheritance), " : " + inheritance);
 
         return OpenBracket();
@@ -191,7 +199,7 @@ internal sealed class SourceCodeBuilder
     /// </summary>
     public SourceCodeBuilder AppendUsings(IEnumerable<string> usings)
     {
-        foreach (var us in usings.Distinct())
+        foreach (var us in usings.Distinct(StringComparer.Ordinal))
             Append("using ").Continue(us).ContinueLine(";");
 
         NewLine();
@@ -292,7 +300,7 @@ internal sealed class SourceCodeBuilder
                 _sb.AppendLine();
             }
             else
-            if (line.StartsWith("#"))
+            if (line[0] == '#')
             {
                 _sb.AppendLine(line);
             }
@@ -329,19 +337,49 @@ internal sealed class SourceCodeBuilder
     /// <summary>
     /// Saves the current position in a StringBuilder object.
     /// </summary>
-    public void SavePosition() => _rollbackLength = _sb.Length;
+    public SourceCodeBuilder SavePosition()
+    {
+        _savedPosition = _sb.Length;
+        _indentationLengthInSavedPosition = _indentations.Length;
+        return this;
+    }
 
     /// <summary>
-    /// Rolls back the length of the source code builder to a previous state.
+    /// Checks if the current position of the StringBuilder is equal to the saved position.
     /// </summary>
-    /// <param name="length">The length to rollback.</param>
-    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    /// <returns>
+    /// True if the current position is equal to the saved position, false otherwise.
+    /// </returns>
+    public bool IsOnSavedPosition()
+    {
+        return _sb.Length == _savedPosition;
+    }
+
+    /// <summary>
+    /// Restores the position of the source code builder to the previous state.
+    /// </summary>
+    /// <returns>
+    /// The updated source code builder with the position restored.
+    /// </returns>
+    public SourceCodeBuilder RestorePosition()
+    {
+        if (!_savedPosition.HasValue)
+            return this;
+
+        _sb.Length = _savedPosition.Value;
+        _indentations.Length = _indentationLengthInSavedPosition;
+        _savedPosition = null;
+        return this;
+    }
+
+    /// <summary>
+    /// Rolls back the length of the source code builder by the specified amount.
+    /// </summary>
+    /// <param name="length">The amount by which to roll back the length of the source code builder.</param>
+    /// <returns>The updated source code builder.</returns>
     public SourceCodeBuilder Rollback(int length)
     {
-        if (_sb.Length != _rollbackLength)
-            _sb.Length -= length;
-
-        _rollbackLength = null;
+        _sb.Length -= length;
         return this;
     }
 
@@ -405,10 +443,10 @@ internal sealed class SourceCodeBuilder
     /// <returns>The type of line.</returns>
     private static LineType CheckIndent(string line)
     {
-        if (line.StartsWith("{"))
+        if (line.StartsWith("{", StringComparison.Ordinal))
             return LineType.OpenBracket;
 
-        return line.StartsWith("}") ? LineType.ClosingBracket : LineType.Default;
+        return line.StartsWith("}", StringComparison.Ordinal) ? LineType.ClosingBracket : LineType.Default;
     }
 
     /// <summary>

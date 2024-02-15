@@ -71,15 +71,15 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     public static bool operator !=(FloatValue left, FloatValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is FloatValue c)
+        if (obj is FloatValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a FloatValue", nameof(value));
+        throw new ArgumentException("Object is not a FloatValue", nameof(obj));
     }
 
     /// <inheritdoc/>

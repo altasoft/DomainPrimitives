@@ -62,15 +62,15 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     public static bool operator !=(BoolValue left, BoolValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is BoolValue c)
+        if (obj is BoolValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a BoolValue", nameof(value));
+        throw new ArgumentException("Object is not a BoolValue", nameof(obj));
     }
 
     /// <inheritdoc/>

@@ -10,7 +10,7 @@ namespace AltaSoft.DomainPrimitives.Generator.Extensions;
 /// <summary>
 /// A collection of extension methods for working with Roslyn syntax and symbols.
 /// </summary>
-internal static class RoslynExtensions
+internal static class RoslynExt
 {
     /// <summary>
     /// Gets the location of the attribute data within the source code.
@@ -36,7 +36,7 @@ internal static class RoslynExtensions
     {
         var constructors = self.GetConstructorsFromSyntaxTree();
 
-        var ctor = constructors?.FirstOrDefault(x => x.ParameterList.Parameters.Count == 0);
+        var ctor = constructors?.Find(x => x.ParameterList.Parameters.Count == 0);
         location = ctor?.GetLocation();
         return ctor is not null;
     }
@@ -57,11 +57,12 @@ internal static class RoslynExtensions
 
         foreach (var syntax in declaringSyntaxReferences)
         {
-            if (syntax.GetSyntax() is TypeDeclarationSyntax classDeclaration && classDeclaration.GetClassFullName() == self.ToString())
+            if (syntax.GetSyntax() is TypeDeclarationSyntax classDeclaration && string.Equals(classDeclaration.GetClassFullName(), self.ToString(), System.StringComparison.Ordinal))
             {
                 var constructors = classDeclaration.Members.OfType<ConstructorDeclarationSyntax>();
 
-                (result ??= []).AddRange(constructors);
+                result ??= [];
+                result.AddRange(constructors);
             }
         }
         return result;
@@ -78,6 +79,13 @@ internal static class RoslynExtensions
     }
 
     /// <summary>
+    /// Gets the namespace from the specified base namespace declaration syntax.
+    /// </summary>
+    /// <param name="self">The base namespace declaration syntax to retrieve the namespace from.</param>
+    /// <returns>The namespace from the base namespace declaration.</returns>
+    public static string GetNamespace(this BaseNamespaceDeclarationSyntax self) => self.Name.ToString();
+
+    /// <summary>
     /// Gets the fully qualified name of the specified type declaration syntax, including its namespace.
     /// </summary>
     /// <param name="self">The type declaration syntax to retrieve the fully qualified name from.</param>
@@ -88,19 +96,12 @@ internal static class RoslynExtensions
     }
 
     /// <summary>
-    /// Gets the namespace from the specified base namespace declaration syntax.
-    /// </summary>
-    /// <param name="self">The base namespace declaration syntax to retrieve the namespace from.</param>
-    /// <returns>The namespace from the base namespace declaration.</returns>
-    public static string GetNamespace(this BaseNamespaceDeclarationSyntax self) => self.Name.ToString();
-
-    /// <summary>
     /// Gets the name of the class specified in the type declaration syntax.
     /// </summary>
     /// <param name="proxy">The type declaration syntax to retrieve the class name from.</param>
     /// <returns>The name of the class.</returns>
     public static string GetClassName(this TypeDeclarationSyntax proxy)
     {
-        return proxy.Identifier.Text + proxy.TypeParameterList;
+        return proxy.Identifier.Text + proxy.TypeParameterList?.ToFullString();
     }
 }

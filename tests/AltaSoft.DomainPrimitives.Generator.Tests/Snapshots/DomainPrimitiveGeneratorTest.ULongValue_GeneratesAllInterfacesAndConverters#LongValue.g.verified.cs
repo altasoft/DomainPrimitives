@@ -71,15 +71,15 @@ public readonly partial struct LongValue : IEquatable<LongValue>
     public static bool operator !=(LongValue left, LongValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is LongValue c)
+        if (obj is LongValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a LongValue", nameof(value));
+        throw new ArgumentException("Object is not a LongValue", nameof(obj));
     }
 
     /// <inheritdoc/>

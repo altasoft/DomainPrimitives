@@ -68,15 +68,15 @@ public readonly partial struct TimeOnlyValue : IEquatable<TimeOnlyValue>
     public static bool operator !=(TimeOnlyValue left, TimeOnlyValue right) => !(left == right);
 
     /// <inheritdoc/>
-    public int CompareTo(object? value)
+    public int CompareTo(object? obj)
     {
-        if (value is null)
+        if (obj is null)
             return 1;
 
-        if (value is TimeOnlyValue c)
+        if (obj is TimeOnlyValue c)
             return CompareTo(c);
 
-        throw new ArgumentException("Object is not a TimeOnlyValue", nameof(value));
+        throw new ArgumentException("Object is not a TimeOnlyValue", nameof(obj));
     }
 
     /// <inheritdoc/>

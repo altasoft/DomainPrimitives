@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.Json.Serialization.Metadata;
 
@@ -178,18 +179,19 @@ public static class JsonInternalConverters
     {
         //todo keep track and remove later.
 
+        var jsonConverterType = typeof(JsonConverter<>).MakeGenericType(typeof(T));
+
         var prop = typeof(JsonMetadataServices)
             .GetProperties(BindingFlags.Static | BindingFlags.Public)
-            .First(x => x.PropertyType == typeof(JsonConverter<>).MakeGenericType(typeof(T)));
+            .First(x => x.PropertyType == jsonConverterType);
 
-        var instance = (JsonConverter<T>)prop.GetValue(null)! ?? throw new Exception("Cannot retrieve to value");
+        var instance = (JsonConverter<T>)prop.GetValue(null)! ?? throw new JsonException("Cannot retrieve to value");
 
         var type = instance.GetType();
         var internalConverterProp = type.GetProperty("IsInternalConverter", BindingFlags.Instance | BindingFlags.NonPublic)
-                                    ?? throw new Exception("Cannot convert to value");
+                                    ?? throw new JsonException("Cannot convert to value");
 
-        // ReSharper disable once UseCollectionExpression
-        internalConverterProp.SetMethod!.Invoke(instance, new object[] { false });
+        internalConverterProp.SetMethod!.Invoke(instance, [false]);
         return instance;
     }
 }
