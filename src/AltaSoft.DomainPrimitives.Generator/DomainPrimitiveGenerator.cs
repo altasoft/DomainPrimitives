@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System;
 using System.Linq;
+using System.Threading;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -26,7 +27,7 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
 
         var domainPrimitivesToGenerate = context.SyntaxProvider.CreateSyntaxProvider(
                 predicate: static (node, _) => IsSyntaxTargetForGeneration(node),
-                transform: static (ctx, _) => GetSemanticTargetForGeneration(ctx))
+                transform: static (ctx, cancellationToken) => GetSemanticTargetForGeneration(ctx, cancellationToken))
             .Where(static x => x is not null);
 
         var assemblyNames = context.CompilationProvider.Select((c, _) => c.AssemblyName ?? throw new InvalidOperationException("Assembly name must be provided"));
@@ -42,6 +43,7 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
     /// Determines if a given syntax node represents a semantic target for code generation.
     /// </summary>
     /// <param name="context">The generator syntax context.</param>
+    /// <param name="cancellationToken">CancellationToken</param>
     /// <returns>
     /// The <see cref="TypeDeclarationSyntax"/> if the syntax node is a semantic target; otherwise, <c>null</c>.
     /// </returns>
@@ -51,11 +53,11 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
     /// and implements one or more interfaces marked as domain value types.
     /// </remarks>
     /// <seealso cref="DomainPrimitiveGenerator"/>
-    private static INamedTypeSymbol? GetSemanticTargetForGeneration(GeneratorSyntaxContext context)
+    private static INamedTypeSymbol? GetSemanticTargetForGeneration(GeneratorSyntaxContext context, CancellationToken cancellationToken)
     {
         var typeSyntax = (TypeDeclarationSyntax)context.Node;
 
-        var symbol = context.SemanticModel.GetDeclaredSymbol(typeSyntax);
+        var symbol = context.SemanticModel.GetDeclaredSymbol(typeSyntax, cancellationToken);
 
         if (symbol is not INamedTypeSymbol typeSymbol)
             return null;
