@@ -99,6 +99,13 @@ public readonly partial struct ShortValue : IEquatable<ShortValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator short(ShortValue value) => (short)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "ShortValue"/> (nullable) to <see cref = "short"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator short?(ShortValue? value) => value is null ? null : (short?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(ShortValue left, ShortValue right) => left._value < right._value;

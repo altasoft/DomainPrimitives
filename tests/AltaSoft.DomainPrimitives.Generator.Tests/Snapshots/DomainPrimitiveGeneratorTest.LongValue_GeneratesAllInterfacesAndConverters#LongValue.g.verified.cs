@@ -104,6 +104,13 @@ public readonly partial struct LongValue : IEquatable<LongValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator long(LongValue value) => (long)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "LongValue"/> (nullable) to <see cref = "long"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator long?(LongValue? value) => value is null ? null : (long?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static LongValue operator +(LongValue left, LongValue right) => new(left._value + right._value);

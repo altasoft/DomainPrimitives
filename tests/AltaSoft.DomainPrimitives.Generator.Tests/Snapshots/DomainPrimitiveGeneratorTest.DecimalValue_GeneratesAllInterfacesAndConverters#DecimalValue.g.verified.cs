@@ -104,6 +104,13 @@ public readonly partial struct DecimalValue : IEquatable<DecimalValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator decimal(DecimalValue value) => (decimal)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "DecimalValue"/> (nullable) to <see cref = "decimal"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator decimal?(DecimalValue? value) => value is null ? null : (decimal?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DecimalValue operator +(DecimalValue left, DecimalValue right) => new(left._value + right._value);

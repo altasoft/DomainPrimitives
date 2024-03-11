@@ -99,6 +99,13 @@ public readonly partial struct SByteValue : IEquatable<SByteValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator sbyte(SByteValue value) => (sbyte)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "SByteValue"/> (nullable) to <see cref = "sbyte"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator sbyte?(SByteValue? value) => value is null ? null : (sbyte?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(SByteValue left, SByteValue right) => left._value < right._value;

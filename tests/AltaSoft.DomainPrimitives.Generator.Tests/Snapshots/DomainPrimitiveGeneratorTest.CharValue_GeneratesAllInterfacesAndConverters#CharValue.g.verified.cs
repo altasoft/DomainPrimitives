@@ -99,6 +99,13 @@ public readonly partial struct CharValue : IEquatable<CharValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator char(CharValue value) => (char)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "CharValue"/> (nullable) to <see cref = "char"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator char?(CharValue? value) => value is null ? null : (char?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(CharValue left, CharValue right) => left._value < right._value;

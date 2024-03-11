@@ -71,7 +71,9 @@ internal sealed class SourceCodeBuilder
     /// Returns the length of the new line character(s) used in the current environment.
     /// </summary>
     /// <returns>The length of the new line character(s).</returns>
+#pragma warning disable CA1822
     public int GetNewLineLength() => s_newLineLength;
+#pragma warning restore CA1822
 
     /// <summary>
     /// Returns a string that represents the specified number of indentation chars.

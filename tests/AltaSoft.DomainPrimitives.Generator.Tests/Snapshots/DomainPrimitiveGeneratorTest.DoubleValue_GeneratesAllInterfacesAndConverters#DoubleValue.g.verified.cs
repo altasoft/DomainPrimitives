@@ -104,6 +104,13 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator double(DoubleValue value) => (double)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "DoubleValue"/> (nullable) to <see cref = "double"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator double?(DoubleValue? value) => value is null ? null : (double?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DoubleValue operator +(DoubleValue left, DoubleValue right) => new(left._value + right._value);

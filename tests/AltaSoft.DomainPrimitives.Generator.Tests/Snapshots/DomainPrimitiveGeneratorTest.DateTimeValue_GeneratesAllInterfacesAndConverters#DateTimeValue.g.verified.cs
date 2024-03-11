@@ -100,6 +100,13 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator DateTime(DateTimeValue value) => (DateTime)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "DateTimeValue"/> (nullable) to <see cref = "DateTime"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator DateTime?(DateTimeValue? value) => value is null ? null : (DateTime?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(DateTimeValue left, DateTimeValue right) => left._value < right._value;

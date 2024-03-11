@@ -98,6 +98,13 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator Guid(GuidValue value) => (Guid)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "GuidValue"/> (nullable) to <see cref = "Guid"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator Guid?(GuidValue? value) => value is null ? null : (Guid?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static GuidValue Parse(string s, IFormatProvider? provider) => Guid.Parse(s, provider);

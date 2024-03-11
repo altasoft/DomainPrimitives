@@ -95,6 +95,13 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator bool(BoolValue value) => (bool)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "BoolValue"/> (nullable) to <see cref = "bool"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator bool?(BoolValue? value) => value is null ? null : (bool?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static BoolValue Parse(string s, IFormatProvider? provider) => bool.Parse(s);

@@ -100,6 +100,13 @@ public readonly partial struct TimeSpanValue : IEquatable<TimeSpanValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator TimeSpan(TimeSpanValue value) => (TimeSpan)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "TimeSpanValue"/> (nullable) to <see cref = "TimeSpan"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator TimeSpan?(TimeSpanValue? value) => value is null ? null : (TimeSpan?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(TimeSpanValue left, TimeSpanValue right) => left._value < right._value;

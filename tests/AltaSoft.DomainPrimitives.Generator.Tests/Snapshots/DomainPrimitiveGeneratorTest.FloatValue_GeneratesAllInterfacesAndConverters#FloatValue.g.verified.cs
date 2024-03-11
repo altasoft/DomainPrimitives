@@ -104,6 +104,13 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator float(FloatValue value) => (float)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "FloatValue"/> (nullable) to <see cref = "float"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator float?(FloatValue? value) => value is null ? null : (float?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static FloatValue operator +(FloatValue left, FloatValue right) => new(left._value + right._value);
