@@ -714,7 +714,7 @@ internal static class Executor
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
                 .AppendLine("[return: NotNullIfNotNull(nameof(value))]")
                 .Append($"public static implicit operator {className}?({parentClassName}? value)")
-                .AppendLine($" => value is null ? null : ({className}?)value{(type.IsValueType ? ".Value" : "")}.{data.FieldName};")
+                .AppendLine($" => value is null ? null : ({className}?)value{(type.IsValueType ? ".Value" : "")};")
                 .NewLine();
         }
 
