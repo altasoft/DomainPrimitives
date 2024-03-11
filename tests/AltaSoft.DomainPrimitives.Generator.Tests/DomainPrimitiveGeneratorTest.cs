@@ -623,6 +623,95 @@ public class DomainPrimitiveGeneratorTest
         return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
     }
 
+    [Fact]
+    public Task StringOfStringValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives.Abstractions;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              /// <inheritdoc/>
+                              public partial class StringValue : IDomainValue<string>
+                              {
+                              /// <inheritdoc/>
+                              public static void Validate(string value)
+                              {
+                                  if (value=="Test")
+                                      throw new InvalidDomainValueException("Invalid Value");
+                              }
+                              
+                              /// <inheritdoc/>
+                              public static string Default => default;
+                              }
+                              
+                              /// <inheritdoc/>
+                              public partial class StringOfStringValue : IDomainValue<StringValue>
+                              {
+                              /// <inheritdoc/>
+                              public static void Validate(StringValue value)
+                              {
+                                  if (value=="Test")
+                                      throw new InvalidDomainValueException("Invalid Value");
+                              }
+                              
+                              /// <inheritdoc/>
+                              public static StringValue Default => default;
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(7, x.Count));
+    }
+
+    [Fact]
+    public Task IntOfIntValue_GeneratesAllInterfacesAndConverters()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives.Abstractions;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              /// <inheritdoc/>
+                              public readonly partial struct IntValue : IDomainValue<int>
+                              {
+                              	/// <inheritdoc/>
+                              	public static void Validate(int value)
+                              	{
+                              		if (value < 10 || value > 20)
+                              			throw new InvalidDomainValueException("Invalid Value");
+                              	}
+                              
+                              	/// <inheritdoc/>
+                              	public static int Default => default;
+                              }
+                              
+                              /// <inheritdoc/>
+                              public readonly partial struct IntOfIntValue : IDomainValue<IntValue>
+                              {
+                                 	/// <inheritdoc/>
+                                 	public static void Validate(IntValue value)
+                                 	{
+                                    		if (value < 10 || value > 20)
+                                       			throw new InvalidDomainValueException("Invalid Value");
+                                 	}
+                              
+                                 	/// <inheritdoc/>
+                                 	public static IntValue Default => default;
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(7, x.Count));
+    }
     public static class TestHelper
     {
         internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)

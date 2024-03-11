@@ -104,6 +104,13 @@ public readonly partial struct IntValue : IEquatable<IntValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator uint(IntValue value) => (uint)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "IntValue"/> (nullable) to <see cref = "uint"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator uint?(IntValue? value) => value is null ? null : (uint?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static IntValue operator +(IntValue left, IntValue right) => new(left._value + right._value);

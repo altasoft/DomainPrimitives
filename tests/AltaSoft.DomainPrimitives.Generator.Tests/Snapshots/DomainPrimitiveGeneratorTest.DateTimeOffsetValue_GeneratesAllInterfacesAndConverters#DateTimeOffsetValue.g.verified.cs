@@ -100,6 +100,13 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static implicit operator DateTimeOffset(DateTimeOffsetValue value) => (DateTimeOffset)value._value;
 
+    /// <summary>
+    /// Implicit conversion from <see cref = "DateTimeOffsetValue"/> (nullable) to <see cref = "DateTimeOffset"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator DateTimeOffset?(DateTimeOffsetValue? value) => value is null ? null : (DateTimeOffset?)value.Value._value;
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator <(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._value < right._value;

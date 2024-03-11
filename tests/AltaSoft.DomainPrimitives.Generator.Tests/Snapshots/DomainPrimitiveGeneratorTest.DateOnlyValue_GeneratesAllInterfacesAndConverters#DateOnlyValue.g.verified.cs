@@ -102,6 +102,13 @@ public readonly partial struct DateOnlyValue : IEquatable<DateOnlyValue>
     public static implicit operator DateOnly(DateOnlyValue value) => (DateOnly)value._value;
 
     /// <summary>
+    /// Implicit conversion from <see cref = "DateOnlyValue"/> (nullable) to <see cref = "DateOnly"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator DateOnly?(DateOnlyValue? value) => value is null ? null : (DateOnly?)value.Value._value;
+
+    /// <summary>
     /// Implicit conversion from <see cref = "DateOnlyValue"/> to <see cref = "DateTime"/>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

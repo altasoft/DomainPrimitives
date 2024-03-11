@@ -102,6 +102,13 @@ public readonly partial struct TimeOnlyValue : IEquatable<TimeOnlyValue>
     public static implicit operator TimeOnly(TimeOnlyValue value) => (TimeOnly)value._value;
 
     /// <summary>
+    /// Implicit conversion from <see cref = "TimeOnlyValue"/> (nullable) to <see cref = "TimeOnly"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator TimeOnly?(TimeOnlyValue? value) => value is null ? null : (TimeOnly?)value.Value._value;
+
+    /// <summary>
     /// Implicit conversion from <see cref = "TimeOnlyValue"/> to <see cref = "DateTime"/>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

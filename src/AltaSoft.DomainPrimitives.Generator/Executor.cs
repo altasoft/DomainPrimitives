@@ -662,51 +662,73 @@ internal static class Executor
     private static void GenerateImplicitOperators(GeneratorData data, SourceCodeBuilder builder)
     {
         var friendlyName = data.PrimitiveTypeFriendlyName;
+        var type = data.PrimitiveTypeSymbol;
+        var className = data.ClassName;
 
+        // From Underlying to our type
         if (data.TypeSymbol.IsValueType)
         {
-            builder.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> to <see cref = \"{data.ClassName}\"/>")
+            builder.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> to <see cref = \"{className}\"/>")
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .Append($"public static implicit operator {data.ClassName}({friendlyName} value)")
-            .AppendLine(" => new(value);")
+                .Append($"public static implicit operator {className}({friendlyName} value)").AppendLine(" => new(value);")
             .NewLine();
         }
 
-        var type = data.PrimitiveTypeSymbol;
-
-        builder.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> (nullable) to <see cref = \"{data.ClassName}\"/> (nullable)")
+        builder.AppendSummary($"Implicit conversion from <see cref = \"{friendlyName}\"/> (nullable) to <see cref = \"{className}\"/> (nullable)")
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
             .AppendLine("[return: NotNullIfNotNull(nameof(value))]")
-            .Append($"public static implicit operator {data.ClassName}?({friendlyName}? value)")
+            .Append($"public static implicit operator {className}?({friendlyName}? value)")
             .AppendLine($" => value is null ? null : new(value{(type.IsValueType ? ".Value" : "")});")
+            .NewLine();
+
+        // From our type to underlying type
+        if (data.TypeSymbol.IsValueType)
+        {
+            builder.AppendSummary($"Implicit conversion from <see cref = \"{className}\"/> to <see cref = \"{friendlyName}\"/>")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .Append($"public static implicit operator {friendlyName}({className} value)").AppendLine($" => ({friendlyName})value.{data.FieldName};")
+            .NewLine();
+        }
+
+        builder.AppendSummary($"Implicit conversion from <see cref = \"{className}\"/> (nullable) to <see cref = \"{friendlyName}\"/> (nullable)")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .AppendLine("[return: NotNullIfNotNull(nameof(value))]")
+            .Append($"public static implicit operator {friendlyName}?({className}? value)")
+            .AppendLine($" => value is null ? null : ({friendlyName}?)value{(type.IsValueType ? ".Value" : "")}.{data.FieldName};")
             .NewLine();
 
         if (data.ParentSymbols.Count != 0)
         {
-            builder.AppendSummary($"Implicit conversion from <see cref = \"{data.ParentSymbols[0].Name}\"/> to <see cref = \"{data.ClassName}\"/>")
+            var parentClassName = data.ParentSymbols[0].Name;
+
+            if (data.TypeSymbol.IsValueType)
+            {
+                builder.AppendSummary($"Implicit conversion from <see cref = \"{parentClassName}\"/> to <see cref = \"{className}\"/>")
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .Append($"public static implicit operator {data.ClassName}({data.ParentSymbols[0].Name} value)")
+                .Append($"public static implicit operator {className}({parentClassName} value)")
                 .AppendLine(" => new(value);")
+                .NewLine();
+            }
+
+            builder.AppendSummary($"Implicit conversion from <see cref = \"{parentClassName}\"/> (nullable) to <see cref = \"{className}\"/> (nullable)")
+                .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+                .AppendLine("[return: NotNullIfNotNull(nameof(value))]")
+                .Append($"public static implicit operator {className}?({parentClassName}? value)")
+                .AppendLine($" => value is null ? null : ({className}?)value{(type.IsValueType ? ".Value" : "")}.{data.FieldName};")
                 .NewLine();
         }
 
-        builder.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"{friendlyName}\"/>")
-            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-            .Append($"public static implicit operator {friendlyName}({data.ClassName} value)")
-            .AppendLine($" => ({friendlyName})value.{data.FieldName};")
-            .NewLine();
-
         if (data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
         {
-            builder.AppendSummary($"Implicit conversion from <see cref = \"{data.ClassName}\"/> to <see cref = \"DateTime\"/>")
+            builder.AppendSummary($"Implicit conversion from <see cref = \"{className}\"/> to <see cref = \"DateTime\"/>")
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .Append($"public static implicit operator DateTime({data.ClassName} value)")
+                .Append($"public static implicit operator DateTime({className} value)")
                 .AppendLine($" => (({friendlyName})value.{data.FieldName}).ToDateTime();")
                 .NewLine();
 
-            builder.AppendSummary($"Implicit conversion from <see cref = \"DateTime\"/> to <see cref = \"{data.ClassName}\"/>")
+            builder.AppendSummary($"Implicit conversion from <see cref = \"DateTime\"/> to <see cref = \"{className}\"/>")
                 .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-                .Append($"public static implicit operator {data.ClassName}(DateTime value)")
+                .Append($"public static implicit operator {className}(DateTime value)")
                 .AppendLine($" => {data.UnderlyingType}.FromDateTime(value);")
                 .NewLine();
         }
