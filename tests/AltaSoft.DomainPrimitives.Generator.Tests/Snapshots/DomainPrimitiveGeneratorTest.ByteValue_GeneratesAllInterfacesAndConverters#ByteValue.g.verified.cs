@@ -32,6 +32,11 @@ public readonly partial struct ByteValue : IEquatable<ByteValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(byte);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (byte)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly byte _value;
 

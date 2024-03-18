@@ -37,6 +37,11 @@ public readonly partial struct IntValue : IEquatable<IntValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(uint);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (uint)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly uint _value;
 

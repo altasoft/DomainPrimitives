@@ -32,6 +32,11 @@ public readonly partial struct UShortValue : IEquatable<UShortValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(ushort);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (ushort)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly ushort _value;
 

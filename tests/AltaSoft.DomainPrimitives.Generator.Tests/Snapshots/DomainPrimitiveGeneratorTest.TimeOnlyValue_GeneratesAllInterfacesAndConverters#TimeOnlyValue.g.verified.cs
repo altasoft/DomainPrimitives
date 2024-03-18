@@ -34,6 +34,11 @@ public readonly partial struct TimeOnlyValue : IEquatable<TimeOnlyValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(TimeOnly);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (TimeOnly)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly TimeOnly _value;
 

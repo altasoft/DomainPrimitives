@@ -7,7 +7,8 @@ namespace AltaSoft.DomainPrimitives;
 /// This interface serves as a foundation for encapsulating and validating domain-specific values.
 /// </summary>
 /// <typeparam name="T">The type of the domain value.</typeparam>
-public interface IDomainValue<T> where T : IEquatable<T>, IComparable, IComparable<T>
+public interface IDomainValue<T> : IDomainValue
+    where T : IEquatable<T>, IComparable, IComparable<T>
 {
     /// <summary>
     /// Validates the specified value against domain-specific rules.
@@ -27,4 +28,22 @@ public interface IDomainValue<T> where T : IEquatable<T>, IComparable, IComparab
     /// <param name="value">The domain value to be represented as a string.</param>
     /// <returns>A string representation of the domain value.</returns>
     static virtual string ToString(T value) => value.ToString() ?? string.Empty;
+}
+
+/// <summary>
+/// Represents an interface for domain values.
+/// </summary>
+public interface IDomainValue
+{
+    /// <summary>
+    /// Gets the underlying primitive type of the domain value.
+    /// </summary>
+    /// <returns>The underlying primitive type of the domain value.</returns>
+    Type GetUnderlyingPrimitiveType();
+
+    /// <summary>
+    /// Gets the underlying primitive value of the domain value.
+    /// </summary>
+    /// <returns>The underlying primitive value of the domain value.</returns>
+    object GetUnderlyingPrimitiveValue();
 }

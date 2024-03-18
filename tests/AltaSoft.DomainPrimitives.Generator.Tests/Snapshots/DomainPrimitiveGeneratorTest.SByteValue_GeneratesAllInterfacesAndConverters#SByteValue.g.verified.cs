@@ -32,6 +32,11 @@ public readonly partial struct SByteValue : IEquatable<SByteValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(sbyte);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (sbyte)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly sbyte _value;
 

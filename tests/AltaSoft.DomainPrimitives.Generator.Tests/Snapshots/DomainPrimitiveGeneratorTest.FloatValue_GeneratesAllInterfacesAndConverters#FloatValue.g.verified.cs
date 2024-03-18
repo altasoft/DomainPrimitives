@@ -37,6 +37,11 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(float);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (float)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly float _value;
 

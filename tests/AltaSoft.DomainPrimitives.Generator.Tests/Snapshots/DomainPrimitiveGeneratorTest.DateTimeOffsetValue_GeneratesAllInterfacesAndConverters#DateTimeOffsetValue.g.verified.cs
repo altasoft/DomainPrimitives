@@ -33,6 +33,11 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(DateTimeOffset);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (DateTimeOffset)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly DateTimeOffset _value;
 

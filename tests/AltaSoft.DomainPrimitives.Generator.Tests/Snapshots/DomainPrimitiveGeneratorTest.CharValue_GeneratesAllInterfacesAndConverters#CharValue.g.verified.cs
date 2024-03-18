@@ -32,6 +32,11 @@ public readonly partial struct CharValue : IEquatable<CharValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(char);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (char)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly char _value;
 

@@ -28,6 +28,11 @@ public partial class StringValue : IEquatable<StringValue>
         , IParsable<StringValue>
         , IConvertible
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(string);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (string)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly string _value;
 

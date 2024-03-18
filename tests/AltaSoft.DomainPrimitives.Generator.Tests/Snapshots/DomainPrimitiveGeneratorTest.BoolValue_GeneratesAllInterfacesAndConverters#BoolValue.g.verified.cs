@@ -28,6 +28,11 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
         , IParsable<BoolValue>
         , IConvertible
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(bool);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (bool)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly bool _value;
 
