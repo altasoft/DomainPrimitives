@@ -37,6 +37,11 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(double);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (double)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly double _value;
 

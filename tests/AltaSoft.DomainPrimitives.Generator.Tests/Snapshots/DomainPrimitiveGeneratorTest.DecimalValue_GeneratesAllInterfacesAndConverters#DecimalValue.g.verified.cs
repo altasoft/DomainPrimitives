@@ -37,6 +37,11 @@ public readonly partial struct DecimalValue : IEquatable<DecimalValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(decimal);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (decimal)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly decimal _value;
 

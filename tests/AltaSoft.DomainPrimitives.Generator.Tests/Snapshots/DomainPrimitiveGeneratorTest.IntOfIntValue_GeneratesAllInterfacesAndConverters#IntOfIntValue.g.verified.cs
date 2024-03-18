@@ -35,6 +35,11 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
         , IParsable<IntOfIntValue>
         , IConvertible
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(int);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (int)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly IntValue _value;
 

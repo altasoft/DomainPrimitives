@@ -33,6 +33,11 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(DateTime);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (DateTime)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly DateTime _value;
 

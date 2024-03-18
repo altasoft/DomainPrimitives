@@ -31,6 +31,11 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(Guid);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (Guid)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly Guid _value;
 

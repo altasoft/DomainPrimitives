@@ -33,6 +33,11 @@ public readonly partial struct TimeSpanValue : IEquatable<TimeSpanValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(TimeSpan);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (TimeSpan)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly TimeSpan _value;
 

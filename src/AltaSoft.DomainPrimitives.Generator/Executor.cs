@@ -470,6 +470,12 @@ internal static class Executor
         else
             builder.AppendStruct(modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
 
+        builder.AppendLine("/// <inheritdoc/>")
+            .Append(" public Type GetUnderlyingPrimitiveType() => typeof(").Append(data.PrimitiveTypeFriendlyName).AppendLine(");");
+
+        builder.AppendLine("/// <inheritdoc/>")
+            .Append(" public object GetUnderlyingPrimitiveValue() => (").Append(data.PrimitiveTypeFriendlyName).AppendLine(")this;").NewLine();
+
         builder.AppendLines(ctorCode);
 
         if (needsMathOperators && isByteOrShort)

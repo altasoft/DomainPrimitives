@@ -37,6 +37,11 @@ public readonly partial struct LongValue : IEquatable<LongValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(long);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (long)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly long _value;
 

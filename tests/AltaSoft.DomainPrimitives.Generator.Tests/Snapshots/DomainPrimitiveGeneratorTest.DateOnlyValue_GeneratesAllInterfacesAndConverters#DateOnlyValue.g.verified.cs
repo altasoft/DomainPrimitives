@@ -34,6 +34,11 @@ public readonly partial struct DateOnlyValue : IEquatable<DateOnlyValue>
         , IUtf8SpanFormattable
 #endif
 {
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(DateOnly);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (DateOnly)this;
+
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly DateOnly _value;
 
