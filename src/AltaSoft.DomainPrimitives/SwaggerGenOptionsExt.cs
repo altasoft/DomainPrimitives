@@ -36,14 +36,17 @@ public static class SwaggerGenOptionsExt
             .Where(a => IsSystemAssembly(a.FullName)).Select(a => a.FullName!));
 
         var assembliesToCheck = new Queue<Assembly>(AppDomain.CurrentDomain.GetAssemblies());
+        var processedPrimitiveAssemblies = new HashSet<Assembly>();
 
         while (assembliesToCheck.Count > 0)
         {
             var assembly = assembliesToCheck.Dequeue();
 
-            if (assembly.GetCustomAttribute<DomainPrimitiveAssemblyAttribute>() is not null)
+            if (!processedPrimitiveAssemblies.Contains(assembly) &&
+                assembly.GetCustomAttribute<DomainPrimitiveAssemblyAttribute>() is not null)
             {
                 ProcessAssembly(assembly, options);
+                processedPrimitiveAssemblies.Add(assembly);
             }
 
             foreach (var reference in assembly.GetReferencedAssemblies())
