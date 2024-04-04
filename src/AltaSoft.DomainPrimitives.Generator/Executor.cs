@@ -410,7 +410,7 @@ internal static class Executor
         }
 
         var builder = new SourceCodeBuilder();
-        var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics", "System.Runtime.CompilerServices" };
+        var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics", "System.Runtime.CompilerServices", "AltaSoft.DomainPrimitives" };
 
         if (data.ParentSymbols.Count > 0)
         {
@@ -438,18 +438,12 @@ internal static class Executor
             usings.Add("System.Xml");
             usings.Add("System.Xml.Schema");
             usings.Add("System.Xml.Serialization");
-            usings.Add("AltaSoft.DomainPrimitives");
         }
 
         var needsMathOperators = data.GenerateAdditionOperators || data.GenerateDivisionOperators ||
             data.GenerateMultiplyOperators || data.GenerateSubtractionOperators || data.GenerateModulusOperator;
 
         var isByteOrShort = data.ParentSymbols.Count == 0 && data.UnderlyingType.IsByteOrShort();
-
-        if ((needsMathOperators && isByteOrShort) || data.UnderlyingType is DomainPrimitiveUnderlyingType.DateOnly or DomainPrimitiveUnderlyingType.TimeOnly)
-        {
-            usings.Add("AltaSoft.DomainPrimitives");
-        }
 
         builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
 

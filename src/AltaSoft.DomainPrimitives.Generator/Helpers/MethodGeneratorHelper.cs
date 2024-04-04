@@ -29,6 +29,7 @@ internal static class MethodGeneratorHelper
         usings.Add("Swashbuckle.AspNetCore.SwaggerGen");
         usings.Add("Microsoft.OpenApi.Models");
         usings.Add("Microsoft.OpenApi.Any");
+        usings.Add("AltaSoft.DomainPrimitives");
         builder.AppendUsings(usings);
 
         builder.AppendLine("[assembly: AltaSoft.DomainPrimitives.DomainPrimitiveAssemblyAttribute]");
