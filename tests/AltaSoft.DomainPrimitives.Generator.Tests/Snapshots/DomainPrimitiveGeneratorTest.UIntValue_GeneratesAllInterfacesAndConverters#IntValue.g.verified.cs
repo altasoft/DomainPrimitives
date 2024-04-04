@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(IntValueJsonConverter))]
 [TypeConverter(typeof(IntValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(uint))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct IntValue : IEquatable<IntValue>
         , IComparable

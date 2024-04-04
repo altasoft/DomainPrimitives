@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(DoubleValueJsonConverter))]
 [TypeConverter(typeof(DoubleValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(double))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct DoubleValue : IEquatable<DoubleValue>
         , IComparable

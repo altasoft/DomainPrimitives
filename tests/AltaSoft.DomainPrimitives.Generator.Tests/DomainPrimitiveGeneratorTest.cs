@@ -1,6 +1,6 @@
-﻿using AltaSoft.DomainPrimitives.Generator.Models;
+﻿using System.Collections.Immutable;
+using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
-using System.Collections.Immutable;
 
 namespace AltaSoft.DomainPrimitives.Generator.Tests;
 
@@ -645,11 +645,11 @@ public class DomainPrimitiveGeneratorTest
                                   if (value=="Test")
                                       throw new InvalidDomainValueException("Invalid Value");
                               }
-                              
+
                               /// <inheritdoc/>
                               public static string Default => default;
                               }
-                              
+
                               /// <inheritdoc/>
                               public partial class StringOfStringValue : IDomainValue<StringValue>
                               {
@@ -659,7 +659,7 @@ public class DomainPrimitiveGeneratorTest
                                   if (value=="Test")
                                       throw new InvalidDomainValueException("Invalid Value");
                               }
-                              
+
                               /// <inheritdoc/>
                               public static StringValue Default => default;
                               }
@@ -690,11 +690,11 @@ public class DomainPrimitiveGeneratorTest
                               		if (value < 10 || value > 20)
                               			throw new InvalidDomainValueException("Invalid Value");
                               	}
-                              
+
                               	/// <inheritdoc/>
                               	public static int Default => default;
                               }
-                              
+
                               /// <inheritdoc/>
                               public readonly partial struct IntOfIntValue : IDomainValue<IntValue>
                               {
@@ -704,7 +704,7 @@ public class DomainPrimitiveGeneratorTest
                                     		if (value < 10 || value > 20)
                                        			throw new InvalidDomainValueException("Invalid Value");
                                  	}
-                              
+
                                  	/// <inheritdoc/>
                                  	public static IntValue Default => default;
                               }
@@ -712,6 +712,7 @@ public class DomainPrimitiveGeneratorTest
 
         return TestHelper.Verify(source, (_, x, _) => Assert.Equal(7, x.Count));
     }
+
     public static class TestHelper
     {
         internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)

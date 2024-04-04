@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(TimeSpanValueJsonConverter))]
 [TypeConverter(typeof(TimeSpanValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(TimeSpan))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct TimeSpanValue : IEquatable<TimeSpanValue>
         , IComparable

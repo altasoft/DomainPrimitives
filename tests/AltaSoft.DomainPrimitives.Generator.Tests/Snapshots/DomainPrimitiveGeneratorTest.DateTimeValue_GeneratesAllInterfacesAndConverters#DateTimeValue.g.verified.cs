@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(DateTimeValueJsonConverter))]
 [TypeConverter(typeof(DateTimeValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(DateTime))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
         , IComparable

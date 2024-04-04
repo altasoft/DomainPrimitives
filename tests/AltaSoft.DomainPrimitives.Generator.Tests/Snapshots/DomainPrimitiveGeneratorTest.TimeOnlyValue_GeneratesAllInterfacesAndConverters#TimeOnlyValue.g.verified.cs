@@ -22,6 +22,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(TimeOnlyValueJsonConverter))]
 [TypeConverter(typeof(TimeOnlyValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(TimeOnly))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct TimeOnlyValue : IEquatable<TimeOnlyValue>
         , IComparable

@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(DecimalValueJsonConverter))]
 [TypeConverter(typeof(DecimalValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(decimal))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct DecimalValue : IEquatable<DecimalValue>
         , IComparable

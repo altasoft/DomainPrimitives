@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(StringValueJsonConverter))]
 [TypeConverter(typeof(StringValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(string))]
 [DebuggerDisplay("{_value}")]
 public partial class StringValue : IEquatable<StringValue>
         , IComparable

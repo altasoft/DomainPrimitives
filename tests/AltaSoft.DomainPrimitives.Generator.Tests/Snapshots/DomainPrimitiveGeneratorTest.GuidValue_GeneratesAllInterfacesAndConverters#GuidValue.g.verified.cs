@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(GuidValueJsonConverter))]
 [TypeConverter(typeof(GuidValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(Guid))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct GuidValue : IEquatable<GuidValue>
         , IComparable

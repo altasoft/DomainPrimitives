@@ -24,13 +24,14 @@ internal static class MethodGeneratorHelper
 
         var builder = new SourceCodeBuilder();
         builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
-
         var usings = types.ConvertAll(x => x.Namespace);
         usings.Add("Microsoft.Extensions.DependencyInjection");
         usings.Add("Swashbuckle.AspNetCore.SwaggerGen");
         usings.Add("Microsoft.OpenApi.Models");
         usings.Add("Microsoft.OpenApi.Any");
         builder.AppendUsings(usings);
+
+        builder.AppendLine("[assembly: AltaSoft.DomainPrimitives.DomainPrimitiveAssemblyAttribute]");
 
         var ns = string.Join(".", assemblyName.Split('.').Select(s => char.IsDigit(s[0]) ? '_' + s : s));
 

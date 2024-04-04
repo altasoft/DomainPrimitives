@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(SByteValueJsonConverter))]
 [TypeConverter(typeof(SByteValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(sbyte))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct SByteValue : IEquatable<SByteValue>
         , IComparable

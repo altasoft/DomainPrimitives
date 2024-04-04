@@ -14,6 +14,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Any;
 
+[assembly: AltaSoft.DomainPrimitives.DomainPrimitiveAssemblyAttribute]
 namespace generator_Test.Converters.Extensions;
 
 /// <summary>

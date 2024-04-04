@@ -1,5 +1,6 @@
 ﻿using System;
 
+// ReSharper disable UnusedMember.Global
 namespace AltaSoft.DomainPrimitives;
 
 /// <summary>

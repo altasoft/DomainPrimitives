@@ -6,7 +6,7 @@ namespace AltaSoft.DomainPrimitives;
 /// Represents an exception thrown when a value does not conform to the constraints or rules
 /// defined within a specific domain context.
 /// </summary>
-public sealed class InvalidDomainValueException : Exception
+public class InvalidDomainValueException : Exception
 {
     /// <summary>
     /// Initializes a new instance of the <see cref="InvalidDomainValueException"/> class.

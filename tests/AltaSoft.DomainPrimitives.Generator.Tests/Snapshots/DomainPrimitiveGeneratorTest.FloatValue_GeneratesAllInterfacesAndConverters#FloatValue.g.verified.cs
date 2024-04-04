@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(FloatValueJsonConverter))]
 [TypeConverter(typeof(FloatValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(float))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct FloatValue : IEquatable<FloatValue>
         , IComparable

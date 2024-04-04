@@ -1,15 +1,15 @@
-﻿using AltaSoft.DomainPrimitives.Generator.Extensions;
-using AltaSoft.DomainPrimitives.Generator.Helpers;
-using AltaSoft.DomainPrimitives.Generator.Models;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
+using AltaSoft.DomainPrimitives.Generator.Extensions;
+using AltaSoft.DomainPrimitives.Generator.Helpers;
+using AltaSoft.DomainPrimitives.Generator.Models;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -462,6 +462,8 @@ internal static class Executor
 
         if (options.GenerateTypeConverters)
             builder.AppendLine($"[TypeConverter(typeof({data.ClassName + "TypeConverter"}))]");
+
+        builder.Append("[UnderlyingPrimitiveType(typeof(").Append(data.PrimitiveTypeFriendlyName).AppendLine("))]");
 
         builder.AppendLine($"[DebuggerDisplay(\"{{{data.FieldName}}}\")]");
 

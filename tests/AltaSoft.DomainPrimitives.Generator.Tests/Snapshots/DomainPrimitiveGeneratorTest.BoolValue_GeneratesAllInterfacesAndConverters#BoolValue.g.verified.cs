@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(BoolValueJsonConverter))]
 [TypeConverter(typeof(BoolValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(bool))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct BoolValue : IEquatable<BoolValue>
         , IComparable

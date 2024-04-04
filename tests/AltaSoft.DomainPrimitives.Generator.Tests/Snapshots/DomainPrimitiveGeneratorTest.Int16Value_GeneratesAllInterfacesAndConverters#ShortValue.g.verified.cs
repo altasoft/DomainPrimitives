@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(ShortValueJsonConverter))]
 [TypeConverter(typeof(ShortValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(short))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct ShortValue : IEquatable<ShortValue>
         , IComparable

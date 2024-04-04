@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(CharValueJsonConverter))]
 [TypeConverter(typeof(CharValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(char))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct CharValue : IEquatable<CharValue>
         , IComparable

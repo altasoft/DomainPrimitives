@@ -21,6 +21,7 @@ namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(LongValueJsonConverter))]
 [TypeConverter(typeof(LongValueTypeConverter))]
+[UnderlyingPrimitiveType(typeof(long))]
 [DebuggerDisplay("{_value}")]
 public readonly partial struct LongValue : IEquatable<LongValue>
         , IComparable
