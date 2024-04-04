@@ -12,11 +12,11 @@ using System;
 using System.Numerics;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using AltaSoft.DomainPrimitives;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using AltaSoft.DomainPrimitives.Converters;
 using System.ComponentModel;
-using AltaSoft.DomainPrimitives;
 
 namespace AltaSoft.DomainPrimitives;
 

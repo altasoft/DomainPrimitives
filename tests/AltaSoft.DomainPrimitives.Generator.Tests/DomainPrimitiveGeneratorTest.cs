@@ -719,6 +719,7 @@ public class DomainPrimitiveGeneratorTest
         {
             var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, options);
 
+            Assert.Empty(diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error));
             additionalChecks?.Invoke(diagnostics, output, driver);
 
             return Verifier.Verify(driver).UseDirectory("Snapshots");
