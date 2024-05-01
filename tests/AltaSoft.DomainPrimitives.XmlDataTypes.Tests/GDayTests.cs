@@ -19,16 +19,6 @@ public class GDayTests
         Assert.Null(exception);
     }
 
-    [Fact]
-    public void Default_ShouldReturnDefaultDateOnly()
-    {
-        // Act
-        var defaultDateOnly = GDay.Default;
-
-        // Assert
-        Assert.Equal(default, defaultDateOnly);
-    }
-
     [Theory]
     [InlineData(1, "01")]
     [InlineData(15, "15")]

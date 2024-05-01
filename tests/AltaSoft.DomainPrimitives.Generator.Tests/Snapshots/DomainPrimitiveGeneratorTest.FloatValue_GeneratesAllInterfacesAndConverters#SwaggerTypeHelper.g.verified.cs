@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "number",
             Format = "single",
-            Title = "FloatValue",
-            Default = new OpenApiFloat(FloatValue.Default)
+            Title = "FloatValue"
         });
         options.MapType<FloatValue?>(() => new OpenApiSchema
         {
             Type = "number",
             Format = "single",
             Nullable = true,
-            Title = "Nullable<FloatValue>",
-            Default = new OpenApiFloat(FloatValue.Default)
+            Title = "Nullable<FloatValue>"
         });
     }
 }

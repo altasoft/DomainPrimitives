@@ -25,14 +25,4 @@ public class AsciiStringTests
         // Act & Assert
         Assert.Throws<InvalidDomainValueException>(() => AsciiString.Validate(invalidString));
     }
-
-    [Fact]
-    public void Default_ReturnsEmptyString()
-    {
-        // Act
-        var defaultValue = AsciiString.Default;
-
-        // Assert
-        Assert.Equal(string.Empty, defaultValue);
-    }
 }

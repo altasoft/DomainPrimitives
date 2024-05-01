@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "number",
             Format = "double",
-            Title = "DoubleValue",
-            Default = new OpenApiDouble(DoubleValue.Default)
+            Title = "DoubleValue"
         });
         options.MapType<DoubleValue?>(() => new OpenApiSchema
         {
             Type = "number",
             Format = "double",
             Nullable = true,
-            Title = "Nullable<DoubleValue>",
-            Default = new OpenApiDouble(DoubleValue.Default)
+            Title = "Nullable<DoubleValue>"
         });
     }
 }

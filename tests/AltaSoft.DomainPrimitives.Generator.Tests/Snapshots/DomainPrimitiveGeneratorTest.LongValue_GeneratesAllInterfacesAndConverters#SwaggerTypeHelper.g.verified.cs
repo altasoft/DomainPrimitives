@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "integer",
             Format = "int64",
-            Title = "LongValue",
-            Default = new OpenApiLong(LongValue.Default)
+            Title = "LongValue"
         });
         options.MapType<LongValue?>(() => new OpenApiSchema
         {
             Type = "integer",
             Format = "int64",
             Nullable = true,
-            Title = "Nullable<LongValue>",
-            Default = new OpenApiLong(LongValue.Default)
+            Title = "Nullable<LongValue>"
         });
     }
 }

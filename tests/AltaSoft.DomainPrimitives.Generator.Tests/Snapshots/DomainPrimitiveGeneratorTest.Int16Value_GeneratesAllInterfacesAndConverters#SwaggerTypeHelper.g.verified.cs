@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "integer",
             Format = "int16",
-            Title = "ShortValue",
-            Default = new OpenApiInteger(ShortValue.Default)
+            Title = "ShortValue"
         });
         options.MapType<ShortValue?>(() => new OpenApiSchema
         {
             Type = "integer",
             Format = "int16",
             Nullable = true,
-            Title = "Nullable<ShortValue>",
-            Default = new OpenApiInteger(ShortValue.Default)
+            Title = "Nullable<ShortValue>"
         });
     }
 }

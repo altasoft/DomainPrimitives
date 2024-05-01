@@ -36,14 +36,4 @@ public class NonPositiveIntegerTests
         // Act & Assert
         Assert.Throws<InvalidDomainValueException>(() => NonPositiveInteger.Validate(value));
     }
-
-    [Fact]
-    public void NonPositiveInteger_DefaultValue_ShouldBeOne()
-    {
-        // Arrange
-        const int expectedValue = 0;
-
-        // Act & Assert
-        Assert.Equal(expectedValue, NonPositiveInteger.Default);
-    }
 }

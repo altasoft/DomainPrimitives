@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "string",
             Format = "date-time",
-            Title = "DateTimeValue",
-            Default = new OpenApiDateTime(DateTimeValue.Default)
+            Title = "DateTimeValue"
         });
         options.MapType<DateTimeValue?>(() => new OpenApiSchema
         {
             Type = "string",
             Format = "date-time",
             Nullable = true,
-            Title = "Nullable<DateTimeValue>",
-            Default = new OpenApiDateTime(DateTimeValue.Default)
+            Title = "Nullable<DateTimeValue>"
         });
     }
 }

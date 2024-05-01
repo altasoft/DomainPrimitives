@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "integer",
             Format = "int64",
-            Title = "TimeSpanValue",
-            Default = new OpenApiString(TimeSpanValue.Default.ToString("hh:mm:ss", null))
+            Title = "TimeSpanValue"
         });
         options.MapType<TimeSpanValue?>(() => new OpenApiSchema
         {
             Type = "integer",
             Format = "int64",
             Nullable = true,
-            Title = "Nullable<TimeSpanValue>",
-            Default = new OpenApiString(TimeSpanValue.Default.ToString("hh:mm:ss", null))
+            Title = "Nullable<TimeSpanValue>"
         });
     }
 }

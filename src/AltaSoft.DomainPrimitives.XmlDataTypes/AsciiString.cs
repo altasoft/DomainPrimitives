@@ -21,7 +21,4 @@ public partial class AsciiString : IDomainValue<string>
                 throw new InvalidDomainValueException("value contains non-ascii characters");
         }
     }
-
-    /// <inheritdoc/>
-    public static string Default => string.Empty;
 }

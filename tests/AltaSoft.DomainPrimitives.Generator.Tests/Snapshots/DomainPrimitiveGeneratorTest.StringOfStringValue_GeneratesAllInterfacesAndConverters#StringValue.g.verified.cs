@@ -35,8 +35,11 @@ public partial class StringValue : IEquatable<StringValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (string)this;
 
+    private string _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly string _value;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly bool _isInitialized;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="StringValue"/> class by validating the specified <see cref="string"/> value using <see cref="Validate"/> static method.
@@ -46,6 +49,7 @@ public partial class StringValue : IEquatable<StringValue>
     {
         Validate(value);
         _value = value;
+        _isInitialized = true;
     }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -53,7 +57,6 @@ public partial class StringValue : IEquatable<StringValue>
     [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
     public StringValue()
     {
-        _value = Default;
     }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
@@ -62,7 +65,7 @@ public partial class StringValue : IEquatable<StringValue>
     public override bool Equals(object? obj) => obj is StringValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(StringValue? other) => _value == other?._value;
+    public bool Equals(StringValue? other) => _valueOrThrow == other?._valueOrThrow;
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(StringValue? left, StringValue? right)
@@ -90,7 +93,7 @@ public partial class StringValue : IEquatable<StringValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(StringValue? other) => _value.CompareTo(other?._value);
+    public int CompareTo(StringValue? other) => _valueOrThrow.CompareTo(other?._valueOrThrow);
 
     /// <summary>
     /// Implicit conversion from <see cref = "string"/> (nullable) to <see cref = "StringValue"/> (nullable)
@@ -104,7 +107,7 @@ public partial class StringValue : IEquatable<StringValue>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(value))]
-    public static implicit operator string?(StringValue? value) => value is null ? null : (string?)value._value;
+    public static implicit operator string?(StringValue? value) => value is null ? null : (string?)value._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -134,61 +137,61 @@ public partial class StringValue : IEquatable<StringValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode() => _value.GetHashCode();
+    public override int GetHashCode() => _valueOrThrow.GetHashCode();
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(String)_value).GetTypeCode();
+    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(String)_valueOrThrow).GetTypeCode();
 
     /// <inheritdoc/>
-    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(String)_value).ToBoolean(provider);
+    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToBoolean(provider);
 
     /// <inheritdoc/>
-    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(String)_value).ToByte(provider);
+    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToByte(provider);
 
     /// <inheritdoc/>
-    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(String)_value).ToChar(provider);
+    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToChar(provider);
 
     /// <inheritdoc/>
-    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(String)_value).ToDateTime(provider);
+    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToDateTime(provider);
 
     /// <inheritdoc/>
-    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(String)_value).ToDecimal(provider);
+    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToDecimal(provider);
 
     /// <inheritdoc/>
-    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(String)_value).ToDouble(provider);
+    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToDouble(provider);
 
     /// <inheritdoc/>
-    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(String)_value).ToInt16(provider);
+    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToInt16(provider);
 
     /// <inheritdoc/>
-    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(String)_value).ToInt32(provider);
+    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToInt32(provider);
 
     /// <inheritdoc/>
-    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(String)_value).ToInt64(provider);
+    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToInt64(provider);
 
     /// <inheritdoc/>
-    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(String)_value).ToSByte(provider);
+    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToSByte(provider);
 
     /// <inheritdoc/>
-    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(String)_value).ToSingle(provider);
+    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToSingle(provider);
 
     /// <inheritdoc/>
-    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(String)_value).ToString(provider);
+    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToString(provider);
 
     /// <inheritdoc/>
-    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(String)_value).ToType(conversionType, provider);
+    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToType(conversionType, provider);
 
     /// <inheritdoc/>
-    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(String)_value).ToUInt16(provider);
+    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToUInt16(provider);
 
     /// <inheritdoc/>
-    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(String)_value).ToUInt32(provider);
+    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToUInt32(provider);
 
     /// <inheritdoc/>
-    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(String)_value).ToUInt64(provider);
+    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(String)_valueOrThrow).ToUInt64(provider);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => _value.ToString();
+    public override string ToString() => _valueOrThrow.ToString();
 }

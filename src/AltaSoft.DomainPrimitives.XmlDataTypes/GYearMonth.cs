@@ -17,8 +17,5 @@ public readonly partial struct GYearMonth : IDomainValue<DateOnly>
     { }
 
     /// <inheritdoc/>
-    public static DateOnly Default => default;
-
-    /// <inheritdoc/>
     public static string ToString(DateOnly value) => value.ToString("yyyy-MM", CultureInfo.InvariantCulture);
 }

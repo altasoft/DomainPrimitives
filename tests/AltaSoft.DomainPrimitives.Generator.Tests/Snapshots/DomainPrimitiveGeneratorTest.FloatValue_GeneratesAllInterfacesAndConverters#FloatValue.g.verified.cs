@@ -44,8 +44,11 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (float)this;
 
+    private float _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly float _value;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly bool _isInitialized;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FloatValue"/> class by validating the specified <see cref="float"/> value using <see cref="Validate"/> static method.
@@ -55,13 +58,13 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     {
         Validate(value);
         _value = value;
+        _isInitialized = true;
     }
 
     /// <inheritdoc/>
     [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
     public FloatValue()
     {
-        _value = Default;
     }
 
     /// <inheritdoc/>
@@ -69,7 +72,7 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     public override bool Equals(object? obj) => obj is FloatValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(FloatValue other) => _value == other._value;
+    public bool Equals(FloatValue other) => _valueOrThrow == other._valueOrThrow;
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(FloatValue left, FloatValue right) => left.Equals(right);
@@ -90,7 +93,7 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(FloatValue other) => _value.CompareTo(other._value);
+    public int CompareTo(FloatValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
 
     /// <summary>
     /// Implicit conversion from <see cref = "float"/> to <see cref = "FloatValue"/>
@@ -109,50 +112,50 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     /// Implicit conversion from <see cref = "FloatValue"/> to <see cref = "float"/>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator float(FloatValue value) => (float)value._value;
+    public static implicit operator float(FloatValue value) => (float)value._valueOrThrow;
 
     /// <summary>
     /// Implicit conversion from <see cref = "FloatValue"/> (nullable) to <see cref = "float"/> (nullable)
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(value))]
-    public static implicit operator float?(FloatValue? value) => value is null ? null : (float?)value.Value._value;
+    public static implicit operator float?(FloatValue? value) => value is null ? null : (float?)value.Value._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static FloatValue operator +(FloatValue left, FloatValue right) => new(left._value + right._value);
+    public static FloatValue operator +(FloatValue left, FloatValue right) => new(left._valueOrThrow + right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static FloatValue operator -(FloatValue left, FloatValue right) => new(left._value - right._value);
+    public static FloatValue operator -(FloatValue left, FloatValue right) => new(left._valueOrThrow - right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static FloatValue operator *(FloatValue left, FloatValue right) => new(left._value * right._value);
+    public static FloatValue operator *(FloatValue left, FloatValue right) => new(left._valueOrThrow * right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static FloatValue operator /(FloatValue left, FloatValue right) => new(left._value / right._value);
+    public static FloatValue operator /(FloatValue left, FloatValue right) => new(left._valueOrThrow / right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static FloatValue operator %(FloatValue left, FloatValue right) => new(left._value % right._value);
+    public static FloatValue operator %(FloatValue left, FloatValue right) => new(left._valueOrThrow % right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <(FloatValue left, FloatValue right) => left._value < right._value;
+    public static bool operator <(FloatValue left, FloatValue right) => left._valueOrThrow < right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <=(FloatValue left, FloatValue right) => left._value <= right._value;
+    public static bool operator <=(FloatValue left, FloatValue right) => left._valueOrThrow <= right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >(FloatValue left, FloatValue right) => left._value > right._value;
+    public static bool operator >(FloatValue left, FloatValue right) => left._valueOrThrow > right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >=(FloatValue left, FloatValue right) => left._value >= right._value;
+    public static bool operator >=(FloatValue left, FloatValue right) => left._valueOrThrow >= right._valueOrThrow;
 
 
     /// <inheritdoc/>
@@ -186,67 +189,67 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        return ((IUtf8SpanFormattable)_value).TryFormat(utf8Destination, out bytesWritten, format, provider);
+        return ((IUtf8SpanFormattable)_valueOrThrow).TryFormat(utf8Destination, out bytesWritten, format, provider);
     }
 #endif
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode() => _value.GetHashCode();
+    public override int GetHashCode() => _valueOrThrow.GetHashCode();
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(Single)_value).GetTypeCode();
+    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(Single)_valueOrThrow).GetTypeCode();
 
     /// <inheritdoc/>
-    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToBoolean(provider);
+    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToBoolean(provider);
 
     /// <inheritdoc/>
-    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToByte(provider);
+    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToByte(provider);
 
     /// <inheritdoc/>
-    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToChar(provider);
+    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToChar(provider);
 
     /// <inheritdoc/>
-    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToDateTime(provider);
+    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToDateTime(provider);
 
     /// <inheritdoc/>
-    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToDecimal(provider);
+    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToDecimal(provider);
 
     /// <inheritdoc/>
-    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToDouble(provider);
+    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToDouble(provider);
 
     /// <inheritdoc/>
-    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToInt16(provider);
+    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToInt16(provider);
 
     /// <inheritdoc/>
-    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToInt32(provider);
+    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToInt32(provider);
 
     /// <inheritdoc/>
-    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToInt64(provider);
+    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToInt64(provider);
 
     /// <inheritdoc/>
-    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToSByte(provider);
+    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToSByte(provider);
 
     /// <inheritdoc/>
-    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToSingle(provider);
+    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToSingle(provider);
 
     /// <inheritdoc/>
-    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToString(provider);
+    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToString(provider);
 
     /// <inheritdoc/>
-    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(Single)_value).ToType(conversionType, provider);
+    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToType(conversionType, provider);
 
     /// <inheritdoc/>
-    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToUInt16(provider);
+    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToUInt16(provider);
 
     /// <inheritdoc/>
-    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToUInt32(provider);
+    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToUInt32(provider);
 
     /// <inheritdoc/>
-    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(Single)_value).ToUInt64(provider);
+    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(Single)_valueOrThrow).ToUInt64(provider);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => _value.ToString();
+    public override string ToString() => _valueOrThrow.ToString();
 }

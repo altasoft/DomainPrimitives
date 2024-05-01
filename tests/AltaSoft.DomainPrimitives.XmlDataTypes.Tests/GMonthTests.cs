@@ -19,16 +19,6 @@ public class GMonthTests
         Assert.Null(exception);
     }
 
-    [Fact]
-    public void Default_ShouldReturnDefaultDateOnly()
-    {
-        // Act
-        var defaultDateOnly = GMonth.Default;
-
-        // Assert
-        Assert.Equal(default, defaultDateOnly);
-    }
-
     [Theory]
     [InlineData(1, "01")]
     [InlineData(6, "06")]

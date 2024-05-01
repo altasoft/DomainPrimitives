@@ -35,14 +35,4 @@ public class NegativeIntegerTests
         // Act & Assert
         Assert.Throws<InvalidDomainValueException>(() => NegativeInteger.Validate(value));
     }
-
-    [Fact]
-    public void NegativeInteger_DefaultValue_ShouldBeOne()
-    {
-        // Arrange
-        const int expectedValue = -1;
-
-        // Act & Assert
-        Assert.Equal(expectedValue, NegativeInteger.Default);
-    }
 }

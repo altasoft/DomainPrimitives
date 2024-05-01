@@ -35,8 +35,11 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (bool)this;
 
+    private bool _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly bool _value;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly bool _isInitialized;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="BoolValue"/> class by validating the specified <see cref="bool"/> value using <see cref="Validate"/> static method.
@@ -46,13 +49,13 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     {
         Validate(value);
         _value = value;
+        _isInitialized = true;
     }
 
     /// <inheritdoc/>
     [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
     public BoolValue()
     {
-        _value = Default;
     }
 
     /// <inheritdoc/>
@@ -60,7 +63,7 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     public override bool Equals(object? obj) => obj is BoolValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(BoolValue other) => _value == other._value;
+    public bool Equals(BoolValue other) => _valueOrThrow == other._valueOrThrow;
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(BoolValue left, BoolValue right) => left.Equals(right);
@@ -81,7 +84,7 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(BoolValue other) => _value.CompareTo(other._value);
+    public int CompareTo(BoolValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
 
     /// <summary>
     /// Implicit conversion from <see cref = "bool"/> to <see cref = "BoolValue"/>
@@ -100,14 +103,14 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     /// Implicit conversion from <see cref = "BoolValue"/> to <see cref = "bool"/>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator bool(BoolValue value) => (bool)value._value;
+    public static implicit operator bool(BoolValue value) => (bool)value._valueOrThrow;
 
     /// <summary>
     /// Implicit conversion from <see cref = "BoolValue"/> (nullable) to <see cref = "bool"/> (nullable)
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(value))]
-    public static implicit operator bool?(BoolValue? value) => value is null ? null : (bool?)value.Value._value;
+    public static implicit operator bool?(BoolValue? value) => value is null ? null : (bool?)value.Value._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -137,61 +140,61 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode() => _value.GetHashCode();
+    public override int GetHashCode() => _valueOrThrow.GetHashCode();
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(Boolean)_value).GetTypeCode();
+    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(Boolean)_valueOrThrow).GetTypeCode();
 
     /// <inheritdoc/>
-    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToBoolean(provider);
+    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToBoolean(provider);
 
     /// <inheritdoc/>
-    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToByte(provider);
+    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToByte(provider);
 
     /// <inheritdoc/>
-    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToChar(provider);
+    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToChar(provider);
 
     /// <inheritdoc/>
-    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToDateTime(provider);
+    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToDateTime(provider);
 
     /// <inheritdoc/>
-    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToDecimal(provider);
+    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToDecimal(provider);
 
     /// <inheritdoc/>
-    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToDouble(provider);
+    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToDouble(provider);
 
     /// <inheritdoc/>
-    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToInt16(provider);
+    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToInt16(provider);
 
     /// <inheritdoc/>
-    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToInt32(provider);
+    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToInt32(provider);
 
     /// <inheritdoc/>
-    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToInt64(provider);
+    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToInt64(provider);
 
     /// <inheritdoc/>
-    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToSByte(provider);
+    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToSByte(provider);
 
     /// <inheritdoc/>
-    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToSingle(provider);
+    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToSingle(provider);
 
     /// <inheritdoc/>
-    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToString(provider);
+    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToString(provider);
 
     /// <inheritdoc/>
-    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToType(conversionType, provider);
+    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToType(conversionType, provider);
 
     /// <inheritdoc/>
-    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToUInt16(provider);
+    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToUInt16(provider);
 
     /// <inheritdoc/>
-    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToUInt32(provider);
+    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToUInt32(provider);
 
     /// <inheritdoc/>
-    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(Boolean)_value).ToUInt64(provider);
+    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(Boolean)_valueOrThrow).ToUInt64(provider);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => _value.ToString();
+    public override string ToString() => _valueOrThrow.ToString();
 }

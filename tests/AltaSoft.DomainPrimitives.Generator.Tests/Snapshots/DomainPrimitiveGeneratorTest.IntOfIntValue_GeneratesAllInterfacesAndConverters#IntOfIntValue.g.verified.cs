@@ -41,8 +41,11 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (int)this;
 
+    private IntValue _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly IntValue _value;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly bool _isInitialized;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IntOfIntValue"/> class by validating the specified <see cref="IntValue"/> value using <see cref="Validate"/> static method.
@@ -52,13 +55,13 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
     {
         Validate(value);
         _value = value;
+        _isInitialized = true;
     }
 
     /// <inheritdoc/>
     [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
     public IntOfIntValue()
     {
-        _value = Default;
     }
 
     /// <inheritdoc/>
@@ -66,7 +69,7 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
     public override bool Equals(object? obj) => obj is IntOfIntValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(IntOfIntValue other) => _value == other._value;
+    public bool Equals(IntOfIntValue other) => _valueOrThrow == other._valueOrThrow;
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(IntOfIntValue left, IntOfIntValue right) => left.Equals(right);
@@ -87,7 +90,7 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(IntOfIntValue other) => _value.CompareTo(other._value);
+    public int CompareTo(IntOfIntValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
 
     /// <summary>
     /// Implicit conversion from <see cref = "int"/> to <see cref = "IntOfIntValue"/>
@@ -106,14 +109,14 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
     /// Implicit conversion from <see cref = "IntOfIntValue"/> to <see cref = "int"/>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator int(IntOfIntValue value) => (int)value._value;
+    public static implicit operator int(IntOfIntValue value) => (int)value._valueOrThrow;
 
     /// <summary>
     /// Implicit conversion from <see cref = "IntOfIntValue"/> (nullable) to <see cref = "int"/> (nullable)
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(value))]
-    public static implicit operator int?(IntOfIntValue? value) => value is null ? null : (int?)value.Value._value;
+    public static implicit operator int?(IntOfIntValue? value) => value is null ? null : (int?)value.Value._valueOrThrow;
 
     /// <summary>
     /// Implicit conversion from <see cref = "IntValue"/> to <see cref = "IntOfIntValue"/>
@@ -130,39 +133,39 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IntOfIntValue operator +(IntOfIntValue left, IntOfIntValue right) => new(left._value + right._value);
+    public static IntOfIntValue operator +(IntOfIntValue left, IntOfIntValue right) => new(left._valueOrThrow + right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IntOfIntValue operator -(IntOfIntValue left, IntOfIntValue right) => new(left._value - right._value);
+    public static IntOfIntValue operator -(IntOfIntValue left, IntOfIntValue right) => new(left._valueOrThrow - right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IntOfIntValue operator *(IntOfIntValue left, IntOfIntValue right) => new(left._value * right._value);
+    public static IntOfIntValue operator *(IntOfIntValue left, IntOfIntValue right) => new(left._valueOrThrow * right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IntOfIntValue operator /(IntOfIntValue left, IntOfIntValue right) => new(left._value / right._value);
+    public static IntOfIntValue operator /(IntOfIntValue left, IntOfIntValue right) => new(left._valueOrThrow / right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static IntOfIntValue operator %(IntOfIntValue left, IntOfIntValue right) => new(left._value % right._value);
+    public static IntOfIntValue operator %(IntOfIntValue left, IntOfIntValue right) => new(left._valueOrThrow % right._valueOrThrow);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <(IntOfIntValue left, IntOfIntValue right) => left._value < right._value;
+    public static bool operator <(IntOfIntValue left, IntOfIntValue right) => left._valueOrThrow < right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <=(IntOfIntValue left, IntOfIntValue right) => left._value <= right._value;
+    public static bool operator <=(IntOfIntValue left, IntOfIntValue right) => left._valueOrThrow <= right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >(IntOfIntValue left, IntOfIntValue right) => left._value > right._value;
+    public static bool operator >(IntOfIntValue left, IntOfIntValue right) => left._valueOrThrow > right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >=(IntOfIntValue left, IntOfIntValue right) => left._value >= right._value;
+    public static bool operator >=(IntOfIntValue left, IntOfIntValue right) => left._valueOrThrow >= right._valueOrThrow;
 
 
     /// <inheritdoc/>
@@ -193,61 +196,61 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode() => _value.GetHashCode();
+    public override int GetHashCode() => _valueOrThrow.GetHashCode();
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(Int32)_value).GetTypeCode();
+    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(Int32)_valueOrThrow).GetTypeCode();
 
     /// <inheritdoc/>
-    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToBoolean(provider);
+    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToBoolean(provider);
 
     /// <inheritdoc/>
-    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToByte(provider);
+    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToByte(provider);
 
     /// <inheritdoc/>
-    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToChar(provider);
+    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToChar(provider);
 
     /// <inheritdoc/>
-    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToDateTime(provider);
+    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToDateTime(provider);
 
     /// <inheritdoc/>
-    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToDecimal(provider);
+    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToDecimal(provider);
 
     /// <inheritdoc/>
-    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToDouble(provider);
+    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToDouble(provider);
 
     /// <inheritdoc/>
-    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToInt16(provider);
+    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToInt16(provider);
 
     /// <inheritdoc/>
-    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToInt32(provider);
+    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToInt32(provider);
 
     /// <inheritdoc/>
-    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToInt64(provider);
+    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToInt64(provider);
 
     /// <inheritdoc/>
-    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToSByte(provider);
+    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToSByte(provider);
 
     /// <inheritdoc/>
-    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToSingle(provider);
+    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToSingle(provider);
 
     /// <inheritdoc/>
-    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToString(provider);
+    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToString(provider);
 
     /// <inheritdoc/>
-    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToType(conversionType, provider);
+    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToType(conversionType, provider);
 
     /// <inheritdoc/>
-    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToUInt16(provider);
+    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToUInt16(provider);
 
     /// <inheritdoc/>
-    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToUInt32(provider);
+    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToUInt32(provider);
 
     /// <inheritdoc/>
-    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(Int32)_value).ToUInt64(provider);
+    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToUInt64(provider);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => _value.ToString();
+    public override string ToString() => _valueOrThrow.ToString();
 }

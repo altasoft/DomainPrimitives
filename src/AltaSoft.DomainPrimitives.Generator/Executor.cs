@@ -8,8 +8,6 @@ using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Helpers;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -109,17 +107,9 @@ internal static class Executor
 
         var hasOverridenHashCode = typeSymbol.GetMembersOfType<IMethodSymbol>().Any(x => string.Equals(x.OverriddenMethod?.Name, "GetHashCode", StringComparison.Ordinal));
 
-        var generateIsInitializedField = true;
-        var defaultProperty = typeSymbol.GetMembersOfType<IPropertySymbol>().FirstOrDefault(x => string.Equals(x.Name, "Default", StringComparison.Ordinal));
-        if (defaultProperty is not null)
-        {
-            generateIsInitializedField = !DefaultPropertyReturnsDefaultValue(defaultProperty, underlyingType);
-        }
-
         var generatorData = new GeneratorData
         {
-            FieldName = generateIsInitializedField ? "_valueOrDefault" : "_value",
-            GenerateIsInitializedField = generateIsInitializedField,
+            FieldName = "_valueOrThrow",
             GenerateHashCode = !hasOverridenHashCode,
             UnderlyingType = underlyingType,
             TypeSymbol = typeSymbol,
@@ -184,77 +174,77 @@ internal static class Executor
         return generatorData;
     }
 
-    private static bool DefaultPropertyReturnsDefaultValue(IPropertySymbol property, DomainPrimitiveUnderlyingType underlyingType)
-    {
-        var syntaxRefs = property.GetMethod?.DeclaringSyntaxReferences;
-        if (syntaxRefs is null)
-        {
-            // If there are no syntax references, the property doesn't have a getter
-            return false;
-        }
+    //private static bool DefaultPropertyReturnsDefaultValue(IPropertySymbol property, DomainPrimitiveUnderlyingType underlyingType)
+    //{
+    //    var syntaxRefs = property.GetMethod?.DeclaringSyntaxReferences;
+    //    if (syntaxRefs is null)
+    //    {
+    //        // If there are no syntax references, the property doesn't have a getter
+    //        return false;
+    //    }
 
-        ExpressionSyntax? returnExpression = null;
+    //    ExpressionSyntax? returnExpression = null;
 
-        foreach (var syntaxRef in syntaxRefs)
-        {
-            var syntaxNode = syntaxRef.GetSyntax();
+    //    foreach (var syntaxRef in syntaxRefs)
+    //    {
+    //        var syntaxNode = syntaxRef.GetSyntax();
 
-            // Handle expression-bodied properties
-            if (syntaxNode is ArrowExpressionClauseSyntax arrowExpressionClauseSyntax)
-            {
-                returnExpression = arrowExpressionClauseSyntax.Expression;
-                break;
-            }
+    //        // Handle expression-bodied properties
+    //        if (syntaxNode is ArrowExpressionClauseSyntax arrowExpressionClauseSyntax)
+    //        {
+    //            returnExpression = arrowExpressionClauseSyntax.Expression;
+    //            break;
+    //        }
 
-            // Handle expression-bodied properties
-            if (syntaxNode is PropertyDeclarationSyntax { ExpressionBody: { } expressionBody })
-            {
-                returnExpression = expressionBody.Expression;
-                break;
-            }
+    //        // Handle expression-bodied properties
+    //        if (syntaxNode is PropertyDeclarationSyntax { ExpressionBody: { } expressionBody })
+    //        {
+    //            returnExpression = expressionBody.Expression;
+    //            break;
+    //        }
 
-            // Handle properties with getters that have a body
-            if (syntaxNode is AccessorDeclarationSyntax { Body: not null } accessorDeclaration)
-            {
-                var returnExpressions = accessorDeclaration.Body.DescendantNodes()
-                    .OfType<ReturnStatementSyntax>()
-                    .Select(r => r.Expression)
-                    .ToArray();
+    //        // Handle properties with getters that have a body
+    //        if (syntaxNode is AccessorDeclarationSyntax { Body: not null } accessorDeclaration)
+    //        {
+    //            var returnExpressions = accessorDeclaration.Body.DescendantNodes()
+    //                .OfType<ReturnStatementSyntax>()
+    //                .Select(r => r.Expression)
+    //                .ToArray();
 
-                if (returnExpressions.Length != 1)
-                    return false;
+    //            if (returnExpressions.Length != 1)
+    //                return false;
 
-                returnExpression = returnExpressions[0];
-                break;
-            }
-        }
+    //            returnExpression = returnExpressions[0];
+    //            break;
+    //        }
+    //    }
 
-        // Check if the return expression is a default value for the type
-        switch (returnExpression)
-        {
-            case null:
-                return false;
+    //    // Check if the return expression is a default value for the type
+    //    switch (returnExpression)
+    //    {
+    //        case null:
+    //            return false;
 
-            case DefaultExpressionSyntax:
-                return true;
+    //        case DefaultExpressionSyntax:
+    //            return true;
 
-            // Simplified check for literal or default expressions
-            case LiteralExpressionSyntax literal:
-                if (literal.IsKind(SyntaxKind.DefaultLiteralExpression))
-                    return true;
+    //        // Simplified check for literal or default expressions
+    //        case LiteralExpressionSyntax literal:
+    //            if (literal.IsKind(SyntaxKind.DefaultLiteralExpression))
+    //                return true;
 
-                // Determine the default value for the property's type
-                var defaultValue = underlyingType.GetDefaultValue();
-                if (defaultValue is null)
-                    return literal.Token.Value is null;
+    //            // Determine the default value for the property's type
+    //            var defaultValue = underlyingType.GetDefaultValue();
+    //            if (defaultValue is null)
+    //                return literal.Token.Value is null;
 
-                return defaultValue.Equals(literal.Token.Value);
+    //            return defaultValue.Equals(literal.Token.Value);
 
-            // For more complex expressions, additional analysis is required
-            default:
-                return false;
-        }
-    }
+    //        // For more complex expressions, additional analysis is required
+    //        default:
+    //            return false;
+    //    }
+    //}
 
     /// <summary>
     /// Retrieves the SupportedOperationsAttributeData for a specified class, considering inheritance.
@@ -459,7 +449,7 @@ internal static class Executor
 
         builder.Append("[UnderlyingPrimitiveType(typeof(").Append(data.PrimitiveTypeFriendlyName).AppendLine("))]");
 
-        builder.AppendLine($"[DebuggerDisplay(\"{{{data.FieldName}}}\")]");
+        builder.AppendLine("[DebuggerDisplay(\"{_value}\")]");
 
         if (!data.TypeSymbol.IsValueType)
             builder.AppendClass(false, modifiers, data.ClassName, CreateInheritedInterfaces(data, data.ClassName));
@@ -765,30 +755,28 @@ internal static class Executor
 
         var underlyingTypeName = interfaceGenericType.GetFriendlyName();
 
-        if (data.GenerateIsInitializedField)
-        {
-            builder.AppendLine($"private {underlyingTypeName} _valueOrDefault => _isInitialized ? _value : Default;");
-        }
+        builder.AppendLine($"private {underlyingTypeName} _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException(\"The domain value has not been initialized\");");
 
         builder.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
         builder.AppendLine($"private readonly {underlyingTypeName} _value;");
 
-        if (data.GenerateIsInitializedField)
-        {
-            builder.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
-            builder.AppendLine("private readonly bool _isInitialized;");
-        }
+        builder.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
+        builder.AppendLine("private readonly bool _isInitialized;");
         builder.NewLine();
 
         builder.AppendSummary($"Initializes a new instance of the <see cref=\"{type.Name}\"/> class by validating the specified <see cref=\"{underlyingTypeName}\"/> value using <see cref=\"Validate\"/> static method.");
         builder.AppendParamDescription("value", "The value to be validated.");
 
         builder.AppendLine($"public {type.Name}({underlyingTypeName} value)")
-            .OpenBracket()
-            .AppendLine("Validate(value);")
-            .AppendLine("_value = value;")
-            .AppendLineIf(data.GenerateIsInitializedField, "_isInitialized = true;")
-            .CloseBracket();
+            .OpenBracket();
+
+        if (data.UnderlyingType == DomainPrimitiveUnderlyingType.String)
+            AddStringLengthAttributeValidation(type, builder);
+
+        builder.AppendLine("Validate(value);")
+        .AppendLine("_value = value;")
+        .AppendLine("_isInitialized = true;")
+        .CloseBracket();
 
         var primitiveTypeIsValueType = data.PrimitiveTypeSymbol.IsValueType;
         if (!primitiveTypeIsValueType)
@@ -800,13 +788,35 @@ internal static class Executor
 
         builder.Append("public ").Append(type.Name).AppendLine("()")
             .OpenBracket()
-            .AppendLine("_value = Default;")
-            .AppendLineIf(data.GenerateIsInitializedField, "_isInitialized = true;")
             .CloseBracket();
 
         if (!primitiveTypeIsValueType)
             builder.AppendLine("#pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.");
 
         return true;
+    }
+
+    private static void AddStringLengthAttributeValidation(ISymbol domainPrimitiveType, SourceCodeBuilder sb)
+    {
+        var attr = domainPrimitiveType.GetAttributes()
+            .FirstOrDefault(x => string.Equals(x.AttributeClass?.ToDisplayString(), Constants.StringLengthAttributeFullName, StringComparison.Ordinal));
+
+        if (attr is null)
+            return;
+
+        var minValue = (int)attr.ConstructorArguments[0].Value!;
+        var maxValue = (int)attr.ConstructorArguments[1].Value!;
+
+        var hasMinValue = minValue >= 0;
+        var hasMaxValue = maxValue != int.MaxValue;
+        if (!hasMinValue && !hasMaxValue)
+            return;
+
+        sb.Append("if (value.Length is ")
+            .AppendIf(hasMinValue, $"< {minValue}")
+            .AppendIf(hasMinValue && hasMaxValue, " or")
+            .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
+            .AppendLine($"\tthrow new InvalidDomainValueException(\"String length is out of range {minValue}..{maxValue}\");")
+            .NewLine();
     }
 }

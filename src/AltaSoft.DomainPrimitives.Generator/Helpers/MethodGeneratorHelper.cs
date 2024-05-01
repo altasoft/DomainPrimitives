@@ -87,11 +87,6 @@ internal static class MethodGeneratorHelper
                 var title = isNullable ? $"Nullable<{data.ClassName}>" : data.ClassName;
                 builder.Append("Title = ").Append(Quote(title)).AppendLine(",");
 
-                var defaultValue = CreateDefaultValue(data.UnderlyingType, data.ClassName, data.SerializationFormat);
-
-                if (defaultValue is not null)
-                    builder.Append("Default = ").Append(defaultValue).AppendLine(",");
-
                 if (!string.IsNullOrEmpty(xmlDocumentation))
                 {
                     var xmlDoc = new System.Xml.XmlDocument();
@@ -128,35 +123,35 @@ internal static class MethodGeneratorHelper
 
         static string Quote(string? value) => '\"' + value?.Replace("\"", "\"\"") + '\"';
 
-        static string? CreateDefaultValue(DomainPrimitiveUnderlyingType underlyingType, string className, string? serializationFormat)
-        {
-            return (underlyingType) switch
-            {
-                DomainPrimitiveUnderlyingType.String => $"new OpenApiString({className}.Default)",
-                DomainPrimitiveUnderlyingType.Guid => $"new OpenApiString({className}.Default.ToString())",
-                DomainPrimitiveUnderlyingType.Boolean => $"new OpenApiBoolean({className}.Default)",
-                DomainPrimitiveUnderlyingType.SByte => $"new OpenApiByte((byte){className}.Default)",
-                DomainPrimitiveUnderlyingType.Byte => $"new OpenApiByte({className}.Default)",
-                DomainPrimitiveUnderlyingType.Int16 => $"new OpenApiInteger({className}.Default)",
-                DomainPrimitiveUnderlyingType.UInt16 => $"new OpenApiInteger((short){className}.Default)",
-                DomainPrimitiveUnderlyingType.Int32 => $"new OpenApiInteger({className}.Default)",
-                DomainPrimitiveUnderlyingType.UInt32 => $"new OpenApiInteger((int){className}.Default)",
-                DomainPrimitiveUnderlyingType.Int64 => $"new OpenApiLong({className}.Default)",
-                DomainPrimitiveUnderlyingType.UInt64 => $"new OpenApiLong((long){className}.Default)",
-                DomainPrimitiveUnderlyingType.Decimal => $"new OpenApiDouble(decimal.ToDouble({className}.Default))",
-                DomainPrimitiveUnderlyingType.Single => $"new OpenApiFloat({className}.Default)",
-                DomainPrimitiveUnderlyingType.Double => $"new OpenApiDouble({className}.Default)",
-                DomainPrimitiveUnderlyingType.DateTime when serializationFormat is null => $"new OpenApiDateTime({className}.Default)",
-                DomainPrimitiveUnderlyingType.DateTime => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat}\", null))",
-                DomainPrimitiveUnderlyingType.DateOnly => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "YYYY-MM-DD"}\", null))",
-                DomainPrimitiveUnderlyingType.TimeOnly => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "hh:mm:ss"}\", null))",
-                DomainPrimitiveUnderlyingType.TimeSpan => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "hh:mm:ss"}\", null))",
-                DomainPrimitiveUnderlyingType.DateTimeOffset when serializationFormat is null => $"new OpenApiDateTime(((DateTimeOffset){className}.Default).DateTime)",
-                DomainPrimitiveUnderlyingType.DateTimeOffset => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat}\", null))",
-                DomainPrimitiveUnderlyingType.Char => $"new OpenApiString({className}.Default.ToString())",
-                _ => null
-            };
-        }
+        //static string? CreateDefaultValue(DomainPrimitiveUnderlyingType underlyingType, string className, string? serializationFormat)
+        //{
+        //    return (underlyingType) switch
+        //    {
+        //        DomainPrimitiveUnderlyingType.String => $"new OpenApiString({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.Guid => $"new OpenApiString({className}.Default.ToString())",
+        //        DomainPrimitiveUnderlyingType.Boolean => $"new OpenApiBoolean({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.SByte => $"new OpenApiByte((byte){className}.Default)",
+        //        DomainPrimitiveUnderlyingType.Byte => $"new OpenApiByte({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.Int16 => $"new OpenApiInteger({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.UInt16 => $"new OpenApiInteger((short){className}.Default)",
+        //        DomainPrimitiveUnderlyingType.Int32 => $"new OpenApiInteger({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.UInt32 => $"new OpenApiInteger((int){className}.Default)",
+        //        DomainPrimitiveUnderlyingType.Int64 => $"new OpenApiLong({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.UInt64 => $"new OpenApiLong((long){className}.Default)",
+        //        DomainPrimitiveUnderlyingType.Decimal => $"new OpenApiDouble(decimal.ToDouble({className}.Default))",
+        //        DomainPrimitiveUnderlyingType.Single => $"new OpenApiFloat({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.Double => $"new OpenApiDouble({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.DateTime when serializationFormat is null => $"new OpenApiDateTime({className}.Default)",
+        //        DomainPrimitiveUnderlyingType.DateTime => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat}\", null))",
+        //        DomainPrimitiveUnderlyingType.DateOnly => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "YYYY-MM-DD"}\", null))",
+        //        DomainPrimitiveUnderlyingType.TimeOnly => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "hh:mm:ss"}\", null))",
+        //        DomainPrimitiveUnderlyingType.TimeSpan => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "hh:mm:ss"}\", null))",
+        //        DomainPrimitiveUnderlyingType.DateTimeOffset when serializationFormat is null => $"new OpenApiDateTime(((DateTimeOffset){className}.Default).DateTime)",
+        //        DomainPrimitiveUnderlyingType.DateTimeOffset => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat}\", null))",
+        //        DomainPrimitiveUnderlyingType.Char => $"new OpenApiString({className}.Default.ToString())",
+        //        _ => null
+        //    };
+        //}
     }
 
     /// <summary>
@@ -747,7 +742,7 @@ internal static class MethodGeneratorHelper
         builder.AppendLine("public void ReadXml(XmlReader reader)")
             .OpenBracket()
             .Append("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = reader.").Append(method).AppendLine("();")
-            .AppendLineIf(data.GenerateIsInitializedField, "System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;")
+            .AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;")
             .CloseBracket()
             .NewLine();
 

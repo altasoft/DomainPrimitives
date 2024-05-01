@@ -1,5 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Microsoft.CodeAnalysis;
 
 namespace AltaSoft.DomainPrimitives.Generator.Models;
 
@@ -52,11 +52,6 @@ internal sealed class GeneratorData
     /// Gets the class name.
     /// </summary>
     public string ClassName => TypeSymbol.Name;
-
-    /// <summary>
-    /// Gets or sets a value indicating whether to generate _isInitialized field.
-    /// </summary>
-    public bool GenerateIsInitializedField { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to generate subtraction operators.

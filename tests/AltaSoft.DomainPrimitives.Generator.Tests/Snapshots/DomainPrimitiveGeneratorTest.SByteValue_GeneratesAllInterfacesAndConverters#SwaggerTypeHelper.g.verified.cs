@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "integer",
             Format = "sbyte",
-            Title = "SByteValue",
-            Default = new OpenApiByte((byte)SByteValue.Default)
+            Title = "SByteValue"
         });
         options.MapType<SByteValue?>(() => new OpenApiSchema
         {
             Type = "integer",
             Format = "sbyte",
             Nullable = true,
-            Title = "Nullable<SByteValue>",
-            Default = new OpenApiByte((byte)SByteValue.Default)
+            Title = "Nullable<SByteValue>"
         });
     }
 }

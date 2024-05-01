@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "integer",
             Format = "byte",
-            Title = "ByteValue",
-            Default = new OpenApiByte(ByteValue.Default)
+            Title = "ByteValue"
         });
         options.MapType<ByteValue?>(() => new OpenApiSchema
         {
             Type = "integer",
             Format = "byte",
             Nullable = true,
-            Title = "Nullable<ByteValue>",
-            Default = new OpenApiByte(ByteValue.Default)
+            Title = "Nullable<ByteValue>"
         });
     }
 }
