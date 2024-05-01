@@ -38,8 +38,11 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (Guid)this;
 
+    private Guid _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly Guid _value;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly bool _isInitialized;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GuidValue"/> class by validating the specified <see cref="Guid"/> value using <see cref="Validate"/> static method.
@@ -49,13 +52,13 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     {
         Validate(value);
         _value = value;
+        _isInitialized = true;
     }
 
     /// <inheritdoc/>
     [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
     public GuidValue()
     {
-        _value = Default;
     }
 
     /// <inheritdoc/>
@@ -63,7 +66,7 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     public override bool Equals(object? obj) => obj is GuidValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(GuidValue other) => _value == other._value;
+    public bool Equals(GuidValue other) => _valueOrThrow == other._valueOrThrow;
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(GuidValue left, GuidValue right) => left.Equals(right);
@@ -84,7 +87,7 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(GuidValue other) => _value.CompareTo(other._value);
+    public int CompareTo(GuidValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
 
     /// <summary>
     /// Implicit conversion from <see cref = "Guid"/> to <see cref = "GuidValue"/>
@@ -103,14 +106,14 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     /// Implicit conversion from <see cref = "GuidValue"/> to <see cref = "Guid"/>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator Guid(GuidValue value) => (Guid)value._value;
+    public static implicit operator Guid(GuidValue value) => (Guid)value._valueOrThrow;
 
     /// <summary>
     /// Implicit conversion from <see cref = "GuidValue"/> (nullable) to <see cref = "Guid"/> (nullable)
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(value))]
-    public static implicit operator Guid?(GuidValue? value) => value is null ? null : (Guid?)value.Value._value;
+    public static implicit operator Guid?(GuidValue? value) => value is null ? null : (Guid?)value.Value._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -140,13 +143,13 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string ToString(string? format, IFormatProvider? formatProvider) => _value.ToString(format, formatProvider);
+    public string ToString(string? format, IFormatProvider? formatProvider) => _valueOrThrow.ToString(format, formatProvider);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        return ((ISpanFormattable)_value).TryFormat(destination, out charsWritten, format, provider);
+        return ((ISpanFormattable)_valueOrThrow).TryFormat(destination, out charsWritten, format, provider);
     }
 
 
@@ -155,15 +158,15 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        return ((IUtf8SpanFormattable)_value).TryFormat(utf8Destination, out bytesWritten, format, provider);
+        return ((IUtf8SpanFormattable)_valueOrThrow).TryFormat(utf8Destination, out bytesWritten, format, provider);
     }
 #endif
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode() => _value.GetHashCode();
+    public override int GetHashCode() => _valueOrThrow.GetHashCode();
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => _value.ToString();
+    public override string ToString() => _valueOrThrow.ToString();
 }

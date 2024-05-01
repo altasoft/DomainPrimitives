@@ -7,7 +7,7 @@ namespace AltaSoft.DomainPrimitives;
 /// This interface serves as a foundation for encapsulating and validating domain-specific values.
 /// </summary>
 /// <typeparam name="T">The type of the domain value.</typeparam>
-public interface IDomainValue<T> : IDomainValue
+public interface IDomainValue<in T> : IDomainValue
     where T : IEquatable<T>, IComparable, IComparable<T>
 {
     /// <summary>
@@ -16,11 +16,6 @@ public interface IDomainValue<T> : IDomainValue
     /// <param name="value">The value to be validated against domain constraints.</param>
     /// <exception cref="InvalidDomainValueException">Thrown when validation fails due to domain-specific constraints.</exception>
     static abstract void Validate(T value);
-
-    /// <summary>
-    /// Retrieves the default value representing the expected state within the domain.
-    /// </summary>
-    static abstract T Default { get; }
 
     /// <summary>
     /// Retrieves a string representation of the specified domain value.

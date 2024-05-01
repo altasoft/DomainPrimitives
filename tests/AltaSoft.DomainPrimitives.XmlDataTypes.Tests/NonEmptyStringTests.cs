@@ -37,14 +37,4 @@ public class NonEmptyStringTests
         // Act & Assert
         Assert.Throws<InvalidDomainValueException>(() => NonEmptyString.Validate(emptyString));
     }
-
-    [Fact]
-    public void NonEmptyString_Default_ReturnsDefaultValue()
-    {
-        // Arrange
-        const string expectedDefaultValue = "N/A";
-
-        // Act & Assert
-        Assert.Equal(expectedDefaultValue, NonEmptyString.Default);
-    }
 }

@@ -17,7 +17,4 @@ public readonly partial struct NegativeInteger : IDomainValue<int>
         if (value >= 0)
             throw new InvalidDomainValueException("value is non-negative");
     }
-
-    /// <inheritdoc/>
-    public static int Default => -1;
 }

@@ -19,16 +19,6 @@ public class GYearTests
         Assert.Null(exception);
     }
 
-    [Fact]
-    public void Default_ShouldReturnDefaultDateOnly()
-    {
-        // Act
-        var defaultDateOnly = GYear.Default;
-
-        // Assert
-        Assert.Equal(default, defaultDateOnly);
-    }
-
     [Theory]
     [InlineData(1968, "1968")]
     [InlineData(2000, "2000")]

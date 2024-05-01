@@ -17,8 +17,5 @@ public readonly partial struct GMonthDay : IDomainValue<DateOnly>
     { }
 
     /// <inheritdoc/>
-    public static DateOnly Default => default;
-
-    /// <inheritdoc/>
     public static string ToString(DateOnly value) => value.ToString("MM-dd", CultureInfo.InvariantCulture);
 }

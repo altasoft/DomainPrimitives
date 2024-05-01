@@ -35,15 +35,13 @@ public static class SwaggerTypeHelper
         options.MapType<BoolValue>(() => new OpenApiSchema
         {
             Type = "boolean",
-            Title = "BoolValue",
-            Default = new OpenApiBoolean(BoolValue.Default)
+            Title = "BoolValue"
         });
         options.MapType<BoolValue?>(() => new OpenApiSchema
         {
             Type = "boolean",
             Nullable = true,
-            Title = "Nullable<BoolValue>",
-            Default = new OpenApiBoolean(BoolValue.Default)
+            Title = "Nullable<BoolValue>"
         });
     }
 }

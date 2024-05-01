@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "number",
             Format = "decimal",
-            Title = "DecimalValue",
-            Default = new OpenApiDouble(decimal.ToDouble(DecimalValue.Default))
+            Title = "DecimalValue"
         });
         options.MapType<DecimalValue?>(() => new OpenApiSchema
         {
             Type = "number",
             Format = "decimal",
             Nullable = true,
-            Title = "Nullable<DecimalValue>",
-            Default = new OpenApiDouble(decimal.ToDouble(DecimalValue.Default))
+            Title = "Nullable<DecimalValue>"
         });
     }
 }

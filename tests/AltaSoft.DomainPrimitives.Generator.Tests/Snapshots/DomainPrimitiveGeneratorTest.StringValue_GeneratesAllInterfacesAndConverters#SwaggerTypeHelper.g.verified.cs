@@ -35,8 +35,7 @@ public static class SwaggerTypeHelper
         options.MapType<StringValue>(() => new OpenApiSchema
         {
             Type = "string",
-            Title = "StringValue",
-            Default = new OpenApiString(StringValue.Default)
+            Title = "StringValue"
         });
     }
 }

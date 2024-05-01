@@ -6,5 +6,6 @@
         internal const string SerializationFormatAttributeFullName = "AltaSoft.DomainPrimitives.SerializationFormatAttribute";
         internal const string SupportedOperationsAttribute = "SupportedOperationsAttribute";
         internal const string SupportedOperationsAttributeFullName = "AltaSoft.DomainPrimitives.SupportedOperationsAttribute";
+        internal const string StringLengthAttributeFullName = "AltaSoft.DomainPrimitives.StringLengthAttribute";
     }
 }

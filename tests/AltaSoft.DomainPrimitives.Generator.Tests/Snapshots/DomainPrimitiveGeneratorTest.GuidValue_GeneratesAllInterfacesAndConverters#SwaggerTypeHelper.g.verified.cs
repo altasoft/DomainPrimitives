@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "string",
             Format = "uuid",
-            Title = "GuidValue",
-            Default = new OpenApiString(GuidValue.Default.ToString())
+            Title = "GuidValue"
         });
         options.MapType<GuidValue?>(() => new OpenApiSchema
         {
             Type = "string",
             Format = "uuid",
             Nullable = true,
-            Title = "Nullable<GuidValue>",
-            Default = new OpenApiString(GuidValue.Default.ToString())
+            Title = "Nullable<GuidValue>"
         });
     }
 }

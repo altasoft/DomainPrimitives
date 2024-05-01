@@ -36,16 +36,14 @@ public static class SwaggerTypeHelper
         {
             Type = "string",
             Format = "HH:mm:ss",
-            Title = "TimeOnlyValue",
-            Default = new OpenApiString(TimeOnlyValue.Default.ToString("hh:mm:ss", null))
+            Title = "TimeOnlyValue"
         });
         options.MapType<TimeOnlyValue?>(() => new OpenApiSchema
         {
             Type = "string",
             Format = "HH:mm:ss",
             Nullable = true,
-            Title = "Nullable<TimeOnlyValue>",
-            Default = new OpenApiString(TimeOnlyValue.Default.ToString("hh:mm:ss", null))
+            Title = "Nullable<TimeOnlyValue>"
         });
     }
 }

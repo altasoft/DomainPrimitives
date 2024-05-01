@@ -22,15 +22,12 @@ public class DomainPrimitiveGeneratorTest
 		                      /// <inheritdoc/>
 		                      public partial class StringValue : IDomainValue<string>
 		                      {
-		                      /// <inheritdoc/>
-		                      public static void Validate(string value)
-		                      {
-		                          if (value=="Test")
-		                              throw new InvalidDomainValueException("Invalid Value");
-		                      }
-
-		                      /// <inheritdoc/>
-		                      public static string Default => default;
+		                          /// <inheritdoc/>
+		                          public static void Validate(string value)
+		                          {
+		                              if (value=="Test")
+		                                  throw new InvalidDomainValueException("Invalid Value");
+		                          }
 		                      }
 		                      """;
 
@@ -59,9 +56,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value==default)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static Guid Default => default;
 		             }
 		             """;
 
@@ -90,9 +84,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (!value)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static bool Default => default;
 		             }
 		             """;
 
@@ -121,9 +112,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 10 || value > 20)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static SByte Default => default;
 		             }
 		             """;
 
@@ -152,9 +140,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 0)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static byte Default => default;
 		             }
 		             """;
 
@@ -183,9 +168,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 0)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static short Default => default;
 		             }
 		             """;
 
@@ -214,9 +196,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value > 100)
 		             			throw new InvalidDomainValueException("Value must be between 10 and 100");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static ushort Default => default;
 		             }
 		             """;
 
@@ -245,9 +224,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 10 || value > 20)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static int Default => default;
 		             }
 		             """;
 
@@ -276,9 +252,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 10 || value > 20)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static uint Default => default;
 		             }
 		             """;
 
@@ -307,9 +280,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 0)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static long Default => default;
 		             }
 		             """;
 
@@ -338,9 +308,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 0)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static ulong Default => default;
 		             }
 		             """;
 
@@ -368,9 +335,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 0)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static decimal Default => default;
 		             }
 		             """;
 
@@ -398,9 +362,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 0)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static float Default => default;
 		             }
 		             """;
 
@@ -428,9 +389,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value < 0)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static double Default => default;
 		             }
 		             """;
 
@@ -458,9 +416,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value == default)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static DateTime Default => default;
 		             }
 
 		             """;
@@ -489,9 +444,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value == default)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static DateOnly Default => default;
 		             }
 
 		             """;
@@ -520,9 +472,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value == default)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static TimeOnly Default => default;
 		             }
 
 		             """;
@@ -551,9 +500,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value == default)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static TimeSpan Default => default;
 		             }
 
 		             """;
@@ -582,9 +528,6 @@ public class DomainPrimitiveGeneratorTest
 		             		if (value == default)
 		             			throw new InvalidDomainValueException("Invalid Value");
 		             	}
-
-		             	/// <inheritdoc/>
-		             	public static DateTimeOffset Default => default;
 		             }
 
 		             """;
@@ -613,9 +556,6 @@ public class DomainPrimitiveGeneratorTest
 		                      		if (value == default)
 		                      			throw new InvalidDomainValueException("Invalid Value");
 		                      	}
-
-		                      	/// <inheritdoc/>
-		                      	public static char Default => default;
 		                      }
 
 		                      """;
@@ -639,29 +579,23 @@ public class DomainPrimitiveGeneratorTest
                               /// <inheritdoc/>
                               public partial class StringValue : IDomainValue<string>
                               {
-                              /// <inheritdoc/>
-                              public static void Validate(string value)
-                              {
-                                  if (value=="Test")
-                                      throw new InvalidDomainValueException("Invalid Value");
-                              }
-
-                              /// <inheritdoc/>
-                              public static string Default => default;
+                                  /// <inheritdoc/>
+                                  public static void Validate(string value)
+                                  {
+                                      if (value=="Test")
+                                          throw new InvalidDomainValueException("Invalid Value");
+                                  }
                               }
 
                               /// <inheritdoc/>
                               public partial class StringOfStringValue : IDomainValue<StringValue>
                               {
-                              /// <inheritdoc/>
-                              public static void Validate(StringValue value)
-                              {
-                                  if (value=="Test")
-                                      throw new InvalidDomainValueException("Invalid Value");
-                              }
-
-                              /// <inheritdoc/>
-                              public static StringValue Default => default;
+                                  /// <inheritdoc/>
+                                  public static void Validate(StringValue value)
+                                  {
+                                      if (value=="Test")
+                                          throw new InvalidDomainValueException("Invalid Value");
+                                  }
                               }
                               """;
 
@@ -690,9 +624,6 @@ public class DomainPrimitiveGeneratorTest
                               		if (value < 10 || value > 20)
                               			throw new InvalidDomainValueException("Invalid Value");
                               	}
-
-                              	/// <inheritdoc/>
-                              	public static int Default => default;
                               }
 
                               /// <inheritdoc/>
@@ -704,9 +635,6 @@ public class DomainPrimitiveGeneratorTest
                                     		if (value < 10 || value > 20)
                                        			throw new InvalidDomainValueException("Invalid Value");
                                  	}
-
-                                 	/// <inheritdoc/>
-                                 	public static IntValue Default => default;
                               }
                               """;
 

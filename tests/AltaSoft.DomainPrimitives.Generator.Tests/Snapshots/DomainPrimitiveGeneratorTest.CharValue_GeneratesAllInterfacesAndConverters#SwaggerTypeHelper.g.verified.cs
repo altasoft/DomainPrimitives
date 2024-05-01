@@ -35,15 +35,13 @@ public static class SwaggerTypeHelper
         options.MapType<CharValue>(() => new OpenApiSchema
         {
             Type = "string",
-            Title = "CharValue",
-            Default = new OpenApiString(CharValue.Default.ToString())
+            Title = "CharValue"
         });
         options.MapType<CharValue?>(() => new OpenApiSchema
         {
             Type = "string",
             Nullable = true,
-            Title = "Nullable<CharValue>",
-            Default = new OpenApiString(CharValue.Default.ToString())
+            Title = "Nullable<CharValue>"
         });
     }
 }

@@ -20,16 +20,6 @@ public class GYearMonthTests
         Assert.Null(exception);
     }
 
-    [Fact]
-    public void Default_ShouldReturnDefaultDateOnly()
-    {
-        // Act
-        var defaultDateOnly = GYearMonth.Default;
-
-        // Assert
-        Assert.Equal(default, defaultDateOnly);
-    }
-
     [Theory]
     [InlineData(2022, 1, "2022-01")]
     [InlineData(2024, 12, "2024-12")]

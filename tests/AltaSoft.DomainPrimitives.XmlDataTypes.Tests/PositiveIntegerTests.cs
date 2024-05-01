@@ -35,14 +35,4 @@ public class PositiveIntegerTests
         // Act & Assert
         Assert.Throws<InvalidDomainValueException>(() => PositiveInteger.Validate(value));
     }
-
-    [Fact]
-    public void PositiveInteger_DefaultValue_ShouldBeOne()
-    {
-        // Arrange
-        const int expectedValue = 1;
-
-        // Act & Assert
-        Assert.Equal(expectedValue, PositiveInteger.Default);
-    }
 }

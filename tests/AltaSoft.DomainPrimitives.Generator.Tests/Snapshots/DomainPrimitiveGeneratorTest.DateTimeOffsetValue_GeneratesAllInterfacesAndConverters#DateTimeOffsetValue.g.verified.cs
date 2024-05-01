@@ -40,8 +40,11 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (DateTimeOffset)this;
 
+    private DateTimeOffset _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly DateTimeOffset _value;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly bool _isInitialized;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DateTimeOffsetValue"/> class by validating the specified <see cref="DateTimeOffset"/> value using <see cref="Validate"/> static method.
@@ -51,13 +54,13 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     {
         Validate(value);
         _value = value;
+        _isInitialized = true;
     }
 
     /// <inheritdoc/>
     [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
     public DateTimeOffsetValue()
     {
-        _value = Default;
     }
 
     /// <inheritdoc/>
@@ -65,7 +68,7 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     public override bool Equals(object? obj) => obj is DateTimeOffsetValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(DateTimeOffsetValue other) => _value == other._value;
+    public bool Equals(DateTimeOffsetValue other) => _valueOrThrow == other._valueOrThrow;
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(DateTimeOffsetValue left, DateTimeOffsetValue right) => left.Equals(right);
@@ -86,7 +89,7 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     }
 
     /// <inheritdoc/>
-    public int CompareTo(DateTimeOffsetValue other) => _value.CompareTo(other._value);
+    public int CompareTo(DateTimeOffsetValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
 
     /// <summary>
     /// Implicit conversion from <see cref = "DateTimeOffset"/> to <see cref = "DateTimeOffsetValue"/>
@@ -105,30 +108,30 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     /// Implicit conversion from <see cref = "DateTimeOffsetValue"/> to <see cref = "DateTimeOffset"/>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static implicit operator DateTimeOffset(DateTimeOffsetValue value) => (DateTimeOffset)value._value;
+    public static implicit operator DateTimeOffset(DateTimeOffsetValue value) => (DateTimeOffset)value._valueOrThrow;
 
     /// <summary>
     /// Implicit conversion from <see cref = "DateTimeOffsetValue"/> (nullable) to <see cref = "DateTimeOffset"/> (nullable)
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(value))]
-    public static implicit operator DateTimeOffset?(DateTimeOffsetValue? value) => value is null ? null : (DateTimeOffset?)value.Value._value;
+    public static implicit operator DateTimeOffset?(DateTimeOffsetValue? value) => value is null ? null : (DateTimeOffset?)value.Value._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._value < right._value;
+    public static bool operator <(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._valueOrThrow < right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator <=(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._value <= right._value;
+    public static bool operator <=(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._valueOrThrow <= right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._value > right._value;
+    public static bool operator >(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._valueOrThrow > right._valueOrThrow;
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static bool operator >=(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._value >= right._value;
+    public static bool operator >=(DateTimeOffsetValue left, DateTimeOffsetValue right) => left._valueOrThrow >= right._valueOrThrow;
 
 
     /// <inheritdoc/>
@@ -159,13 +162,13 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public string ToString(string? format, IFormatProvider? formatProvider) => _value.ToString(format, formatProvider);
+    public string ToString(string? format, IFormatProvider? formatProvider) => _valueOrThrow.ToString(format, formatProvider);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryFormat(Span<char> destination, out int charsWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        return ((ISpanFormattable)_value).TryFormat(destination, out charsWritten, format, provider);
+        return ((ISpanFormattable)_valueOrThrow).TryFormat(destination, out charsWritten, format, provider);
     }
 
 
@@ -174,67 +177,67 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
     {
-        return ((IUtf8SpanFormattable)_value).TryFormat(utf8Destination, out bytesWritten, format, provider);
+        return ((IUtf8SpanFormattable)_valueOrThrow).TryFormat(utf8Destination, out bytesWritten, format, provider);
     }
 #endif
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override int GetHashCode() => _value.GetHashCode();
+    public override int GetHashCode() => _valueOrThrow.GetHashCode();
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(DateTimeOffset)_value).GetTypeCode();
+    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(DateTimeOffset)_valueOrThrow).GetTypeCode();
 
     /// <inheritdoc/>
-    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToBoolean(provider);
+    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToBoolean(provider);
 
     /// <inheritdoc/>
-    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToByte(provider);
+    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToByte(provider);
 
     /// <inheritdoc/>
-    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToChar(provider);
+    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToChar(provider);
 
     /// <inheritdoc/>
-    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToDateTime(provider);
+    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToDateTime(provider);
 
     /// <inheritdoc/>
-    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToDecimal(provider);
+    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToDecimal(provider);
 
     /// <inheritdoc/>
-    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToDouble(provider);
+    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToDouble(provider);
 
     /// <inheritdoc/>
-    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToInt16(provider);
+    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToInt16(provider);
 
     /// <inheritdoc/>
-    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToInt32(provider);
+    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToInt32(provider);
 
     /// <inheritdoc/>
-    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToInt64(provider);
+    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToInt64(provider);
 
     /// <inheritdoc/>
-    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToSByte(provider);
+    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToSByte(provider);
 
     /// <inheritdoc/>
-    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToSingle(provider);
+    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToSingle(provider);
 
     /// <inheritdoc/>
-    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToString(provider);
+    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToString(provider);
 
     /// <inheritdoc/>
-    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToType(conversionType, provider);
+    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToType(conversionType, provider);
 
     /// <inheritdoc/>
-    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToUInt16(provider);
+    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToUInt16(provider);
 
     /// <inheritdoc/>
-    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToUInt32(provider);
+    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToUInt32(provider);
 
     /// <inheritdoc/>
-    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_value).ToUInt64(provider);
+    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToUInt64(provider);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public override string ToString() => _value.ToString();
+    public override string ToString() => _valueOrThrow.ToString();
 }
