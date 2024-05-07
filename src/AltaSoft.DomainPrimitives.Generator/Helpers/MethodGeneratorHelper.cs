@@ -441,10 +441,9 @@ internal static class MethodGeneratorHelper
     /// Generates code for implementing the IComparable interface for the specified type.
     /// </summary>
     /// <param name="className">The name of the class.</param>
-    /// <param name="fieldName">The name of the field to compare.</param>
     /// <param name="isValueType">A flag indicating if the type is a value type.</param>
     /// <param name="builder">The source code builder.</param>
-    internal static void GenerateComparableCode(string className, string fieldName, bool isValueType, SourceCodeBuilder builder)
+    internal static void GenerateComparableCode(string className, bool isValueType, SourceCodeBuilder builder)
     {
         builder.AppendInheritDoc()
             .AppendLine("public int CompareTo(object? obj)")
@@ -457,7 +456,16 @@ internal static class MethodGeneratorHelper
             .CloseBracket();
 
         var nullable = isValueType ? "" : "?";
-        builder.NewLine().AppendInheritDoc().AppendLine($"public int CompareTo({className}{nullable} other) => {fieldName}.CompareTo(other{nullable}.{fieldName});");
+
+        builder.NewLine().AppendInheritDoc()
+            .AppendLine($"public int CompareTo({className}{nullable} other)")
+            .OpenBracket()
+            .Append("if (").AppendIf(!isValueType, "other is null || ").AppendLine("!other._isInitialized)")
+            .AppendIndentation().AppendLine("return 1;")
+            .AppendLine("if (!_isInitialized)")
+            .AppendIndentation().AppendLine("return -1;")
+            .AppendLine("return _value.CompareTo(other._value);")
+            .CloseBracket();
     }
 
     /// <summary>
@@ -680,10 +688,9 @@ internal static class MethodGeneratorHelper
     /// Generates equality and inequality operators for the specified type.
     /// </summary>
     /// <param name="className">The name of the class.</param>
-    /// <param name="fieldName">The name of the field to compare.</param>
     /// <param name="isValueType">A flag indicating if the type is a value type.</param>
     /// <param name="builder">The source code builder.</param>
-    public static void GenerateEquatableOperators(string className, string fieldName, bool isValueType, SourceCodeBuilder builder)
+    public static void GenerateEquatableOperators(string className, bool isValueType, SourceCodeBuilder builder)
     {
         builder.AppendInheritDoc()
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
@@ -693,7 +700,12 @@ internal static class MethodGeneratorHelper
 
         builder.AppendInheritDoc()
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
-            .AppendLine($"public bool Equals({className}{nullable} other) => {fieldName} == other{nullable}.{fieldName};");
+            .AppendLine($"public bool Equals({className}{nullable} other)")
+            .OpenBracket()
+            .Append("if (").AppendIf(!isValueType, "other is null || ").AppendLine("!_isInitialized || !other._isInitialized)")
+            .AppendIndentation().AppendLine("return false;")
+            .AppendLine("return _value.Equals(other._value);")
+            .CloseBracket();
 
         builder.AppendInheritDoc()
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")

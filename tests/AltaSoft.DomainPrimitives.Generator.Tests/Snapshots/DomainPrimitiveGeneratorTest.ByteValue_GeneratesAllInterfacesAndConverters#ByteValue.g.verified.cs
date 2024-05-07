@@ -67,7 +67,12 @@ public readonly partial struct ByteValue : IEquatable<ByteValue>
     public override bool Equals(object? obj) => obj is ByteValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(ByteValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(ByteValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(ByteValue left, ByteValue right) => left.Equals(right);
@@ -88,7 +93,14 @@ public readonly partial struct ByteValue : IEquatable<ByteValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(ByteValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(ByteValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "byte"/> to <see cref = "ByteValue"/>

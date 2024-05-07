@@ -72,7 +72,12 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     public override bool Equals(object? obj) => obj is FloatValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(FloatValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(FloatValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(FloatValue left, FloatValue right) => left.Equals(right);
@@ -93,7 +98,14 @@ public readonly partial struct FloatValue : IEquatable<FloatValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(FloatValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(FloatValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "float"/> to <see cref = "FloatValue"/>

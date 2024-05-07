@@ -66,7 +66,12 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     public override bool Equals(object? obj) => obj is GuidValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(GuidValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(GuidValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(GuidValue left, GuidValue right) => left.Equals(right);
@@ -87,7 +92,14 @@ public readonly partial struct GuidValue : IEquatable<GuidValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(GuidValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(GuidValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "Guid"/> to <see cref = "GuidValue"/>

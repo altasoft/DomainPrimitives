@@ -68,7 +68,12 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
     public override bool Equals(object? obj) => obj is DateTimeValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(DateTimeValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(DateTimeValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(DateTimeValue left, DateTimeValue right) => left.Equals(right);
@@ -89,7 +94,14 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(DateTimeValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(DateTimeValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "DateTime"/> to <see cref = "DateTimeValue"/>

@@ -72,7 +72,12 @@ public readonly partial struct DecimalValue : IEquatable<DecimalValue>
     public override bool Equals(object? obj) => obj is DecimalValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(DecimalValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(DecimalValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(DecimalValue left, DecimalValue right) => left.Equals(right);
@@ -93,7 +98,14 @@ public readonly partial struct DecimalValue : IEquatable<DecimalValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(DecimalValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(DecimalValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "decimal"/> to <see cref = "DecimalValue"/>

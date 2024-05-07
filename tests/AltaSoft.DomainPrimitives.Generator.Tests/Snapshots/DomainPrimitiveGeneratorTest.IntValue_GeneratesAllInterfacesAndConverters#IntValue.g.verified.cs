@@ -72,7 +72,12 @@ public readonly partial struct IntValue : IEquatable<IntValue>
     public override bool Equals(object? obj) => obj is IntValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(IntValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(IntValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(IntValue left, IntValue right) => left.Equals(right);
@@ -93,7 +98,14 @@ public readonly partial struct IntValue : IEquatable<IntValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(IntValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(IntValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "int"/> to <see cref = "IntValue"/>

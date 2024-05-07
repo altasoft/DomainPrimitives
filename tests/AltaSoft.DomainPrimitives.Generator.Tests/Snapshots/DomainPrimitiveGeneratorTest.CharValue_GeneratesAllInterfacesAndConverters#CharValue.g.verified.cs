@@ -67,7 +67,12 @@ public readonly partial struct CharValue : IEquatable<CharValue>
     public override bool Equals(object? obj) => obj is CharValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(CharValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(CharValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(CharValue left, CharValue right) => left.Equals(right);
@@ -88,7 +93,14 @@ public readonly partial struct CharValue : IEquatable<CharValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(CharValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(CharValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "char"/> to <see cref = "CharValue"/>

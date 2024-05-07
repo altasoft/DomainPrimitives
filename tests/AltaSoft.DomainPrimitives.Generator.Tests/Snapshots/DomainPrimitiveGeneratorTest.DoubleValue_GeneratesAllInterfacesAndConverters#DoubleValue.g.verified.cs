@@ -72,7 +72,12 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     public override bool Equals(object? obj) => obj is DoubleValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(DoubleValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(DoubleValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(DoubleValue left, DoubleValue right) => left.Equals(right);
@@ -93,7 +98,14 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(DoubleValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(DoubleValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "double"/> to <see cref = "DoubleValue"/>
