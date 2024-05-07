@@ -65,7 +65,12 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     public override bool Equals(object? obj) => obj is StringOfStringValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(StringOfStringValue? other) => _valueOrThrow == other?._valueOrThrow;
+    public bool Equals(StringOfStringValue? other)
+    {
+        if (other is null || !_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(StringOfStringValue? left, StringOfStringValue? right)
@@ -93,7 +98,14 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(StringOfStringValue? other) => _valueOrThrow.CompareTo(other?._valueOrThrow);
+    public int CompareTo(StringOfStringValue? other)
+    {
+        if (other is null || !other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "string"/> (nullable) to <see cref = "StringOfStringValue"/> (nullable)

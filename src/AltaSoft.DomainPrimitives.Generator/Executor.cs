@@ -474,10 +474,10 @@ internal static class Executor
                 .NewLine();
         }
 
-        MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.FieldName, data.TypeSymbol.IsValueType, builder);
+        MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.TypeSymbol.IsValueType, builder);
         builder.NewLine();
 
-        MethodGeneratorHelper.GenerateComparableCode(data.ClassName, data.FieldName, data.TypeSymbol.IsValueType, builder);
+        MethodGeneratorHelper.GenerateComparableCode(data.ClassName, data.TypeSymbol.IsValueType, builder);
         builder.NewLine();
 
         if (data.GenerateImplicitOperators)

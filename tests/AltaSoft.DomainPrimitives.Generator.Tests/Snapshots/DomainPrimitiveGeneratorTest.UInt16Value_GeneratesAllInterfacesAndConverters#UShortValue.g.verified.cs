@@ -67,7 +67,12 @@ public readonly partial struct UShortValue : IEquatable<UShortValue>
     public override bool Equals(object? obj) => obj is UShortValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(UShortValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(UShortValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(UShortValue left, UShortValue right) => left.Equals(right);
@@ -88,7 +93,14 @@ public readonly partial struct UShortValue : IEquatable<UShortValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(UShortValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(UShortValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "ushort"/> to <see cref = "UShortValue"/>

@@ -63,7 +63,12 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     public override bool Equals(object? obj) => obj is BoolValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(BoolValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(BoolValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(BoolValue left, BoolValue right) => left.Equals(right);
@@ -84,7 +89,14 @@ public readonly partial struct BoolValue : IEquatable<BoolValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(BoolValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(BoolValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "bool"/> to <see cref = "BoolValue"/>

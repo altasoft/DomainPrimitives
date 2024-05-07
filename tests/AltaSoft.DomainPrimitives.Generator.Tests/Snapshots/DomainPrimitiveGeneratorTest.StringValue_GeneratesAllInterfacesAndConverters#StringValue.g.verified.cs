@@ -65,7 +65,12 @@ public partial class StringValue : IEquatable<StringValue>
     public override bool Equals(object? obj) => obj is StringValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(StringValue? other) => _valueOrThrow == other?._valueOrThrow;
+    public bool Equals(StringValue? other)
+    {
+        if (other is null || !_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(StringValue? left, StringValue? right)
@@ -93,7 +98,14 @@ public partial class StringValue : IEquatable<StringValue>
     }
 
     /// <inheritdoc/>
-    public int CompareTo(StringValue? other) => _valueOrThrow.CompareTo(other?._valueOrThrow);
+    public int CompareTo(StringValue? other)
+    {
+        if (other is null || !other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "string"/> (nullable) to <see cref = "StringValue"/> (nullable)

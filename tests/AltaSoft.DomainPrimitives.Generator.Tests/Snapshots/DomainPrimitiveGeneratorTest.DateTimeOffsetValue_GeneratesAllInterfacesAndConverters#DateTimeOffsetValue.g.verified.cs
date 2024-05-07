@@ -68,7 +68,12 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     public override bool Equals(object? obj) => obj is DateTimeOffsetValue other && Equals(other);
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public bool Equals(DateTimeOffsetValue other) => _valueOrThrow == other._valueOrThrow;
+    public bool Equals(DateTimeOffsetValue other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool operator ==(DateTimeOffsetValue left, DateTimeOffsetValue right) => left.Equals(right);
@@ -89,7 +94,14 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     }
 
     /// <inheritdoc/>
-    public int CompareTo(DateTimeOffsetValue other) => _valueOrThrow.CompareTo(other._valueOrThrow);
+    public int CompareTo(DateTimeOffsetValue other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
 
     /// <summary>
     /// Implicit conversion from <see cref = "DateTimeOffset"/> to <see cref = "DateTimeOffsetValue"/>
