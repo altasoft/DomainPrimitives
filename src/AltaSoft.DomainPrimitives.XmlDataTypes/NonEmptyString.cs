@@ -10,9 +10,11 @@
 public partial class NonEmptyString : IDomainValue<string>
 {
     /// <inheritdoc/>
-    public static void Validate(string value)
+    public static PrimitiveValidationResult Validate(string value)
     {
         if (string.IsNullOrEmpty(value))
-            throw new InvalidDomainValueException("value is empty string");
+            return "value is empty string";
+
+        return PrimitiveValidationResult.Ok;
     }
 }

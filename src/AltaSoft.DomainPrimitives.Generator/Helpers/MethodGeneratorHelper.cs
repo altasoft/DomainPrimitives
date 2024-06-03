@@ -122,36 +122,6 @@ internal static class MethodGeneratorHelper
         return;
 
         static string Quote(string? value) => '\"' + value?.Replace("\"", "\"\"") + '\"';
-
-        //static string? CreateDefaultValue(DomainPrimitiveUnderlyingType underlyingType, string className, string? serializationFormat)
-        //{
-        //    return (underlyingType) switch
-        //    {
-        //        DomainPrimitiveUnderlyingType.String => $"new OpenApiString({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.Guid => $"new OpenApiString({className}.Default.ToString())",
-        //        DomainPrimitiveUnderlyingType.Boolean => $"new OpenApiBoolean({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.SByte => $"new OpenApiByte((byte){className}.Default)",
-        //        DomainPrimitiveUnderlyingType.Byte => $"new OpenApiByte({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.Int16 => $"new OpenApiInteger({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.UInt16 => $"new OpenApiInteger((short){className}.Default)",
-        //        DomainPrimitiveUnderlyingType.Int32 => $"new OpenApiInteger({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.UInt32 => $"new OpenApiInteger((int){className}.Default)",
-        //        DomainPrimitiveUnderlyingType.Int64 => $"new OpenApiLong({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.UInt64 => $"new OpenApiLong((long){className}.Default)",
-        //        DomainPrimitiveUnderlyingType.Decimal => $"new OpenApiDouble(decimal.ToDouble({className}.Default))",
-        //        DomainPrimitiveUnderlyingType.Single => $"new OpenApiFloat({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.Double => $"new OpenApiDouble({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.DateTime when serializationFormat is null => $"new OpenApiDateTime({className}.Default)",
-        //        DomainPrimitiveUnderlyingType.DateTime => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat}\", null))",
-        //        DomainPrimitiveUnderlyingType.DateOnly => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "YYYY-MM-DD"}\", null))",
-        //        DomainPrimitiveUnderlyingType.TimeOnly => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "hh:mm:ss"}\", null))",
-        //        DomainPrimitiveUnderlyingType.TimeSpan => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat ?? "hh:mm:ss"}\", null))",
-        //        DomainPrimitiveUnderlyingType.DateTimeOffset when serializationFormat is null => $"new OpenApiDateTime(((DateTimeOffset){className}.Default).DateTime)",
-        //        DomainPrimitiveUnderlyingType.DateTimeOffset => $"new OpenApiString({className}.Default.ToString(\"{serializationFormat}\", null))",
-        //        DomainPrimitiveUnderlyingType.Char => $"new OpenApiString({className}.Default.ToString())",
-        //        _ => null
-        //    };
-        //}
     }
 
     /// <summary>
@@ -322,6 +292,90 @@ internal static class MethodGeneratorHelper
         builder.CloseBracket();
 
         context.AddSource($"{data.ClassName}JsonConverter.g.cs", builder.ToString());
+    }
+
+    /// <summary>
+    /// TryCreate,TryCreate with error message methods for the specified type, and ValidateOrThrow.
+    /// </summary>
+    /// <param name="data">The generator data containing type information.</param>
+    /// <param name="builder">The source code builder.</param>
+    internal static void GenerateMandatoryMethods(GeneratorData data, SourceCodeBuilder builder)
+    {
+        builder.AppendSummary("Tries to create an instance of AsciiString from the specified value.")
+            .AppendParamDescription("value", $"The value to create {data.ClassName} from")
+            .AppendParamDescription("result", $"When this method returns, contains the created {data.ClassName} if the conversion succeeded, or null if the conversion failed.")
+            .AppendReturnsDescription("true if the conversion succeeded; otherwise, false.");
+
+        var primitiveType = data.ParentSymbols.Count != 0 ? data.ParentSymbols[0].GetFriendlyName() : data.PrimitiveTypeFriendlyName;
+
+        builder.Append("public static bool TryCreate(").Append(primitiveType).Append(" value, [NotNullWhen(true)] out ").Append(data.ClassName).AppendLine("? result)")
+            .OpenBracket()
+            .Append("return TryCreate(value, out result, out _);")
+            .CloseBracket().NewLine();
+
+        builder.AppendSummary("Tries to create an instance of AsciiString from the specified value.")
+            .AppendParamDescription("value", $"The value to create {data.ClassName} from")
+            .AppendParamDescription("result", $"When this method returns, contains the created {data.ClassName} if the conversion succeeded, or null if the conversion failed.")
+            .AppendParamDescription("errorMessage", "When this method returns, contains the error message if the conversion failed; otherwise, null.")
+            .AppendReturnsDescription("true if the conversion succeeded; otherwise, false.");
+
+        builder.Append("public static bool TryCreate(").Append(primitiveType).Append(" value,[NotNullWhen(true)]  out ").Append(data.ClassName)
+            .AppendLine("? result, [NotNullWhen(false)]  out string? errorMessage)")
+            .OpenBracket();
+        AddStringLengthValidation(data, builder);
+
+        builder.AppendLine("var validationResult = Validate(value);")
+               .AppendLine("if (!validationResult.IsValid)")
+               .OpenBracket()
+               .AppendLine("result = null;")
+               .AppendLine("errorMessage = validationResult.ErrorMessage;")
+               .AppendLine("return false;")
+               .CloseBracket()
+               .NewLine()
+
+               .AppendLine("result = new (value, false);")
+               .AppendLine("errorMessage = null;")
+               .AppendLine("return true;")
+               .CloseBracket()
+               .NewLine();
+
+        builder.AppendSummary(" Validates the specified value and throws an exception if it is not valid.")
+            .AppendParamDescription("value", "The value to validate")
+            .AppendExceptionDescription("InvalidDomainValueException", "Thrown when the value is not valid.");
+
+        builder.AppendLine($"public void ValidateOrThrow({primitiveType} value)")
+            .OpenBracket()
+            .AppendLine("var result = Validate(value);")
+            .AppendLine("if (!result.IsValid)")
+            .AppendLine("\tthrow new InvalidDomainValueException(result.ErrorMessage, this);")
+            .CloseBracket()
+            .NewLine();
+
+        return;
+
+        static void AddStringLengthValidation(GeneratorData data, SourceCodeBuilder sb)
+        {
+            if (data.StringLengthAttributeValidation is null)
+                return;
+
+            var (minValue, maxValue) = data.StringLengthAttributeValidation.Value;
+            var hasMinValue = minValue >= 0;
+            var hasMaxValue = maxValue != int.MaxValue;
+
+            if (!hasMinValue && !hasMaxValue)
+                return;
+
+            sb.Append("if (value.Length is ")
+                .AppendIf(hasMinValue, $"< {minValue}")
+                .AppendIf(hasMinValue && hasMaxValue, " or ")
+                .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
+                .OpenBracket()
+                .AppendLine("result = null;")
+                .AppendLine($"errorMessage =\" String length is out of range {minValue}..{maxValue}\";")
+                .AppendLine("return false;")
+                .CloseBracket()
+                .NewLine();
+        }
     }
 
     /// <summary>
@@ -669,19 +723,25 @@ internal static class MethodGeneratorHelper
         .AppendLine("result = default;")
         .AppendLine("return false;")
         .CloseBracket()
-        .NewLine()
-        .AppendLine("try")
-        .OpenBracket()
-        .AppendLine($"result = new {dataClassName}({(isString ? "s" : "value")});")
-        .AppendLine("return true;")
-        .CloseBracket()
-        .AppendLine("catch (Exception)")
-        .OpenBracket()
-        .AppendLine("result = default;")
-        .AppendLine("return false;")
-        .CloseBracket()
-        .CloseBracket()
         .NewLine();
+
+        if (!data.TypeSymbol.IsValueType)
+        {
+            builder.AppendLine($"return {dataClassName}.TryCreate(s, out result);");
+        }
+        else
+        {
+            builder.AppendLine("if (TryCreate(value, out var created))")
+                .OpenBracket()
+                .AppendLine("result = created.Value;")
+                .AppendLine("return true;")
+                .CloseBracket()
+                .NewLine()
+                .AppendLine("result = default;")
+                .AppendLine("return false;");
+        }
+
+        builder.CloseBracket();
     }
 
     /// <summary>
@@ -753,7 +813,9 @@ internal static class MethodGeneratorHelper
         builder.AppendInheritDoc();
         builder.AppendLine("public void ReadXml(XmlReader reader)")
             .OpenBracket()
-            .Append("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = reader.").Append(method).AppendLine("();")
+            .Append("var value = reader.").Append(method).AppendLine("();")
+            .AppendLine("ValidateOrThrow(value);")
+            .AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = value;")
             .AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;")
             .CloseBracket()
             .NewLine();

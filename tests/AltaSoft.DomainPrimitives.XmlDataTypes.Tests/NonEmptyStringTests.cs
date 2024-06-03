@@ -6,14 +6,13 @@
 public class NonEmptyStringTests
 {
     [Fact]
-    public void NonEmptyString_Validate_ValidString_DoesNotThrowException()
+    public void NonEmptyString_Validate_ValidString_ShouldBe_Valid()
     {
         // Arrange
         const string validString = "Hello";
 
         // Act & Assert
-        var exception = Record.Exception(() => AsciiString.Validate(validString));
-        Assert.Null(exception);
+        Assert.True(AsciiString.Validate(validString).IsValid);
     }
 
     [Fact]
@@ -24,7 +23,7 @@ public class NonEmptyStringTests
 
         // Act & Assert
 #pragma warning disable CS8625 // Cannot convert null literal to non-nullable reference type.
-        Assert.Throws<InvalidDomainValueException>(() => NonEmptyString.Validate(nullString));
+        Assert.False(NonEmptyString.Validate(nullString).IsValid);
 #pragma warning restore CS8625 // Cannot convert null literal to non-nullable reference type.
     }
 
@@ -35,6 +34,6 @@ public class NonEmptyStringTests
         const string emptyString = "";
 
         // Act & Assert
-        Assert.Throws<InvalidDomainValueException>(() => NonEmptyString.Validate(emptyString));
+        Assert.False(NonEmptyString.Validate(emptyString).IsValid);
     }
 }

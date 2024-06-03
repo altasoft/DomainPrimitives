@@ -9,23 +9,30 @@ namespace AltaSoft.DomainPrimitives;
 public class StringLengthAttribute : Attribute
 {
     /// <summary>
-    /// Constructor that accepts the minimum and maximum lengths of the string.
+    /// Initializes a new instance of the <see cref="StringLengthAttribute"/> class.
     /// </summary>
-    /// <param name="minimumLength">The minimum length, inclusive. It may not be negative.</param>
-    /// <param name="maximumLength">The maximum length, inclusive. It may not be negative.</param>
-    public StringLengthAttribute(int minimumLength, int maximumLength)
+    /// <param name="minimumLength">The minimum length allowed for the string.</param>
+    /// <param name="maximumLength">The maximum length allowed for the string.</param>
+    /// <param name="validate">Indicates whether the string length should be validated.</param>
+    public StringLengthAttribute(int minimumLength, int maximumLength, bool validate = true)
     {
         MinimumLength = minimumLength;
         MaximumLength = maximumLength;
+        Validate = validate;
     }
 
     /// <summary>
-    /// Gets the maximum acceptable length of the string
+    /// Gets the maximum length allowed for the string.
     /// </summary>
     public int MaximumLength { get; }
 
     /// <summary>
-    /// Gets or sets the minimum acceptable length of the string
+    /// Gets the minimum length allowed for the string.
     /// </summary>
-    public int MinimumLength { get; set; }
+    public int MinimumLength { get; }
+
+    /// <summary>
+    /// Gets a value indicating whether the string length should be validated.
+    /// </summary>
+    public bool Validate { get; }
 }

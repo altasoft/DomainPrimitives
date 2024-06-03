@@ -35,7 +35,7 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (string)this;
 
-    private StringValue _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
+    private StringValue _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly StringValue _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -45,20 +45,73 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     /// Initializes a new instance of the <see cref="StringOfStringValue"/> class by validating the specified <see cref="StringValue"/> value using <see cref="Validate"/> static method.
     /// </summary>
     /// <param name="value">The value to be validated.</param>
-    public StringOfStringValue(StringValue value)
+    public StringOfStringValue(StringValue value) : this(value, true)
     {
-        Validate(value);
+    }
+
+    private StringOfStringValue(StringValue value, bool validate) 
+    {
+        if (validate)
+        {
+            ValidateOrThrow(value);
+        }
         _value = value;
         _isInitialized = true;
     }
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     /// <inheritdoc/>
-    [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
+    [Obsolete("Domain primitive cannot be created using empty Constructor", true)]
     public StringOfStringValue()
     {
     }
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+
+    /// <summary>
+    /// Tries to create an instance of AsciiString from the specified value.
+    /// </summary>
+    /// <param name="value">The value to create StringOfStringValue from</param>
+    /// <param name="result">When this method returns, contains the created StringOfStringValue if the conversion succeeded, or null if the conversion failed.</param>
+    /// <returns>true if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryCreate(StringValue value, [NotNullWhen(true)] out StringOfStringValue? result)
+    {
+        return TryCreate(value, out result, out _);
+    }
+
+    /// <summary>
+    /// Tries to create an instance of AsciiString from the specified value.
+    /// </summary>
+    /// <param name="value">The value to create StringOfStringValue from</param>
+    /// <param name="result">When this method returns, contains the created StringOfStringValue if the conversion succeeded, or null if the conversion failed.</param>
+    /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
+    /// <returns>true if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryCreate(StringValue value,[NotNullWhen(true)]  out StringOfStringValue? result, [NotNullWhen(false)]  out string? errorMessage)
+    {
+        var validationResult = Validate(value);
+        if (!validationResult.IsValid)
+        {
+            result = null;
+            errorMessage = validationResult.ErrorMessage;
+            return false;
+        }
+
+        result = new (value, false);
+        errorMessage = null;
+        return true;
+    }
+
+    /// <summary>
+    ///  Validates the specified value and throws an exception if it is not valid.
+    /// </summary>
+    /// <param name="value">The value to validate</param>
+    /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
+    public void ValidateOrThrow(StringValue value)
+    {
+        var result = Validate(value);
+        if (!result.IsValid)
+        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+    }
+
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -141,18 +194,8 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
             return false;
         }
 
-        try
-        {
-            result = new StringOfStringValue(value);
-            return true;
-        }
-        catch (Exception)
-        {
-            result = default;
-            return false;
-        }
+        return StringOfStringValue.TryCreate(s, out result);
     }
-
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

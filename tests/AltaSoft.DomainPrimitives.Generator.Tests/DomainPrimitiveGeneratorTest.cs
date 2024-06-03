@@ -15,7 +15,7 @@ public class DomainPrimitiveGeneratorTest
 		                      using System.Linq;
 		                      using System.Text;
 		                      using System.Threading.Tasks;
-		                      using AltaSoft.DomainPrimitives.Abstractions;
+		                      using AltaSoft.DomainPrimitives;
 
 		                      namespace AltaSoft.DomainPrimitives;
 
@@ -23,10 +23,12 @@ public class DomainPrimitiveGeneratorTest
 		                      public partial class StringValue : IDomainValue<string>
 		                      {
 		                          /// <inheritdoc/>
-		                          public static void Validate(string value)
+		                          public static PrimitiveValidationResult Validate(string value)
 		                          {
 		                              if (value=="Test")
-		                                  throw new InvalidDomainValueException("Invalid Value");
+		                                  return "Invalid Value";
+
+		                              return PrimitiveValidationResult.Ok;
 		                          }
 		                      }
 		                      """;
@@ -43,7 +45,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -51,10 +53,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct GuidValue : IDomainValue<Guid>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(Guid value)
+		             	public static PrimitiveValidationResult Validate(Guid value)
 		             	{
 		             		if (value==default)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		                    return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -71,7 +75,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -79,10 +83,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct BoolValue : IDomainValue<bool>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(bool value)
+		             	public static PrimitiveValidationResult Validate(bool value)
 		             	{
 		             		if (!value)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		                    return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -99,7 +105,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -107,10 +113,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct SByteValue : IDomainValue<SByte>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(SByte value)
+		             	public static PrimitiveValidationResult Validate(SByte value)
 		             	{
 		             		if (value < 10 || value > 20)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -127,7 +135,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -135,10 +143,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct ByteValue : IDomainValue<byte>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(byte value)
+		             	public static PrimitiveValidationResult Validate(byte value)
 		             	{
 		             		if (value < 0)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -155,7 +165,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -163,10 +173,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct ShortValue : IDomainValue<short>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(short value)
+		             	public static PrimitiveValidationResult Validate(short value)
 		             	{
 		             		if (value < 0)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		                    return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -183,7 +195,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -191,10 +203,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct UShortValue : IDomainValue<ushort>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(ushort value)
+		             	public static PrimitiveValidationResult Validate(ushort value)
 		             	{
 		             		if (value > 100)
-		             			throw new InvalidDomainValueException("Value must be between 10 and 100");
+		             			return "Value must be between 10 and 100";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -211,7 +225,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -219,10 +233,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct IntValue : IDomainValue<int>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(int value)
+		             	public static PrimitiveValidationResult Validate(int value)
 		             	{
 		             		if (value < 10 || value > 20)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -239,7 +255,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -247,10 +263,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct IntValue : IDomainValue<uint>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(uint value)
+		             	public static PrimitiveValidationResult Validate(uint value)
 		             	{
 		             		if (value < 10 || value > 20)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -267,7 +285,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -275,10 +293,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct LongValue : IDomainValue<long>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(long value)
+		             	public static PrimitiveValidationResult Validate(long value)
 		             	{
 		             		if (value < 0)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		                    return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -295,7 +315,7 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
@@ -303,10 +323,12 @@ public class DomainPrimitiveGeneratorTest
 		             public readonly partial struct LongValue : IDomainValue<ulong>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(ulong value)
+		             	public static PrimitiveValidationResult Validate(ulong value)
 		             	{
 		             		if (value < 0)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -323,17 +345,19 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
 		             public readonly partial struct DecimalValue : IDomainValue<decimal>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(decimal value)
+		             	public static PrimitiveValidationResult Validate(decimal value)
 		             	{
 		             		if (value < 0)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -350,17 +374,19 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
 		             public readonly partial struct FloatValue : IDomainValue<float>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(float value)
+		             	public static PrimitiveValidationResult Validate(float value)
 		             	{
 		             		if (value < 0)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -377,17 +403,19 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
 		             public readonly partial struct DoubleValue : IDomainValue<double>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(double value)
+		             	public static PrimitiveValidationResult Validate(double value)
 		             	{
 		             		if (value < 0)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 		             """;
@@ -404,17 +432,19 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
 		             public readonly partial struct DateTimeValue : IDomainValue<DateTime>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(DateTime value)
+		             	public static PrimitiveValidationResult Validate(DateTime value)
 		             	{
 		             		if (value == default)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 
@@ -432,17 +462,19 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
 		             public readonly partial struct DateOnlyValue : IDomainValue<DateOnly>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(DateOnly value)
+		             	public static PrimitiveValidationResult Validate(DateOnly value)
 		             	{
 		             		if (value == default)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 
@@ -460,17 +492,19 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
 		             public readonly partial struct TimeOnlyValue : IDomainValue<TimeOnly>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(TimeOnly value)
+		             	public static PrimitiveValidationResult Validate(TimeOnly value)
 		             	{
 		             		if (value == default)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		                    return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 
@@ -488,17 +522,18 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
 		             public readonly partial struct TimeSpanValue : IDomainValue<TimeSpan>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(TimeSpan value)
+		             	public static PrimitiveValidationResult Validate(TimeSpan value)
 		             	{
 		             		if (value == default)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 
@@ -516,17 +551,19 @@ public class DomainPrimitiveGeneratorTest
 		             using System.Linq;
 		             using System.Text;
 		             using System.Threading.Tasks;
-		             using AltaSoft.DomainPrimitives.Abstractions;
+		             using AltaSoft.DomainPrimitives;
 
 		             namespace AltaSoft.DomainPrimitives;
 
 		             public readonly partial struct DateTimeOffsetValue : IDomainValue<DateTimeOffset>
 		             {
 		             	/// <inheritdoc/>
-		             	public static void Validate(DateTimeOffset value)
+		             	public static PrimitiveValidationResult Validate(DateTimeOffset value)
 		             	{
 		             		if (value == default)
-		             			throw new InvalidDomainValueException("Invalid Value");
+		             			return "Invalid Value";
+
+		             		return PrimitiveValidationResult.Ok;
 		             	}
 		             }
 
@@ -544,17 +581,19 @@ public class DomainPrimitiveGeneratorTest
 		                      using System.Linq;
 		                      using System.Text;
 		                      using System.Threading.Tasks;
-		                      using AltaSoft.DomainPrimitives.Abstractions;
+		                      using AltaSoft.DomainPrimitives;
 
 		                      namespace AltaSoft.DomainPrimitives;
 
 		                      public readonly partial struct CharValue : IDomainValue<char>
 		                      {
 		                      	/// <inheritdoc/>
-		                      	public static void Validate(char value)
+		                      	public static PrimitiveValidationResult Validate(char value)
 		                      	{
 		                      		if (value == default)
-		                      			throw new InvalidDomainValueException("Invalid Value");
+		                      			return "Invalid Value";
+
+		                      		return PrimitiveValidationResult.Ok;
 		                      	}
 		                      }
 
@@ -572,7 +611,7 @@ public class DomainPrimitiveGeneratorTest
                               using System.Linq;
                               using System.Text;
                               using System.Threading.Tasks;
-                              using AltaSoft.DomainPrimitives.Abstractions;
+                              using AltaSoft.DomainPrimitives;
 
                               namespace AltaSoft.DomainPrimitives;
 
@@ -580,10 +619,12 @@ public class DomainPrimitiveGeneratorTest
                               public partial class StringValue : IDomainValue<string>
                               {
                                   /// <inheritdoc/>
-                                  public static void Validate(string value)
+                                  public static PrimitiveValidationResult Validate(string value)
                                   {
                                       if (value=="Test")
-                                          throw new InvalidDomainValueException("Invalid Value");
+                                          return "Invalid Value";
+
+                                      return PrimitiveValidationResult.Ok;
                                   }
                               }
 
@@ -591,10 +632,12 @@ public class DomainPrimitiveGeneratorTest
                               public partial class StringOfStringValue : IDomainValue<StringValue>
                               {
                                   /// <inheritdoc/>
-                                  public static void Validate(StringValue value)
+                                  public static PrimitiveValidationResult Validate(StringValue value)
                                   {
                                       if (value=="Test")
-                                          throw new InvalidDomainValueException("Invalid Value");
+                                          return "Invalid Value";
+
+                                      return PrimitiveValidationResult.Ok;
                                   }
                               }
                               """;
@@ -611,7 +654,7 @@ public class DomainPrimitiveGeneratorTest
                               using System.Linq;
                               using System.Text;
                               using System.Threading.Tasks;
-                              using AltaSoft.DomainPrimitives.Abstractions;
+                              using AltaSoft.DomainPrimitives;
 
                               namespace AltaSoft.DomainPrimitives;
 
@@ -619,10 +662,12 @@ public class DomainPrimitiveGeneratorTest
                               public readonly partial struct IntValue : IDomainValue<int>
                               {
                               	/// <inheritdoc/>
-                              	public static void Validate(int value)
+                              	public static PrimitiveValidationResult Validate(int value)
                               	{
                               		if (value < 10 || value > 20)
-                              			throw new InvalidDomainValueException("Invalid Value");
+                              			return "Invalid Value";
+
+                              		return PrimitiveValidationResult.Ok;
                               	}
                               }
 
@@ -630,10 +675,12 @@ public class DomainPrimitiveGeneratorTest
                               public readonly partial struct IntOfIntValue : IDomainValue<IntValue>
                               {
                                  	/// <inheritdoc/>
-                                 	public static void Validate(IntValue value)
+                                 	public static PrimitiveValidationResult Validate(IntValue value)
                                  	{
                                     		if (value < 10 || value > 20)
-                                       			throw new InvalidDomainValueException("Invalid Value");
+                                       			return "Invalid Value";
+
+                                       		return PrimitiveValidationResult.Ok;
                                  	}
                               }
                               """;

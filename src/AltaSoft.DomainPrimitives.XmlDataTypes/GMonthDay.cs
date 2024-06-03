@@ -13,8 +13,7 @@ namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 public readonly partial struct GMonthDay : IDomainValue<DateOnly>
 {
     /// <inheritdoc/>
-    public static void Validate(DateOnly value)
-    { }
+    public static PrimitiveValidationResult Validate(DateOnly value) => PrimitiveValidationResult.Ok;
 
     /// <inheritdoc/>
     public static string ToString(DateOnly value) => value.ToString("MM-dd", CultureInfo.InvariantCulture);

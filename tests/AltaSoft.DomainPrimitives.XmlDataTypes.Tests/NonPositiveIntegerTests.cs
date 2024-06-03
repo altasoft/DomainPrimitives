@@ -9,22 +9,20 @@ public class NonPositiveIntegerTests
     [InlineData(-1)]
     [InlineData(-15)]
     [InlineData(-31)]
-    public void NonPositiveInteger_WhenValueIsNonPositive_ShouldNotThrowException(int value)
+    public void NonPositiveInteger_WhenValueIsNonPositive_ShouldBeValid(int value)
     {
         // Act & Assert
-        var exception = Record.Exception(() => NonPositiveInteger.Validate(value));
-        Assert.Null(exception);
+        Assert.True(NonPositiveInteger.Validate(value).IsValid);
     }
 
     [Fact]
-    public void NonPositiveInteger_WhenValueIsZero_ShouldNotThrowException()
+    public void NonPositiveInteger_WhenValueIsZero_ShouldBeValid()
     {
         // Arrange
         const int value = 0;
 
         // Act & Assert
-        var exception = Record.Exception(() => NonPositiveInteger.Validate(value));
-        Assert.Null(exception);
+        Assert.True(NonPositiveInteger.Validate(value).IsValid);
     }
 
     [Theory]
@@ -34,6 +32,6 @@ public class NonPositiveIntegerTests
     public void NonPositiveInteger_WhenValueIsPositive_ShouldThrowException(int value)
     {
         // Act & Assert
-        Assert.Throws<InvalidDomainValueException>(() => NonPositiveInteger.Validate(value));
+        Assert.False(NonPositiveInteger.Validate(value).IsValid);
     }
 }

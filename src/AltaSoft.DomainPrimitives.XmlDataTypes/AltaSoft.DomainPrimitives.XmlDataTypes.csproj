@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-16"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<TargetFrameworks>net7.0;net8.0</TargetFrameworks>
@@ -16,6 +16,13 @@
 		<DomainPrimitiveGenerator_GenerateJsonConverters>true</DomainPrimitiveGenerator_GenerateJsonConverters>
 		<DomainPrimitiveGenerator_GenerateXmlSerialization>true</DomainPrimitiveGenerator_GenerateXmlSerialization>
 	</PropertyGroup>
+
+	<ItemGroup>
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateSwaggerConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
+	</ItemGroup>
 
 
 	<ItemGroup>

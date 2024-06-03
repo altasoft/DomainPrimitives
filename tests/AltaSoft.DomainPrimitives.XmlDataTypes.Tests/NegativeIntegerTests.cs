@@ -12,27 +12,26 @@ public class NegativeIntegerTests
     public void NegativeInteger_WhenValueIsNegative_ShouldNotThrowException(int value)
     {
         // Act & Assert
-        var exception = Record.Exception(() => NegativeInteger.Validate(value));
-        Assert.Null(exception);
+        Assert.True(NegativeInteger.Validate(value).IsValid);
     }
 
     [Fact]
-    public void NegativeInteger_WhenValueIsZero_ShouldThrowException()
+    public void NegativeInteger_WhenValueIsZero_ShouldBeInvalid()
     {
         // Arrange
         const int value = 0;
 
         // Act & Assert
-        Assert.Throws<InvalidDomainValueException>(() => NegativeInteger.Validate(value));
+        Assert.False(NegativeInteger.Validate(value).IsValid);
     }
 
     [Theory]
     [InlineData(1)]
     [InlineData(15)]
     [InlineData(31)]
-    public void NegativeInteger_WhenValueIsNegative_ShouldThrowException(int value)
+    public void NegativeInteger_WhenValueIsNegative_ShouldBeInvalid(int value)
     {
         // Act & Assert
-        Assert.Throws<InvalidDomainValueException>(() => NegativeInteger.Validate(value));
+        Assert.False(NegativeInteger.Validate(value).IsValid);
     }
 }

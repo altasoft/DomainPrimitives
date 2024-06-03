@@ -9,31 +9,29 @@ public class NonNegativeIntegerTests
     [InlineData(1)]
     [InlineData(15)]
     [InlineData(31)]
-    public void NonNegativeInteger_WhenValueIsNonNegative_ShouldNotThrowException(int value)
+    public void NonNegativeInteger_WhenValueIsNonNegative_ShouldBeValid(int value)
     {
         // Act & Assert
-        var exception = Record.Exception(() => NonNegativeInteger.Validate(value));
-        Assert.Null(exception);
+        Assert.True(NonNegativeInteger.Validate(value).IsValid);
     }
 
     [Fact]
-    public void NonNegativeInteger_WhenValueIsZero_ShouldNotThrowException()
+    public void NonNegativeInteger_WhenValueIsZero_ShouldBeValid()
     {
         // Arrange
         const int value = 0;
 
         // Act & Assert
-        var exception = Record.Exception(() => NonNegativeInteger.Validate(value));
-        Assert.Null(exception);
+        Assert.True(NonNegativeInteger.Validate(value).IsValid);
     }
 
     [Theory]
     [InlineData(-1)]
     [InlineData(-15)]
     [InlineData(-31)]
-    public void NonNegativeInteger_WhenValueIsNegative_ShouldThrowException(int value)
+    public void NonNegativeInteger_WhenValueIsNegative_ShouldBeInvalid(int value)
     {
         // Act & Assert
-        Assert.Throws<InvalidDomainValueException>(() => NonNegativeInteger.Validate(value));
+        Assert.False(NonNegativeInteger.Validate(value).IsValid);
     }
 }
