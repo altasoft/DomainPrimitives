@@ -8,17 +8,21 @@ namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 /// <remarks>
 /// The AsciiString ensures that its value contains only ASCII characters.
 /// </remarks>
+[StringLength(10, 100, false)]
 public partial class AsciiString : IDomainValue<string>
 {
     /// <inheritdoc/>
-    public static void Validate(string value)
+    public static PrimitiveValidationResult Validate(string value)
     {
         var input = value.AsSpan();
+
         // ReSharper disable once ForCanBeConvertedToForeach
         for (var i = 0; i < input.Length; i++)
         {
             if (!char.IsAscii(input[i]))
-                throw new InvalidDomainValueException("value contains non-ascii characters");
+                return "value contains non-ascii characters";
         }
+
+        return PrimitiveValidationResult.Ok;
     }
 }

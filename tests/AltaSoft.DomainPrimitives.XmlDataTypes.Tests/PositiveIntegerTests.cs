@@ -9,11 +9,10 @@ public class PositiveIntegerTests
     [InlineData(1)]
     [InlineData(15)]
     [InlineData(31)]
-    public void PositiveInteger_WhenValueIsPositive_ShouldNotThrowException(int value)
+    public void PositiveInteger_WhenValueIsPositive_ShouldBeValid(int value)
     {
         // Act & Assert
-        var exception = Record.Exception(() => PositiveInteger.Validate(value));
-        Assert.Null(exception);
+        Assert.True(PositiveInteger.Validate(value).IsValid);
     }
 
     [Fact]
@@ -23,7 +22,7 @@ public class PositiveIntegerTests
         const int value = 0;
 
         // Act & Assert
-        Assert.Throws<InvalidDomainValueException>(() => PositiveInteger.Validate(value));
+        Assert.False(PositiveInteger.Validate(value).IsValid);
     }
 
     [Theory]
@@ -33,6 +32,6 @@ public class PositiveIntegerTests
     public void PositiveInteger_WhenValueIsNegative_ShouldThrowException(int value)
     {
         // Act & Assert
-        Assert.Throws<InvalidDomainValueException>(() => PositiveInteger.Validate(value));
+        Assert.False(PositiveInteger.Validate(value).IsValid);
     }
 }

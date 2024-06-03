@@ -12,9 +12,11 @@ namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 public readonly partial struct NonNegativeInteger : IDomainValue<int>
 {
     /// <inheritdoc/>
-    public static void Validate(int value)
+    public static PrimitiveValidationResult Validate(int value)
     {
         if (value < 0)
-            throw new InvalidDomainValueException("value is negative");
+            return "value is negative";
+
+        return PrimitiveValidationResult.Ok;
     }
 }

@@ -134,6 +134,28 @@ internal sealed class SourceCodeBuilder
         Append("/// <param name=\"").Append(parameterName).Append("\">").Append(parameterDescription).AppendLine("</param>");
         return this;
     }
+    /// <summary>
+    /// Appends an exception description to the source code builder.
+    /// </summary>
+    /// <param name="exceptionName">The name of the exception.</param>
+    /// <param name="exceptionDescription">The description of the exception.</param>
+    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    public SourceCodeBuilder AppendExceptionDescription(string exceptionName, string exceptionDescription)
+    {
+        Append("/// <exception cref=\"").Append(exceptionName).Append("\">").Append(exceptionDescription).AppendLine("</exception>");
+        return this;
+    }
+
+    /// <summary>
+    /// Appends a returns description to the source code builder.
+    /// </summary>
+    /// <param name="description">The description of the return value.</param>
+    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    public SourceCodeBuilder AppendReturnsDescription(string description)
+    {
+        Append("/// <returns>").Append(description).AppendLine("</returns>");
+        return this;
+    }
 
     /// <summary>
     /// Appends a summary documentation block to the source code

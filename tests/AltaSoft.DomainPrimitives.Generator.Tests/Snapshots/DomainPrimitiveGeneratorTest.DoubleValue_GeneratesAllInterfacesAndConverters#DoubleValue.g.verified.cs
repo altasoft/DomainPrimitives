@@ -44,7 +44,7 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (double)this;
 
-    private double _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
+    private double _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly double _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -54,18 +54,71 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     /// Initializes a new instance of the <see cref="DoubleValue"/> class by validating the specified <see cref="double"/> value using <see cref="Validate"/> static method.
     /// </summary>
     /// <param name="value">The value to be validated.</param>
-    public DoubleValue(double value)
+    public DoubleValue(double value) : this(value, true)
     {
-        Validate(value);
+    }
+
+    private DoubleValue(double value, bool validate) 
+    {
+        if (validate)
+        {
+            ValidateOrThrow(value);
+        }
         _value = value;
         _isInitialized = true;
     }
 
     /// <inheritdoc/>
-    [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
+    [Obsolete("Domain primitive cannot be created using empty Constructor", true)]
     public DoubleValue()
     {
     }
+
+    /// <summary>
+    /// Tries to create an instance of AsciiString from the specified value.
+    /// </summary>
+    /// <param name="value">The value to create DoubleValue from</param>
+    /// <param name="result">When this method returns, contains the created DoubleValue if the conversion succeeded, or null if the conversion failed.</param>
+    /// <returns>true if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryCreate(double value, [NotNullWhen(true)] out DoubleValue? result)
+    {
+        return TryCreate(value, out result, out _);
+    }
+
+    /// <summary>
+    /// Tries to create an instance of AsciiString from the specified value.
+    /// </summary>
+    /// <param name="value">The value to create DoubleValue from</param>
+    /// <param name="result">When this method returns, contains the created DoubleValue if the conversion succeeded, or null if the conversion failed.</param>
+    /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
+    /// <returns>true if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryCreate(double value,[NotNullWhen(true)]  out DoubleValue? result, [NotNullWhen(false)]  out string? errorMessage)
+    {
+        var validationResult = Validate(value);
+        if (!validationResult.IsValid)
+        {
+            result = null;
+            errorMessage = validationResult.ErrorMessage;
+            return false;
+        }
+
+        result = new (value, false);
+        errorMessage = null;
+        return true;
+    }
+
+    /// <summary>
+    ///  Validates the specified value and throws an exception if it is not valid.
+    /// </summary>
+    /// <param name="value">The value to validate</param>
+    /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
+    public void ValidateOrThrow(double value)
+    {
+        var result = Validate(value);
+        if (!result.IsValid)
+        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+    }
+
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -183,18 +236,15 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
             return false;
         }
 
-        try
+        if (TryCreate(value, out var created))
         {
-            result = new DoubleValue(value);
+            result = created.Value;
             return true;
         }
-        catch (Exception)
-        {
-            result = default;
-            return false;
-        }
-    }
 
+        result = default;
+        return false;
+    }
 
 #if NET8_0_OR_GREATER
     /// <inheritdoc cref="IUtf8SpanFormattable.TryFormat"/>

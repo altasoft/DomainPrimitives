@@ -23,6 +23,6 @@ public class AsciiStringTests
         const string invalidString = "Hello😊";
 
         // Act & Assert
-        Assert.Throws<InvalidDomainValueException>(() => AsciiString.Validate(invalidString));
+        Assert.False(AsciiString.Validate(invalidString).IsValid);
     }
 }

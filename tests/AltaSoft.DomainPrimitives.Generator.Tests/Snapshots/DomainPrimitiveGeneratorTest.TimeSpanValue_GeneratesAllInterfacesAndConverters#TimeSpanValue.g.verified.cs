@@ -40,7 +40,7 @@ public readonly partial struct TimeSpanValue : IEquatable<TimeSpanValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (TimeSpan)this;
 
-    private TimeSpan _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized");
+    private TimeSpan _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly TimeSpan _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -50,18 +50,71 @@ public readonly partial struct TimeSpanValue : IEquatable<TimeSpanValue>
     /// Initializes a new instance of the <see cref="TimeSpanValue"/> class by validating the specified <see cref="TimeSpan"/> value using <see cref="Validate"/> static method.
     /// </summary>
     /// <param name="value">The value to be validated.</param>
-    public TimeSpanValue(TimeSpan value)
+    public TimeSpanValue(TimeSpan value) : this(value, true)
     {
-        Validate(value);
+    }
+
+    private TimeSpanValue(TimeSpan value, bool validate) 
+    {
+        if (validate)
+        {
+            ValidateOrThrow(value);
+        }
         _value = value;
         _isInitialized = true;
     }
 
     /// <inheritdoc/>
-    [Obsolete("Domain primitive cannot be created using empty Ctor", true)]
+    [Obsolete("Domain primitive cannot be created using empty Constructor", true)]
     public TimeSpanValue()
     {
     }
+
+    /// <summary>
+    /// Tries to create an instance of AsciiString from the specified value.
+    /// </summary>
+    /// <param name="value">The value to create TimeSpanValue from</param>
+    /// <param name="result">When this method returns, contains the created TimeSpanValue if the conversion succeeded, or null if the conversion failed.</param>
+    /// <returns>true if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryCreate(TimeSpan value, [NotNullWhen(true)] out TimeSpanValue? result)
+    {
+        return TryCreate(value, out result, out _);
+    }
+
+    /// <summary>
+    /// Tries to create an instance of AsciiString from the specified value.
+    /// </summary>
+    /// <param name="value">The value to create TimeSpanValue from</param>
+    /// <param name="result">When this method returns, contains the created TimeSpanValue if the conversion succeeded, or null if the conversion failed.</param>
+    /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
+    /// <returns>true if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryCreate(TimeSpan value,[NotNullWhen(true)]  out TimeSpanValue? result, [NotNullWhen(false)]  out string? errorMessage)
+    {
+        var validationResult = Validate(value);
+        if (!validationResult.IsValid)
+        {
+            result = null;
+            errorMessage = validationResult.ErrorMessage;
+            return false;
+        }
+
+        result = new (value, false);
+        errorMessage = null;
+        return true;
+    }
+
+    /// <summary>
+    ///  Validates the specified value and throws an exception if it is not valid.
+    /// </summary>
+    /// <param name="value">The value to validate</param>
+    /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
+    public void ValidateOrThrow(TimeSpan value)
+    {
+        var result = Validate(value);
+        if (!result.IsValid)
+        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+    }
+
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -159,18 +212,15 @@ public readonly partial struct TimeSpanValue : IEquatable<TimeSpanValue>
             return false;
         }
 
-        try
+        if (TryCreate(value, out var created))
         {
-            result = new TimeSpanValue(value);
+            result = created.Value;
             return true;
         }
-        catch (Exception)
-        {
-            result = default;
-            return false;
-        }
-    }
 
+        result = default;
+        return false;
+    }
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

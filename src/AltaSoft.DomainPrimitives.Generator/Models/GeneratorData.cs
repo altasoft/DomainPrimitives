@@ -117,4 +117,9 @@ internal sealed class GeneratorData
     /// Gets or sets a value indicating whether the generate IXmlSerializable methods.
     /// </summary>
     public bool GenerateXmlSerializableMethods { get; set; }
+
+    /// <summary>
+    /// if StringLengthAttribute validation is applied to a domain Primitive this will be used to determine the values and use them before calling validation method.
+    /// </summary>
+    public (int minLength, int maxLength)? StringLengthAttributeValidation { get; set; }
 }

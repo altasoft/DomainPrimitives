@@ -375,10 +375,6 @@ internal static class Executor
             return false;
         }
 
-        var validateMethod = data.TypeSymbol.GetMembersOfType<IMethodSymbol>().FirstOrDefault(x => string.Equals(x.Name, "Validate", StringComparison.Ordinal));
-        if (validateMethod is not null)
-            ExceptionHelper.VerifyException(validateMethod, context);
-
         Process(data, builder.ToString(), options, context);
         return true;
     }
@@ -473,6 +469,9 @@ internal static class Executor
                 .CloseBracket()
                 .NewLine();
         }
+
+        MethodGeneratorHelper.GenerateMandatoryMethods(data, builder);
+        builder.NewLine();
 
         MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.TypeSymbol.IsValueType, builder);
         builder.NewLine();
@@ -755,7 +754,7 @@ internal static class Executor
 
         var underlyingTypeName = interfaceGenericType.GetFriendlyName();
 
-        builder.AppendLine($"private {underlyingTypeName} _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException(\"The domain value has not been initialized\");");
+        builder.AppendLine($"private {underlyingTypeName} _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException(\"The domain value has not been initialized\", this);");
 
         builder.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
         builder.AppendLine($"private readonly {underlyingTypeName} _value;");
@@ -767,13 +766,23 @@ internal static class Executor
         builder.AppendSummary($"Initializes a new instance of the <see cref=\"{type.Name}\"/> class by validating the specified <see cref=\"{underlyingTypeName}\"/> value using <see cref=\"Validate\"/> static method.");
         builder.AppendParamDescription("value", "The value to be validated.");
 
-        builder.AppendLine($"public {type.Name}({underlyingTypeName} value)")
+        builder.AppendLine($"public {type.Name}({underlyingTypeName} value) : this(value, true)")
+            .OpenBracket()
+            .CloseBracket()
+            .NewLine();
+
+        builder.AppendLine($"private {type.Name}({underlyingTypeName} value, bool validate) ")
+            .OpenBracket();
+
+        builder.AppendLine("if (validate)")
             .OpenBracket();
 
         if (data.UnderlyingType == DomainPrimitiveUnderlyingType.String)
-            AddStringLengthAttributeValidation(type, builder);
+            AddStringLengthAttributeValidation(type, data, builder);
 
-        builder.AppendLine("Validate(value);")
+        builder.AppendLine("ValidateOrThrow(value);");
+        builder.CloseBracket()
+
         .AppendLine("_value = value;")
         .AppendLine("_isInitialized = true;")
         .CloseBracket();
@@ -784,7 +793,7 @@ internal static class Executor
 
         builder.NewLine()
             .AppendInheritDoc()
-            .AppendLine("[Obsolete(\"Domain primitive cannot be created using empty Ctor\", true)]");
+            .AppendLine("[Obsolete(\"Domain primitive cannot be created using empty Constructor\", true)]");
 
         builder.Append("public ").Append(type.Name).AppendLine("()")
             .OpenBracket()
@@ -796,7 +805,7 @@ internal static class Executor
         return true;
     }
 
-    private static void AddStringLengthAttributeValidation(ISymbol domainPrimitiveType, SourceCodeBuilder sb)
+    private static void AddStringLengthAttributeValidation(ISymbol domainPrimitiveType, GeneratorData data, SourceCodeBuilder sb)
     {
         var attr = domainPrimitiveType.GetAttributes()
             .FirstOrDefault(x => string.Equals(x.AttributeClass?.ToDisplayString(), Constants.StringLengthAttributeFullName, StringComparison.Ordinal));
@@ -806,17 +815,23 @@ internal static class Executor
 
         var minValue = (int)attr.ConstructorArguments[0].Value!;
         var maxValue = (int)attr.ConstructorArguments[1].Value!;
+        var validate = (bool)attr.ConstructorArguments[2].Value!;
+
+        if (!validate)
+            return;
 
         var hasMinValue = minValue >= 0;
         var hasMaxValue = maxValue != int.MaxValue;
         if (!hasMinValue && !hasMaxValue)
             return;
 
+        data.StringLengthAttributeValidation = (minValue, maxValue);
+
         sb.Append("if (value.Length is ")
             .AppendIf(hasMinValue, $"< {minValue}")
-            .AppendIf(hasMinValue && hasMaxValue, " or")
+            .AppendIf(hasMinValue && hasMaxValue, " or ")
             .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
-            .AppendLine($"\tthrow new InvalidDomainValueException(\"String length is out of range {minValue}..{maxValue}\");")
+            .AppendLine($"\tthrow new InvalidDomainValueException(\"String length is out of range {minValue}..{maxValue}\", this);")
             .NewLine();
     }
 }

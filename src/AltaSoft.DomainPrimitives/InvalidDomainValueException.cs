@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 
 namespace AltaSoft.DomainPrimitives;
 
@@ -9,27 +10,25 @@ namespace AltaSoft.DomainPrimitives;
 public class InvalidDomainValueException : Exception
 {
     /// <summary>
-    /// Initializes a new instance of the <see cref="InvalidDomainValueException"/> class.
-    /// </summary>
-    public InvalidDomainValueException()
-    {
-    }
-
-    /// <summary>
     /// Initializes a new instance of the <see cref="InvalidDomainValueException"/> class with a specific error message.
     /// </summary>
     /// <param name="message">The error message that describes the reason for the exception.</param>
-    public InvalidDomainValueException(string message) : base(message)
+    /// <param name="instance">actual instance of domain primitive</param>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public InvalidDomainValueException(string message, IDomainValue instance) : base(GenerateErrorMessage(message, instance))
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="InvalidDomainValueException"/> class with a specific error message
-    /// and a reference to the inner exception that caused this exception.
+    /// Generates the error message for the <see cref="InvalidDomainValueException"/>.
     /// </summary>
-    /// <param name="message">The error message that explains the reason for the exception.</param>
-    /// <param name="innerException">The exception that is the cause of the current exception.</param>
-    public InvalidDomainValueException(string message, Exception? innerException) : base(message, innerException)
+    /// <param name="message">The error message that describes the reason for the exception.</param>
+    /// <param name="value">The actual value of the domain primitive.</param>
+    /// <returns>The generated error message.</returns>
+    private static string GenerateErrorMessage(string message, IDomainValue value)
     {
+        var type = value.GetType();
+        var typeName = type.FullName ?? type.Name;
+        return $"Cannot create instance of '{typeName}'. {message}";
     }
 }

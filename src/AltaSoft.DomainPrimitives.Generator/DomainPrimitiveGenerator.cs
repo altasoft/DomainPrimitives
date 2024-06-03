@@ -1,11 +1,11 @@
-﻿using AltaSoft.DomainPrimitives.Generator.Extensions;
+﻿using System;
+using System.Linq;
+using System.Threading;
+using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System;
-using System.Linq;
-using System.Threading;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
