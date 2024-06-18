@@ -33,6 +33,7 @@ internal static class Executor
             return;
 
         var swaggerTypes = new List<GeneratorData>(typesToGenerate.Length);
+        var efCoreValueConverterTypes = new List<INamedTypeSymbol>(typesToGenerate.Length);
         var cachedOperationsAttributes = new Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData>(SymbolEqualityComparer.Default);
 
         try
@@ -71,10 +72,20 @@ internal static class Executor
                 }
 
                 if (globalOptions.GenerateSwaggerConverters)
+                {
                     swaggerTypes.Add(generatorData);
+                }
+
+                if (globalOptions.GenerateEntityFrameworkCoreValueConverters)
+                {
+                    efCoreValueConverterTypes.Add(generatorData.TypeSymbol);
+                    MethodGeneratorHelper.ProcessEntityFrameworkValueConverter(generatorData, context);
+                }
             }
 
             MethodGeneratorHelper.AddSwaggerOptions(assemblyName, swaggerTypes, context);
+
+            MethodGeneratorHelper.GenerateValueConvertersExtension(swaggerTypes.Count == 0, assemblyName, efCoreValueConverterTypes, context);
         }
         catch (Exception ex)
         {

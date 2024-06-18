@@ -187,6 +187,92 @@ internal static class MethodGeneratorHelper
     }
 
     /// <summary>
+    /// Generates the value converters extension for the specified assembly name, types, and source production context.
+    /// </summary>
+    /// <param name="addAssemblyAttribute">if assembly attribute should be added</param>
+    /// <param name="assemblyName">The name of the assembly.</param>
+    /// <param name="types">The list of named type symbols.</param>
+    /// <param name="context">The source production context.</param>
+    internal static void GenerateValueConvertersExtension(bool addAssemblyAttribute, string assemblyName, List<INamedTypeSymbol> types, SourceProductionContext context)
+    {
+        if (types.Count == 0)
+            return;
+
+        var builder = new SourceCodeBuilder();
+        builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
+
+        var usings = types.ConvertAll(x => x.ContainingNamespace.ToDisplayString());
+        usings.Add("Microsoft.EntityFrameworkCore");
+        usings.AddRange(types.ConvertAll(x => x.ContainingNamespace.ToDisplayString() + ".EntityFrameworkCore.Converters"));
+
+        builder.AppendUsings(usings);
+
+        if (addAssemblyAttribute)
+            builder.AppendLine("[assembly: AltaSoft.DomainPrimitives.DomainPrimitiveAssemblyAttribute]");
+
+        var ns = string.Join(".", assemblyName.Split('.').Select(s => char.IsDigit(s[0]) ? '_' + s : s));
+        builder.AppendNamespace(ns + ".Converters.Extensions");
+
+        builder.AppendSummary($"Helper class providing methods to configure EntityFrameworkCore ValueConverters for DomainPrimitive types of {assemblyName}");
+        builder.AppendClass(false, "public static", "ModelConfigurationBuilderExt");
+
+        builder.AppendSummary("Adds EntityFrameworkCore ValueConverters for specific custom types to ensure proper mapping to EFCore ORM.");
+        builder.AppendParamDescription("configurationBuilder", "The ModelConfigurationBuilder instance to which converters are added.");
+        builder.AppendLine("public static ModelConfigurationBuilder AddDomainPrimitivePropertyConversions(this ModelConfigurationBuilder configurationBuilder)")
+            .OpenBracket();
+
+        foreach (var type in types)
+        {
+            builder.Append("configurationBuilder.Properties<").Append(type.Name).Append(">().HaveConversion<").Append(type.Name).AppendLine("ValueConverter>();");
+        }
+
+        builder.AppendLine("return configurationBuilder;");
+        builder.CloseBracket();
+
+        builder.CloseBracket();
+        context.AddSource("ModelConfigurationBuilderExt.g.cs", builder.ToString());
+    }
+
+    /// <summary>
+    /// Processes the Entity Framework value converter for the specified generator data and source production context.
+    /// </summary>
+    /// <param name="data">The generator data.</param>
+    /// <param name="context">The source production context.</param>
+    internal static void ProcessEntityFrameworkValueConverter(GeneratorData data, SourceProductionContext context)
+    {
+        var builder = new SourceCodeBuilder();
+
+        builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
+
+        var usingStatements =
+            new List<string>(8)
+                {
+                    data.Namespace,
+                    data.PrimitiveTypeSymbol.ContainingNamespace.ToDisplayString(),
+                    "Microsoft.EntityFrameworkCore",
+                    "Microsoft.EntityFrameworkCore.Storage.ValueConversion",
+                    "AltaSoft.DomainPrimitives",
+                };
+
+        var converterName = data.ClassName + "ValueConverter";
+
+        builder.AppendUsings(usingStatements);
+
+        builder.AppendNamespace(data.Namespace + ".EntityFrameworkCore.Converters");
+        builder.AppendSummary($"ValueConverter for <see cref = \"{data.ClassName}\"/>");
+        builder.AppendClass(false, "public sealed", converterName, $"ValueConverter<{data.ClassName}, {data.PrimitiveTypeFriendlyName}>");
+
+        builder.AppendSummary($"Constructor to create {converterName}")
+            .AppendLine($"public {converterName}() : base(v=> v, v=> v)")
+            .OpenBracket()
+            .CloseBracket();
+
+        builder.CloseBracket();
+
+        context.AddSource($"{converterName}.g.cs", builder.ToString());
+    }
+
+    /// <summary>
     /// Generates code for a JsonConverter for the specified type.
     /// </summary>
     /// <param name="data">The generator data containing type information.</param>

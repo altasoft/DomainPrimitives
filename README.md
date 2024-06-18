@@ -43,6 +43,7 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 * **NumberType Operations:** Automatically generates basic arithmetic and comparison operators, by implementing Static abstract interfaces. [More details regarding numeric types](#number-types-attribute)
 * **IParsable Implementation:** Automatically generates parsing for non-string types.
 * **XML Serialiaziton** Generates IXmlSerializable interface implementation, to serialize and deserialize from/to xml.
+* **EntityFrameworkCore ValueConverters** Facilitates seamless integration with EntityFrameworkCore by using ValueConverters to treat the primitive type as its underlying type. For more details, refer to [EntityFrameworkCore ValueConverters](EntityFrameworkCoreExample.md)
 
 ## Supported Underlying types 
 1. `string`

@@ -119,6 +119,12 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
             result.GenerateXmlSerialization = generateXmlSerialization;
         }
 
+        if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateEntityFrameworkCoreValueConverters", out value)
+            && bool.TryParse(value, out var generateEntityFrameworkValueConverters))
+        {
+            result.GenerateEntityFrameworkCoreValueConverters = generateEntityFrameworkValueConverters;
+        }
+
         return result;
     }
 }
