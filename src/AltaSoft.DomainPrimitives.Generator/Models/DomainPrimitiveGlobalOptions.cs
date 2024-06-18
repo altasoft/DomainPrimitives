@@ -40,4 +40,12 @@ internal sealed record DomainPrimitiveGlobalOptions
     ///   <c>true</c> if XML serialization methods should be generated; otherwise, <c>false</c>.
     /// </value>
     public bool GenerateXmlSerialization { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether Entity Framework Core value converters should be generated for Domain Primitive types.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if Entity Framework Core value converters should be generated; otherwise, <c>false</c>.
+    /// </value>
+    public bool GenerateEntityFrameworkCoreValueConverters { get; set; }
 }

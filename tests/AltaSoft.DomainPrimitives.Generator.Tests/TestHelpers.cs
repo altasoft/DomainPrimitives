@@ -1,9 +1,9 @@
-﻿using AltaSoft.DomainPrimitives.Generator.Models;
+﻿using System.Collections.Immutable;
+using System.Diagnostics.CodeAnalysis;
+using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using System.Diagnostics.CodeAnalysis;
 
 // ReSharper disable ConvertToPrimaryConstructor
 
@@ -91,6 +91,10 @@ internal static class TestHelpers
 
                     case "build_property.DomainPrimitiveGenerator_GenerateTypeConverters":
                         value = _options.GenerateTypeConverters.ToString();
+                        return true;
+
+                    case "build_property.DomainPrimitiveGenerator_GenerateEntityFrameworkCoreValueConverters":
+                        value = _options.GenerateEntityFrameworkCoreValueConverters.ToString();
                         return true;
 
                     default:
