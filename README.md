@@ -35,6 +35,7 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 
 * **Implicit Operators:** Streamlines type conversion to/from the underlying primitive type. [Example](#implicit-usage-of-domaintype)
 * **Specialized Constructor Generation:**  Automatically validates and constructs instances of this domain type. This constructor, tailored for the domain primitive, utilizes the underlying type as a parameter, ensuring the value's correctness within the domain.
+* **TryCreate method:** Introduces a TryCreate method that attempts to create an instance of the domain type and returns a bool indicating the success or failure of the creation process, along with any validation errors.
 * **JsonConverters:** Handles JSON serialization and deserialization for the underlying type. [Example](#json-conversion)
 * **TypeConverters:** Assists in type conversion to/from it's underlying type. [Please refer to generated type converter below](#type-converter)
 * **Swagger Custom Type Mappings:** Facilitates easy integration with Swagger by treating the primitive type as it's underlying type. [Please refer to generated swagger helper below](#swagger-mappers)
@@ -95,12 +96,14 @@ For optimal performance, it is recommended to use `readonly struct`, especially 
 ```csharp
 public readonly partial struct PositiveInteger : IDomainValue<int>
 {
-	public static void Validate(int value)
-	{
-		if (value <= 0)
-			throw new InvalidDomainValueException("Number must be positive");
-	}
-	public static int Default => 1;
+    /// <inheritdoc/>
+    public static PrimitiveValidationResult Validate(int value)
+    {
+        if (value <= 0)
+            return PrimitiveValidationResult.Error("value is non-positive");
+
+        return PrimitiveValidationResult.Ok;
+    }
 }
 ```
 
@@ -120,239 +123,331 @@ using System;
 using System.Numerics;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using AltaSoft.DomainPrimitives;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
 using AltaSoft.DomainPrimitives.XmlDataTypes.Converters;
 using System.ComponentModel;
+using System.Xml;
+using System.Xml.Schema;
+using System.Xml.Serialization;
 
 namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 
 [JsonConverter(typeof(PositiveIntegerJsonConverter))]
 [TypeConverter(typeof(PositiveIntegerTypeConverter))]
-[DebuggerDisplay("{_valueOrDefault}")]
+[UnderlyingPrimitiveType(typeof(int))]
+[DebuggerDisplay("{_value}")]
 public readonly partial struct PositiveInteger : IEquatable<PositiveInteger>
-		, IComparable
-		, IComparable<PositiveInteger>
-		, IAdditionOperators<PositiveInteger, PositiveInteger, PositiveInteger>
-		, ISubtractionOperators<PositiveInteger, PositiveInteger, PositiveInteger>
-		, IMultiplyOperators<PositiveInteger, PositiveInteger, PositiveInteger>
-		, IDivisionOperators<PositiveInteger, PositiveInteger, PositiveInteger>
-		, IModulusOperators<PositiveInteger, PositiveInteger, PositiveInteger>
-		, IComparisonOperators<PositiveInteger, PositiveInteger, bool>
-		, IParsable<PositiveInteger>
-		, IConvertible
+        , IComparable
+        , IComparable<PositiveInteger>
+        , IAdditionOperators<PositiveInteger, PositiveInteger, PositiveInteger>
+        , ISubtractionOperators<PositiveInteger, PositiveInteger, PositiveInteger>
+        , IMultiplyOperators<PositiveInteger, PositiveInteger, PositiveInteger>
+        , IDivisionOperators<PositiveInteger, PositiveInteger, PositiveInteger>
+        , IModulusOperators<PositiveInteger, PositiveInteger, PositiveInteger>
+        , IComparisonOperators<PositiveInteger, PositiveInteger, bool>
+        , IParsable<PositiveInteger>
+        , IConvertible
+        , IXmlSerializable
 #if NET8_0_OR_GREATER
-		, IUtf8SpanFormattable
+        , IUtf8SpanFormattable
 #endif
-
 {
-	private int _valueOrDefault => _isInitialized ? _value : Default;
-	[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-	private readonly int _value;
-	[DebuggerBrowsable(DebuggerBrowsableState.Never)]
-	private readonly bool _isInitialized;
-	
-	/// <summary>
-	/// Initializes a new instance of the <see cref="PositiveInteger"/> class by validating the specified <see cref="int"/> value using <see cref="Validate"/> static method.
-	/// </summary>
-	/// <param name="value">The value to be validated.</param>
-	public PositiveInteger(int value)
-	{
-		Validate(value);
-		_value = value;
-		_isInitialized = true;
-	}
-	
-	/// <inheritdoc/>
-	[Obsolete("Domain primitive cannot be created using empty Ctor", true)]
-	public PositiveInteger()
-	{
-		_value = Default;
-		_isInitialized = true;
-	}
-	
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public override bool Equals(object? obj) => obj is PositiveInteger other && Equals(other);
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool Equals(PositiveInteger other) => _valueOrDefault == other._valueOrDefault;
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool operator ==(PositiveInteger left, PositiveInteger right) => left.Equals(right);
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool operator !=(PositiveInteger left, PositiveInteger right) => !(left == right);
+    /// <inheritdoc/>
+     public Type GetUnderlyingPrimitiveType() => typeof(int);
+    /// <inheritdoc/>
+     public object GetUnderlyingPrimitiveValue() => (int)this;
 
-	/// <inheritdoc/>
-	public int CompareTo(object? obj)
-	{
-		if (obj is null)
-			return 1;
+    private int _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly int _value;
+    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private readonly bool _isInitialized;
 
-		if (obj is PositiveInteger c)
-			return CompareTo(c);
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PositiveInteger"/> class by validating the specified <see cref="int"/> value using <see cref="Validate"/> static method.
+    /// </summary>
+    /// <param name="value">The value to be validated.</param>
+    public PositiveInteger(int value) : this(value, true)
+    {
+    }
 
-		throw new ArgumentException("Object is not a PositiveInteger", nameof(obj));
-	}
+    private PositiveInteger(int value, bool validate) 
+    {
+        if (validate)
+        {
+            ValidateOrThrow(value);
+        }
+        _value = value;
+        _isInitialized = true;
+    }
 
-	/// <inheritdoc/>
-	public int CompareTo(PositiveInteger other) => _valueOrDefault.CompareTo(other._valueOrDefault);
+    /// <inheritdoc/>
+    [Obsolete("Domain primitive cannot be created using empty Constructor", true)]
+    public PositiveInteger()
+    {
+    }
 
-	/// <summary>
-	/// Implicit conversion from <see cref = "int"/> to <see cref = "PositiveInteger"/>
-	/// </summary>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static implicit operator PositiveInteger(int value) => new(value);
+    /// <summary>
+    /// Tries to create an instance of AsciiString from the specified value.
+    /// </summary>
+    /// <param name="value">The value to create PositiveInteger from</param>
+    /// <param name="result">When this method returns, contains the created PositiveInteger if the conversion succeeded, or null if the conversion failed.</param>
+    /// <returns>true if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryCreate(int value, [NotNullWhen(true)] out PositiveInteger? result)
+    {
+        return TryCreate(value, out result, out _);
+    }
 
-	/// <summary>
-	/// Implicit conversion from <see cref = "int"/> (nullable) to <see cref = "PositiveInteger"/> (nullable)
-	/// </summary>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	[return: NotNullIfNotNull(nameof(value))]
-	public static implicit operator PositiveInteger?(int? value) => value is null ? null : new(value.Value);
+    /// <summary>
+    /// Tries to create an instance of AsciiString from the specified value.
+    /// </summary>
+    /// <param name="value">The value to create PositiveInteger from</param>
+    /// <param name="result">When this method returns, contains the created PositiveInteger if the conversion succeeded, or null if the conversion failed.</param>
+    /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
+    /// <returns>true if the conversion succeeded; otherwise, false.</returns>
+    public static bool TryCreate(int value,[NotNullWhen(true)]  out PositiveInteger? result, [NotNullWhen(false)]  out string? errorMessage)
+    {
+        var validationResult = Validate(value);
+        if (!validationResult.IsValid)
+        {
+            result = null;
+            errorMessage = validationResult.ErrorMessage;
+            return false;
+        }
 
-	/// <summary>
-	/// Implicit conversion from <see cref = "PositiveInteger"/> to <see cref = "int"/>
-	/// </summary>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static implicit operator int(PositiveInteger value) => (int)value._valueOrDefault;
+        result = new (value, false);
+        errorMessage = null;
+        return true;
+    }
 
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static PositiveInteger operator +(PositiveInteger left, PositiveInteger right) => new(left._valueOrDefault + right._valueOrDefault);
-
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static PositiveInteger operator -(PositiveInteger left, PositiveInteger right) => new(left._valueOrDefault - right._valueOrDefault);
-
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static PositiveInteger operator *(PositiveInteger left, PositiveInteger right) => new(left._valueOrDefault * right._valueOrDefault);
-
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static PositiveInteger operator /(PositiveInteger left, PositiveInteger right) => new(left._valueOrDefault / right._valueOrDefault);
-
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static PositiveInteger operator %(PositiveInteger left, PositiveInteger right) => new(left._valueOrDefault % right._valueOrDefault);
-
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool operator <(PositiveInteger left, PositiveInteger right) => left._valueOrDefault < right._valueOrDefault;
-
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool operator <=(PositiveInteger left, PositiveInteger right) => left._valueOrDefault <= right._valueOrDefault;
-
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool operator >(PositiveInteger left, PositiveInteger right) => left._valueOrDefault > right._valueOrDefault;
-
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static bool operator >=(PositiveInteger left, PositiveInteger right) => left._valueOrDefault >= right._valueOrDefault;
+    /// <summary>
+    ///  Validates the specified value and throws an exception if it is not valid.
+    /// </summary>
+    /// <param name="value">The value to validate</param>
+    /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
+    public void ValidateOrThrow(int value)
+    {
+        var result = Validate(value);
+        if (!result.IsValid)
+        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+    }
 
 
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public static PositiveInteger Parse(string s, IFormatProvider? provider) => int.Parse(s, provider);
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override bool Equals(object? obj) => obj is PositiveInteger other && Equals(other);
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Equals(PositiveInteger other)
+    {
+        if (!_isInitialized || !other._isInitialized)
+            return false;
+        return _value.Equals(other._value);
+    }
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator ==(PositiveInteger left, PositiveInteger right) => left.Equals(right);
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator !=(PositiveInteger left, PositiveInteger right) => !(left == right);
 
-	/// <inheritdoc/>
-	public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out PositiveInteger result)
-	{
-		if (!int.TryParse(s, provider, out var value))
-		{
-			result = default;
-			return false;
-		}
+    /// <inheritdoc/>
+    public int CompareTo(object? obj)
+    {
+        if (obj is null)
+            return 1;
 
-		try
-		{
-			result = new PositiveInteger(value);
-			return true;
-		}
-		catch (Exception)
-		{
-			result = default;
-			return false;
-		}
-	}
+        if (obj is PositiveInteger c)
+            return CompareTo(c);
 
+        throw new ArgumentException("Object is not a PositiveInteger", nameof(obj));
+    }
+
+    /// <inheritdoc/>
+    public int CompareTo(PositiveInteger other)
+    {
+        if (!other._isInitialized)
+            return 1;
+        if (!_isInitialized)
+            return -1;
+        return _value.CompareTo(other._value);
+    }
+
+    /// <summary>
+    /// Implicit conversion from <see cref = "int"/> to <see cref = "PositiveInteger"/>
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator PositiveInteger(int value) => new(value);
+
+    /// <summary>
+    /// Implicit conversion from <see cref = "int"/> (nullable) to <see cref = "PositiveInteger"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator PositiveInteger?(int? value) => value is null ? null : new(value.Value);
+
+    /// <summary>
+    /// Implicit conversion from <see cref = "PositiveInteger"/> to <see cref = "int"/>
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static implicit operator int(PositiveInteger value) => (int)value._valueOrThrow;
+
+    /// <summary>
+    /// Implicit conversion from <see cref = "PositiveInteger"/> (nullable) to <see cref = "int"/> (nullable)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    [return: NotNullIfNotNull(nameof(value))]
+    public static implicit operator int?(PositiveInteger? value) => value is null ? null : (int?)value.Value._valueOrThrow;
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PositiveInteger operator +(PositiveInteger left, PositiveInteger right) => new(left._valueOrThrow + right._valueOrThrow);
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PositiveInteger operator -(PositiveInteger left, PositiveInteger right) => new(left._valueOrThrow - right._valueOrThrow);
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PositiveInteger operator *(PositiveInteger left, PositiveInteger right) => new(left._valueOrThrow * right._valueOrThrow);
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PositiveInteger operator /(PositiveInteger left, PositiveInteger right) => new(left._valueOrThrow / right._valueOrThrow);
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PositiveInteger operator %(PositiveInteger left, PositiveInteger right) => new(left._valueOrThrow % right._valueOrThrow);
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator <(PositiveInteger left, PositiveInteger right) => left._valueOrThrow < right._valueOrThrow;
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator <=(PositiveInteger left, PositiveInteger right) => left._valueOrThrow <= right._valueOrThrow;
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator >(PositiveInteger left, PositiveInteger right) => left._valueOrThrow > right._valueOrThrow;
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static bool operator >=(PositiveInteger left, PositiveInteger right) => left._valueOrThrow >= right._valueOrThrow;
+
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static PositiveInteger Parse(string s, IFormatProvider? provider) => int.Parse(s, provider);
+
+    /// <inheritdoc/>
+    public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out PositiveInteger result)
+    {
+        if (!int.TryParse(s, provider, out var value))
+        {
+            result = default;
+            return false;
+        }
+
+        if (TryCreate(value, out var created))
+        {
+            result = created.Value;
+            return true;
+        }
+
+        result = default;
+        return false;
+    }
 
 #if NET8_0_OR_GREATER
-	/// <inheritdoc cref="IUtf8SpanFormattable.TryFormat"/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
-	{
-		return ((IUtf8SpanFormattable)_valueOrDefault).TryFormat(utf8Destination, out bytesWritten, format, provider);
-	}
+    /// <inheritdoc cref="IUtf8SpanFormattable.TryFormat"/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool TryFormat(Span<byte> utf8Destination, out int bytesWritten, ReadOnlySpan<char> format, IFormatProvider? provider)
+    {
+        return ((IUtf8SpanFormattable)_valueOrThrow).TryFormat(utf8Destination, out bytesWritten, format, provider);
+    }
 #endif
 
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public override int GetHashCode() => _valueOrDefault.GetHashCode();
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override int GetHashCode() => _valueOrThrow.GetHashCode();
 
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	TypeCode IConvertible.GetTypeCode() => ((IConvertible)(Int32)_valueOrDefault).GetTypeCode();
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(Int32)_valueOrThrow).GetTypeCode();
 
-	/// <inheritdoc/>
-	bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToBoolean(provider);
+    /// <inheritdoc/>
+    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToBoolean(provider);
 
-	/// <inheritdoc/>
-	byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToByte(provider);
+    /// <inheritdoc/>
+    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToByte(provider);
 
-	/// <inheritdoc/>
-	char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToChar(provider);
+    /// <inheritdoc/>
+    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToChar(provider);
 
-	/// <inheritdoc/>
-	DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToDateTime(provider);
+    /// <inheritdoc/>
+    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToDateTime(provider);
 
-	/// <inheritdoc/>
-	decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToDecimal(provider);
+    /// <inheritdoc/>
+    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToDecimal(provider);
 
-	/// <inheritdoc/>
-	double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToDouble(provider);
+    /// <inheritdoc/>
+    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToDouble(provider);
 
-	/// <inheritdoc/>
-	short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToInt16(provider);
+    /// <inheritdoc/>
+    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToInt16(provider);
 
-	/// <inheritdoc/>
-	int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToInt32(provider);
+    /// <inheritdoc/>
+    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToInt32(provider);
 
-	/// <inheritdoc/>
-	long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToInt64(provider);
+    /// <inheritdoc/>
+    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToInt64(provider);
 
-	/// <inheritdoc/>
-	sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToSByte(provider);
+    /// <inheritdoc/>
+    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToSByte(provider);
 
-	/// <inheritdoc/>
-	float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToSingle(provider);
+    /// <inheritdoc/>
+    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToSingle(provider);
 
-	/// <inheritdoc/>
-	string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToString(provider);
+    /// <inheritdoc/>
+    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToString(provider);
 
-	/// <inheritdoc/>
-	object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToType(conversionType, provider);
+    /// <inheritdoc/>
+    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToType(conversionType, provider);
 
-	/// <inheritdoc/>
-	ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToUInt16(provider);
+    /// <inheritdoc/>
+    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToUInt16(provider);
 
-	/// <inheritdoc/>
-	uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToUInt32(provider);
+    /// <inheritdoc/>
+    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToUInt32(provider);
 
-	/// <inheritdoc/>
-	ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrDefault).ToUInt64(provider);
+    /// <inheritdoc/>
+    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(Int32)_valueOrThrow).ToUInt64(provider);
 
-	/// <inheritdoc/>
-	[MethodImpl(MethodImplOptions.AggressiveInlining)]
-	public override string ToString() => _valueOrDefault.ToString();
+    /// <inheritdoc/>
+    public XmlSchema? GetSchema() => null;
 
+    /// <inheritdoc/>
+    public void ReadXml(XmlReader reader)
+    {
+        var value = reader.ReadElementContentAs<int>();
+        ValidateOrThrow(value);
+        System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = value;
+        System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;
+    }
+
+    /// <inheritdoc/>
+    public void WriteXml(XmlWriter writer) => writer.WriteValue(((int)_valueOrThrow).ToXmlString());
+
+    /// <inheritdoc/>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public override string ToString() => _valueOrThrow.ToString();
 }
-``` 
- ##  **JsonConverter**
+
+```
+##  **JsonConverter**
 ```csharp
 //------------------------------------------------------------------------------
 // <auto-generated>
@@ -500,7 +595,6 @@ public static class SwaggerTypeHelper
 			Type = "integer",
 			Format = "int32",
 			Title = "PositiveInteger",
-			Default = new OpenApiInteger(PositiveInteger.Default),
 			Description = @"A domain primitive type representing a positive integer."
 		});
 		options.MapType<PositiveInteger?>(() => new OpenApiSchema
@@ -509,11 +603,9 @@ public static class SwaggerTypeHelper
 			Format = "int32",
 			Nullable = true,
 			Title = "Nullable<PositiveInteger>",
-			Default = new OpenApiInteger(PositiveInteger.Default),
 			Description = @"A domain primitive type representing a positive integer."
 		});
 	}
-}
 ```
 ## Specialized ToString method 
 By Default IDomainValue uses its underlying type's ToString method however this can be overriden by implementing a method specified below
@@ -540,12 +632,14 @@ Mathematical operators for particular numeric types can be customized using the 
 [SupportedOperations(Addition = false, Division = false, Modulus = false, Multiplication = true, Subtraction = true)]
 public readonly partial struct PositiveInteger : IDomainValue<int>
 {
-	public static void Validate(int value)
-	{
-		if (value <= 0)
-			throw new InvalidDomainValueException("Number must be positive");
-	}
-	public static int Default => 1;
+	 /// <inheritdoc/>
+    public static PrimitiveValidationResult Validate(int value)
+    {
+        if (value <= 0)
+            return PrimitiveValidationResult.Error("value is non-positive");
+
+        return PrimitiveValidationResult.Ok;
+    }
 }
 ```
 ### For further customization of the operators, consider implementing specific interfaces. This action will override the generated operators for the respective domain type:
@@ -555,13 +649,14 @@ public readonly partial struct PositiveInteger :
 	IDomainValue<int>,
 	IAdditionOperators<PositiveInteger, PositiveInteger, PositiveInteger>
 {
-	public static void Validate(int value)
-	{
-		if (value <= 0)
-			throw new InvalidDomainValueException("Number must be positive");
-	}
+	 /// <inheritdoc/>
+    public static PrimitiveValidationResult Validate(int value)
+    {
+        if (value <= 0)
+            return PrimitiveValidationResult.Error("value is non-positive");
 
-	public static int Default => 1;
+        return PrimitiveValidationResult.Ok;
+    }
 	
 	// custom + operator
 	public static PositiveInteger operator +(PositiveInteger left, PositiveInteger right)
@@ -578,14 +673,16 @@ For instance, consider the `GDay` type, which represents an XML gDay value. It i
 ```csharp
 
 /// <summary>
-/// Represents an XML gDay value object, providing operations for parsing and handling gDay values.
+/// Represents an XML GDay value object, providing operations for parsing and handling gDay values.
 /// </summary>
 [SerializationFormat("dd")]
 public readonly partial struct GDay : IDomainValue<DateOnly>
 {
-	/// <inheritdoc/>
-	public static void Validate(DateOnly value)
-	{ }
+	 /// <inheritdoc/>
+    public static PrimitiveValidationResult Validate(int value)
+    {
+        return PrimitiveValidationResult.Ok;
+    }
 
 	/// <inheritdoc/>
 	public static DateOnly Default => default;
@@ -612,68 +709,80 @@ To disable the generation of Converters, Swagger Mappers or XML serialization, i
 :warning: Please note that `DomainPrimitiveGenerator_GenerateXmlSerialization` value by default is `false`.
 
 # Additional Features 
+1.  **PrimitiveValidationResult:** Offers an Ok result and a string containing the error message. It also includes an implicit operator to automatically convert a string to an error value.
+ [PrimitiveValidationResult](src/AltaSoft.DomainPrimitives/PrimitiveValidationResult.cs) 
 
-1. **Handling Domain Value Exception**
-	* To ensure correct error handling, it's recommended to throw `InvalidDomainValueException` or (descendants of `InvalidDomainValueException`) provided in `AltaSoft.DomainPrimitives`. This exception, when thrown from `JsonConverter` or `TypeConverter`, will  be converted to `BadRequest`. Using any other exception in the `Validate` method will prompt a compiler warning.
 
-2. **Chaining Primitive Types**
+2. **AltaSoft.DomainPrimitives.StringLengthAttribute** can be used to specify minimum and maximum length restrictions on DomainPrimitives 
+	```csharp
+	[StringLength(minimumLength:1, maximumLength:100, validate:false)]
+	public partial class AsciiString : IDomainValue<string>
+	{
+		/// <inheritdoc/>
+		public static PrimitiveValidationResult Validate(string value)
+		{
+			var input = value.AsSpan();
+
+			// ReSharper disable once ForCanBeConvertedToForeach
+			for (var i = 0; i < input.Length; i++)
+			{
+				if (!char.IsAscii(input[i]))
+					return "value contains non-ascii characters";
+			}
+
+			return PrimitiveValidationResult.Ok;
+		}
+	}
+	```
+	The Validate property can be used to automatically enforce boolean and string length validations within domain primitives.<br/>
+	Additionally, this attribute can be utilized by **ORMs** to impose string length restrictions in the database.
+
+
+3. **Chaining Primitive Types**
 
 	* Chaining of primitive types is possible. For instance, considering the `PositiveInteger` and `BetweenOneAnd100` DomainPrimitives:
 
     ```csharp
     public readonly partial struct PositiveInteger : IDomainValue<int>
 	{
-		public static void Validate(int value)
-		{
-			if (value <= 0)
-				throw new InvalidDomainValueException("Number must be positive");
-		}
-		public static int Default => 1;
+	/// <inheritdoc/>
+    public static PrimitiveValidationResult Validate(int value)
+    {
+        if (value <= 0)
+            return PrimitiveValidationResult.Error("value is non-positive");
+
+        return PrimitiveValidationResult.Ok;
+    }
 	}
 
     public readonly partial struct BetweenOneAnd100 : IDomainValue<PositiveInteger>
     {
-		public static void Validate(PositiveInteger value)
+		public static PrimitiveValidationResult Validate(PositiveInteger value)
 		{
-				if (value < 100)
-					throw new InvalidDomainValueException("Value must be less than 100");
+			if (value < 100)
+				return "Value must be less than 100"; //implicit operator to convert string to PrimitiveValidationResult
+
+			return PrimitiveValidationResult.Ok;		
 		}
-		public static PositiveInteger Default => 1; // using implicit operators this is possible.
     }
     ```
-1. 
+4. 
 	Defined type `BetweenOneAnd100` automatically inherits restrictions from PositiveInteger. Operators restricted in PositiveInteger are also inherited. Further restrictions on operators can be added using the `SupportedOperationsAttribute`:	
 	
-1. ```csharp
+    ```csharp
 	[SupportedOperations(Addition=false)]
 	public readonly partial struct BetweenOneAnd100 : IDomainValue<PositiveInteger>
 	{
-		public static void Validate(PositiveInteger value)
+		public static PrimitiveValidationResult Validate(PositiveInteger value)
 		{
-				if (value < 100)
-					throw new InvalidDomainValueException("Value must be less than 100");
+			if (value < 100)
+				return "Value must be less than 100";
+
+			return PrimitiveValidationResult.Ok;		
 		}
-		public static PositiveInteger Default => 1; // using implicit operators this is possible.
 	}
 	```
 
-
-3. **Default Value Guarantee with IDomainValue<T>**
-
-	* `IDomainValue<T>` incorporates a static abstract property Default to ensure the correct domain state if a value is uninitialized. For example:
-	```csharp
-	public class TestObject
-	{
-		public PositiveInteger CustomerId { get; set; }
-	}
-
-	public class Program
-	{
-		var test = new TestObject();
-		Console.Write(test); // If no Default was defined, CustomerId would default to 0, providing invalid value in the Domain. Providing a Default value ensures initialization according to validation rules by initializing in this example to 1 .
-	}
-	```
-These additional features offer enhanced control over exceptions, chaining of primitive types, inheritance of restrictions and operators, and a mechanism to ensure correct default values within the domain.
 
 # Restrictions 
 
@@ -694,13 +803,14 @@ These additional features offer enhanced control over exceptions, chaining of pr
 ```csharp
 public readonly partial struct PositiveAmount : IDomainValue<decimal>
 {
-	public static void Validate(decimal value)
+	public static PrimitiveValidationResult Validate(decimal value)
 	{
 		if (value <= 0m)
-			throw new InvalidDomainValueException("Must be a a positive number");
+			return "Must be a a positive number";
+
+		return PrimitiveValidationResult.Ok;			
 	}
 
-	public static decimal Default => 1m;
 }
 
 public static class Example
@@ -722,13 +832,13 @@ public static class Example
 [SupportedOperations] // no mathematical operators should be generated
 public readonly partial struct CustomerId : IDomainValue<int>
 {
-	public static void Validate(int value)
+	public static PrimitiveValidationResult Validate(decimal value)
 	{
-		if (value <= 0)
-			throw new InvalidDomainValueException("Value must be a positive number");
-	}
+		if (value <= 0m)
+			return "Must be a a positive number";
 
-	public static int Default => 1;
+		return PrimitiveValidationResult.Ok;		
+	}
 }
 
 public sealed class Transaction

@@ -8,7 +8,6 @@ namespace AltaSoft.DomainPrimitives.XmlDataTypes;
 /// <remarks>
 /// The AsciiString ensures that its value contains only ASCII characters.
 /// </remarks>
-[StringLength(10, 100, false)]
 public partial class AsciiString : IDomainValue<string>
 {
     /// <inheritdoc/>
