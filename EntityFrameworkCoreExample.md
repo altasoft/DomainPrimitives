@@ -124,3 +124,20 @@ public static class ModelConfigurationBuilderExt
     }
 }
 ```
+##  Customizing Conventions in DbContext
+
+In this example, we demonstrate how to override the **ConfigureConventions** method in your DbContext class to add custom property conversions. By calling the **AddDomainPrimitivePropertyConversions** extension method, you can easily manage value conversions for your domain primitives.
+
+```csharp
+public class MyDbContext : DbContext
+{
+    public MyDbContext(DbContextOptions<MyDbContext> options) : base(options)
+    {
+    }
+
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.AddDomainPrimitivePropertyConversions();
+    }
+}
+``` 
