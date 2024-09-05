@@ -484,6 +484,12 @@ internal static class Executor
         MethodGeneratorHelper.GenerateMandatoryMethods(data, builder);
         builder.NewLine();
 
+        if (data.PrimitiveTypeFriendlyName == "string")
+        {
+            MethodGeneratorHelper.GenerateStringMethods(builder);
+            builder.NewLine();
+        }
+
         MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.TypeSymbol.IsValueType, builder);
         builder.NewLine();
 

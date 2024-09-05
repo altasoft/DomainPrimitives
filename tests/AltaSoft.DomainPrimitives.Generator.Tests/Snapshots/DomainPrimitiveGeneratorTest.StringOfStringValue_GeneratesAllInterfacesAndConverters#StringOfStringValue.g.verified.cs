@@ -113,6 +113,54 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     }
 
 
+    /// <summary>
+    /// Gets the character at the specified index.
+    /// </summary>
+    public char this[int i]
+    {
+        get => _value[i];
+    }
+
+    /// <summary>
+    /// Gets the character at the specified index.
+    /// </summary>
+    public char this[Index index]
+    {
+        get => _value[index];
+    }
+
+    /// <summary>
+    /// Gets the substring by specified range.
+    /// </summary>
+    public string this[Range range]
+    {
+        get => _value[range];
+    }
+
+    /// <summary>
+    /// Gets the number of characters.
+    /// </summary>
+    /// <returns>The number of characters in underlying string value.</returns>
+    public int Length => _value.Length;
+
+    /// <summary>
+    /// Returns a substring of this string.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string Substring(int startIndex, int length) => _value.Substring(startIndex, length);
+
+    /// <summary>
+    /// Returns a substring of this string.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public string Substring(int startIndex) => _value.Substring(startIndex);
+
+    /// <summary>
+    /// Returns the entire string as an array of characters.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public char[] ToCharArray() => _value.ToCharArray();
+
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override bool Equals(object? obj) => obj is StringOfStringValue other && Equals(other);

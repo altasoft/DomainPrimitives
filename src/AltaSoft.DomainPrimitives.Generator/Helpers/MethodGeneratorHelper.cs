@@ -831,6 +831,74 @@ internal static class MethodGeneratorHelper
     }
 
     /// <summary>
+    /// Generates string methods
+    /// </summary>
+    /// <param name="builder">The source code builder.</param>
+    public static void GenerateStringMethods(SourceCodeBuilder builder)
+    {
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Gets the character at the specified index.")
+            .AppendLine("/// </summary>")
+            .AppendLine("public char this[int i]")
+            .OpenBracket()
+            .AppendLine("get => _value[i];")
+            .CloseBracket()
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Gets the character at the specified index.")
+            .AppendLine("/// </summary>")
+            .AppendLine("public char this[Index index]")
+            .OpenBracket()
+            .AppendLine("get => _value[index];")
+            .CloseBracket()
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Gets the substring by specified range.")
+            .AppendLine("/// </summary>")
+            .AppendLine("public string this[Range range]")
+            .OpenBracket()
+            .AppendLine("get => _value[range];")
+            .CloseBracket()
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Gets the number of characters.")
+            .AppendLine("/// </summary>")
+            .AppendLine("/// <returns>The number of characters in underlying string value.</returns>")
+            .AppendLine("public int Length => _value.Length;")
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Returns a substring of this string.")
+            .AppendLine("/// </summary>")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .AppendLine("public string Substring(int startIndex, int length) => _value.Substring(startIndex, length);")
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Returns a substring of this string.")
+            .AppendLine("/// </summary>")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .AppendLine("public string Substring(int startIndex) => _value.Substring(startIndex);")
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Returns the entire string as an array of characters.")
+            .AppendLine("/// </summary>")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .AppendLine("public char[] ToCharArray() => _value.ToCharArray();");
+    }
+
+    /// <summary>
     /// Generates equality and inequality operators for the specified type.
     /// </summary>
     /// <param name="className">The name of the class.</param>
