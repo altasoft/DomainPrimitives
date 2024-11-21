@@ -29,6 +29,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubActions", "GitHubActi
 		.github\workflows\publish_nuget.yml = .github\workflows\publish_nuget.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.SwaggerExtensions", "src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj", "{289BC781-8B67-4A15-87A9-198EEA255160}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017}.Release|Any CPU.Build.0 = Release|Any CPU
+		{289BC781-8B67-4A15-87A9-198EEA255160}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{289BC781-8B67-4A15-87A9-198EEA255160}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{289BC781-8B67-4A15-87A9-198EEA255160}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{289BC781-8B67-4A15-87A9-198EEA255160}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

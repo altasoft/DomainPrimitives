@@ -6,7 +6,7 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 
 // ReSharper disable UnusedMember.Global
 
-namespace AltaSoft.DomainPrimitives;
+namespace AltaSoft.DomainPrimitives.SwaggerExtensions;
 
 /// <summary>
 /// A static class providing methods to configure Swagger mappings for DomainPrimitive types.
