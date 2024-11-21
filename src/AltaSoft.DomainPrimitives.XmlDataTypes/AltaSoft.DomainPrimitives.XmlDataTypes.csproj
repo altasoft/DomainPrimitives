@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
-		<TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+		<TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
 		<AssemblyTitle>Domain Primitives XML Data Types</AssemblyTitle>
 		<Description>Domain Primitives library for C# (XML Data Types).</Description>
 	</PropertyGroup>
@@ -22,6 +22,10 @@
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateSwaggerConverters" />
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.0.0" />
 	</ItemGroup>
 
 
