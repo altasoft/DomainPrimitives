@@ -557,7 +557,8 @@ public sealed class PositiveIntegerTypeConverter : Int32Converter
 ```
 ## **Swagger Mappers**
 
-A single file for all domainPrimitives containing all type mappings is generated. 
+A single file for all domainPrimitives containing all type mappings is generated.
+**Please note that you need to manually add Swashbuckle.AspNetCore.SwaggerGen nuget package to the project**
 
 ```csharp
 //------------------------------------------------------------------------------
