@@ -129,7 +129,7 @@ internal static class Executor
             Namespace = typeSymbol.ContainingNamespace.ToDisplayString(),
             GenerateImplicitOperators = true,
             ParentSymbols = parentSymbols,
-            GenerateConvertibles = underlyingType != DomainPrimitiveUnderlyingType.Guid
+            GenerateConvertibles = underlyingType.IsIConvertible()
         };
 
         var attributes = typeSymbol.GetAttributes();
@@ -428,6 +428,7 @@ internal static class Executor
         if (options.GenerateTypeConverters)
         {
             usings.Add("System.ComponentModel");
+            usings.Add($"{data.Namespace}.Converters");
         }
 
         if (options.GenerateXmlSerialization)
