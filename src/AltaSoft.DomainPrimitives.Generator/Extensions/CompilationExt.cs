@@ -1,12 +1,12 @@
-﻿using AltaSoft.DomainPrimitives.Generator.Models;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using AltaSoft.DomainPrimitives.Generator.Models;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AltaSoft.DomainPrimitives.Generator.Extensions;
 
@@ -142,6 +142,25 @@ internal static class CompilationExt
             domainTypes.Add(type);
             type = primitiveType;
         }
+    }
+
+    /// <summary>
+    /// Determines whether the specified <see cref="DomainPrimitiveUnderlyingType"/> implements  <see cref="IConvertible"/>
+    /// </summary>
+    /// <param name="self">The <see cref="DomainPrimitiveUnderlyingType"/> to check.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="DomainPrimitiveUnderlyingType"/> is IConvertible; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool IsIConvertible(this DomainPrimitiveUnderlyingType self)
+    {
+        return self switch
+        {
+            DomainPrimitiveUnderlyingType.Guid => false,
+            DomainPrimitiveUnderlyingType.TimeSpan => false,
+            DomainPrimitiveUnderlyingType.DateTimeOffset => false,
+            DomainPrimitiveUnderlyingType.Other => false,
+            _ => true
+        };
     }
 
     /// <summary>

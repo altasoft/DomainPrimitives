@@ -30,7 +30,6 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
         , IComparisonOperators<DateTimeOffsetValue, DateTimeOffsetValue, bool>
         , ISpanFormattable
         , IParsable<DateTimeOffsetValue>
-        , IConvertible
 #if NET8_0_OR_GREATER
         , IUtf8SpanFormattable
 #endif
@@ -246,58 +245,6 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public override int GetHashCode() => _valueOrThrow.GetHashCode();
-
-    /// <inheritdoc/>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    TypeCode IConvertible.GetTypeCode() => ((IConvertible)(DateTimeOffset)_valueOrThrow).GetTypeCode();
-
-    /// <inheritdoc/>
-    bool IConvertible.ToBoolean(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToBoolean(provider);
-
-    /// <inheritdoc/>
-    byte IConvertible.ToByte(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToByte(provider);
-
-    /// <inheritdoc/>
-    char IConvertible.ToChar(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToChar(provider);
-
-    /// <inheritdoc/>
-    DateTime IConvertible.ToDateTime(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToDateTime(provider);
-
-    /// <inheritdoc/>
-    decimal IConvertible.ToDecimal(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToDecimal(provider);
-
-    /// <inheritdoc/>
-    double IConvertible.ToDouble(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToDouble(provider);
-
-    /// <inheritdoc/>
-    short IConvertible.ToInt16(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToInt16(provider);
-
-    /// <inheritdoc/>
-    int IConvertible.ToInt32(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToInt32(provider);
-
-    /// <inheritdoc/>
-    long IConvertible.ToInt64(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToInt64(provider);
-
-    /// <inheritdoc/>
-    sbyte IConvertible.ToSByte(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToSByte(provider);
-
-    /// <inheritdoc/>
-    float IConvertible.ToSingle(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToSingle(provider);
-
-    /// <inheritdoc/>
-    string IConvertible.ToString(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToString(provider);
-
-    /// <inheritdoc/>
-    object IConvertible.ToType(Type conversionType, IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToType(conversionType, provider);
-
-    /// <inheritdoc/>
-    ushort IConvertible.ToUInt16(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToUInt16(provider);
-
-    /// <inheritdoc/>
-    uint IConvertible.ToUInt32(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToUInt32(provider);
-
-    /// <inheritdoc/>
-    ulong IConvertible.ToUInt64(IFormatProvider? provider) => ((IConvertible)(DateTimeOffset)_valueOrThrow).ToUInt64(provider);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
