@@ -19,5 +19,7 @@ public static class XmlReaderExt
     /// <returns>A byte object representing the value read from the element.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T ReadElementContentAs<T>(this XmlReader reader) where T : IParsable<T>
-        => T.Parse(reader.ReadElementContentAsString(), CultureInfo.InvariantCulture);
+    {
+        return T.Parse(reader.ReadElementContentAsString(), CultureInfo.InvariantCulture);
+    }
 }

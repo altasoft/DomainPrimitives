@@ -46,7 +46,6 @@ internal static class CompilationExt
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPublic(this ISymbol symbol) => symbol.DeclaredAccessibility == Accessibility.Public;
 
-    #endregion Accessibility
 
     /// <summary>
     /// Gets the modifiers for the named type symbol.
@@ -74,6 +73,21 @@ internal static class CompilationExt
         return null;
     }
 
+    public static string GetAccessibility(this INamedTypeSymbol symbol)
+    {
+        return symbol.DeclaredAccessibility switch
+        {
+            Accessibility.Public => "public",
+            Accessibility.Private => "private",
+            Accessibility.ProtectedAndInternal => "protected internal",
+            Accessibility.Protected => "protected",
+            Accessibility.Internal => "internal",
+            Accessibility.ProtectedOrInternal => "private protected", // Since C# 7.2
+            _ => "internal" // Default for top-level types
+        };
+    }
+
+    #endregion Accessibility
     /// <summary>
     /// Gets the class name including generic arguments as a string.
     /// </summary>
