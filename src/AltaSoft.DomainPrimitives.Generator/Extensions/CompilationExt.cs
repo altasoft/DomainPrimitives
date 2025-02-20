@@ -1,12 +1,12 @@
-﻿using AltaSoft.DomainPrimitives.Generator.Models;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using AltaSoft.DomainPrimitives.Generator.Models;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace AltaSoft.DomainPrimitives.Generator.Extensions;
 
@@ -46,7 +46,6 @@ internal static class CompilationExt
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPublic(this ISymbol symbol) => symbol.DeclaredAccessibility == Accessibility.Public;
 
-    #endregion Accessibility
 
     /// <summary>
     /// Gets the modifiers for the named type symbol.
@@ -74,6 +73,21 @@ internal static class CompilationExt
         return null;
     }
 
+    public static string GetAccessibility(this INamedTypeSymbol symbol)
+    {
+        return symbol.DeclaredAccessibility switch
+        {
+            Accessibility.Public => "public",
+            Accessibility.Private => "private",
+            Accessibility.ProtectedAndInternal => "protected internal",
+            Accessibility.Protected => "protected",
+            Accessibility.Internal => "internal",
+            Accessibility.ProtectedOrInternal => "private protected", // Since C# 7.2
+            _ => "internal" // Default for top-level types
+        };
+    }
+
+    #endregion Accessibility
     /// <summary>
     /// Gets the class name including generic arguments as a string.
     /// </summary>
@@ -142,6 +156,25 @@ internal static class CompilationExt
             domainTypes.Add(type);
             type = primitiveType;
         }
+    }
+
+    /// <summary>
+    /// Determines whether the specified <see cref="DomainPrimitiveUnderlyingType"/> implements  <see cref="IConvertible"/>
+    /// </summary>
+    /// <param name="self">The <see cref="DomainPrimitiveUnderlyingType"/> to check.</param>
+    /// <returns>
+    ///   <c>true</c> if the specified <see cref="DomainPrimitiveUnderlyingType"/> is IConvertible; otherwise, <c>false</c>.
+    /// </returns>
+    public static bool IsIConvertible(this DomainPrimitiveUnderlyingType self)
+    {
+        return self switch
+        {
+            DomainPrimitiveUnderlyingType.Guid => false,
+            DomainPrimitiveUnderlyingType.TimeSpan => false,
+            DomainPrimitiveUnderlyingType.DateTimeOffset => false,
+            DomainPrimitiveUnderlyingType.Other => false,
+            _ => true
+        };
     }
 
     /// <summary>

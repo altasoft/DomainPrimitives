@@ -1,11 +1,45 @@
 ﻿using System.Collections.Immutable;
+using System.Reflection;
+using System.Text.Json;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.OpenApi.Models;
+using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace AltaSoft.DomainPrimitives.Generator.Tests;
 
 public class DomainPrimitiveGeneratorTest
 {
+    [Fact]
+    public Task StringValue_GeneratesAllInterfacesAndConvertersForInternalClass()
+    {
+        const string source = """
+		                      using System;
+		                      using System.Collections.Generic;
+		                      using System.Linq;
+		                      using System.Text;
+		                      using System.Threading.Tasks;
+		                      using AltaSoft.DomainPrimitives;
+
+		                      namespace AltaSoft.DomainPrimitives;
+
+		                      /// <inheritdoc/>
+		                      internal partial class InternalStringValue : IDomainValue<string>
+		                      {
+		                          /// <inheritdoc/>
+		                          public static PrimitiveValidationResult Validate(string value)
+		                          {
+		                              if (value=="Test")
+		                                  return "Invalid Value";
+
+		                              return PrimitiveValidationResult.Ok;
+		                          }
+		                      }
+		                      """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
+
     [Fact]
     public Task StringValue_GeneratesAllInterfacesAndConverters()
     {
@@ -688,11 +722,85 @@ public class DomainPrimitiveGeneratorTest
         return TestHelper.Verify(source, (_, x, _) => Assert.Equal(7, x.Count));
     }
 
+    [Fact]
+    public Task DomainPrimitiveWithoutJsonConverters_ShouldNotAddJsonConverter()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              /// <inheritdoc/>
+                              public readonly partial struct WithoutJsonConverterValue : IDomainValue<uint>
+                              {
+                              	/// <inheritdoc/>
+                              	public static PrimitiveValidationResult Validate(uint value)
+                              	{
+                              		if (value < 10 || value > 20)
+                              			return "Invalid Value";
+                              
+                              		return PrimitiveValidationResult.Ok;
+                              	}
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) =>
+        {
+            Assert.Equal(3, x.Count);
+            Assert.DoesNotContain(x[0], "JsonConverter");
+        }, new DomainPrimitiveGlobalOptions
+        {
+            GenerateJsonConverters = false
+        });
+    }
+
+    [Fact]
+    public Task DomainPrimitiveWithoutTypeConverters_ShouldNotAddJsonConverter()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              /// <inheritdoc/>
+                              public readonly partial struct WithoutTypeConverterValue : IDomainValue<uint>
+                              {
+                              	/// <inheritdoc/>
+                              	public static PrimitiveValidationResult Validate(uint value)
+                              	{
+                              		if (value < 10 || value > 20)
+                              			return "Invalid Value";
+                              
+                              		return PrimitiveValidationResult.Ok;
+                              	}
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) =>
+        {
+            Assert.Equal(3, x.Count);
+            Assert.DoesNotContain(x[0], "TypeConverter");
+        }, new DomainPrimitiveGlobalOptions
+        {
+            GenerateTypeConverters = false
+        });
+    }
     public static class TestHelper
     {
         internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)
         {
-            var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, options);
+            List<Assembly> assemblies = [typeof(SwaggerGenOptions).Assembly, typeof(JsonSerializer).Assembly, typeof(OpenApiSchema).Assembly];
+            var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, assemblies, options);
 
             Assert.Empty(diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error));
             additionalChecks?.Invoke(diagnostics, output, driver);

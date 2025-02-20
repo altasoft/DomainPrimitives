@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net8.0</TargetFramework>
+		<TargetFramework>net9.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 
@@ -40,6 +40,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
 		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj" />
 		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj" />
 	</ItemGroup>

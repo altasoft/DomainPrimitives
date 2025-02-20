@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-16"?>
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFrameworks>net7.0;net8.0;net9.0</TargetFrameworks>
+	</PropertyGroup>
+
+	<PropertyGroup>
+		<Title>AltaSoft.DomainPrimitives.SwaggerExtensions</Title>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="7.0.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj" />
+	</ItemGroup>
+</Project>
