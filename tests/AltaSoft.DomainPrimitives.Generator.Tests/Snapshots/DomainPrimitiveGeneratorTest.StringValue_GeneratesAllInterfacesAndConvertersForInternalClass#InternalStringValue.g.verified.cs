@@ -156,6 +156,24 @@ internal partial class InternalStringValue : IEquatable<InternalStringValue>
     public string Substring(int startIndex) => _value.Substring(startIndex);
 
     /// <summary>
+    /// Checks if the specified value is contained within the current instance.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool Contains(string value) => _value.Contains(value);
+
+    /// <summary>
+    /// Determines whether a specified string is a prefix of the current instance.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool StartsWith(string value) => _value.StartsWith(value);
+
+    /// <summary>
+    /// Determines whether a specified string is a suffix of the current instance.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public bool EndsWith(string value) => _value.EndsWith(value);
+
+    /// <summary>
     /// Returns the entire string as an array of characters.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
