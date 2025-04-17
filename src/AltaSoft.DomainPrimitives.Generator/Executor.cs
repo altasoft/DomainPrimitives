@@ -145,6 +145,17 @@ internal static class Executor
             return null;
         }
 
+        if (underlyingType == DomainPrimitiveUnderlyingType.String && typeSymbol.TypeKind != TypeKind.Class)
+        {
+            context.ReportDiagnostic(DiagnosticHelper.InvalidClassTypeSpecified(typeSymbol.Locations.FirstOrDefault(), typeSymbol.Name));
+            return null;
+        }
+        if (underlyingType != DomainPrimitiveUnderlyingType.String && typeSymbol.TypeKind != TypeKind.Struct)
+        {
+            context.ReportDiagnostic(DiagnosticHelper.InvalidStructTypeSpecified(typeSymbol.Locations.FirstOrDefault(), underlyingType.ToString(), typeSymbol.Name));
+            return null;
+        }
+
         if (!isDateOrTime && serializationAttribute is not null)
         {
             context.ReportDiagnostic(DiagnosticHelper.TypeMustBeDateType(serializationAttribute.GetAttributeLocation(), typeSymbol.Name));
@@ -184,78 +195,6 @@ internal static class Executor
 
         return generatorData;
     }
-
-    //private static bool DefaultPropertyReturnsDefaultValue(IPropertySymbol property, DomainPrimitiveUnderlyingType underlyingType)
-    //{
-    //    var syntaxRefs = property.GetMethod?.DeclaringSyntaxReferences;
-    //    if (syntaxRefs is null)
-    //    {
-    //        // If there are no syntax references, the property doesn't have a getter
-    //        return false;
-    //    }
-
-    //    ExpressionSyntax? returnExpression = null;
-
-    //    foreach (var syntaxRef in syntaxRefs)
-    //    {
-    //        var syntaxNode = syntaxRef.GetSyntax();
-
-    //        // Handle expression-bodied properties
-    //        if (syntaxNode is ArrowExpressionClauseSyntax arrowExpressionClauseSyntax)
-    //        {
-    //            returnExpression = arrowExpressionClauseSyntax.Expression;
-    //            break;
-    //        }
-
-    //        // Handle expression-bodied properties
-    //        if (syntaxNode is PropertyDeclarationSyntax { ExpressionBody: { } expressionBody })
-    //        {
-    //            returnExpression = expressionBody.Expression;
-    //            break;
-    //        }
-
-    //        // Handle properties with getters that have a body
-    //        if (syntaxNode is AccessorDeclarationSyntax { Body: not null } accessorDeclaration)
-    //        {
-    //            var returnExpressions = accessorDeclaration.Body.DescendantNodes()
-    //                .OfType<ReturnStatementSyntax>()
-    //                .Select(r => r.Expression)
-    //                .ToArray();
-
-    //            if (returnExpressions.Length != 1)
-    //                return false;
-
-    //            returnExpression = returnExpressions[0];
-    //            break;
-    //        }
-    //    }
-
-    //    // Check if the return expression is a default value for the type
-    //    switch (returnExpression)
-    //    {
-    //        case null:
-    //            return false;
-
-    //        case DefaultExpressionSyntax:
-    //            return true;
-
-    //        // Simplified check for literal or default expressions
-    //        case LiteralExpressionSyntax literal:
-    //            if (literal.IsKind(SyntaxKind.DefaultLiteralExpression))
-    //                return true;
-
-    //            // Determine the default value for the property's type
-    //            var defaultValue = underlyingType.GetDefaultValue();
-    //            if (defaultValue is null)
-    //                return literal.Token.Value is null;
-
-    //            return defaultValue.Equals(literal.Token.Value);
-
-    //        // For more complex expressions, additional analysis is required
-    //        default:
-    //            return false;
-    //    }
-    //}
 
     /// <summary>
     /// Retrieves the SupportedOperationsAttributeData for a specified class, considering inheritance.

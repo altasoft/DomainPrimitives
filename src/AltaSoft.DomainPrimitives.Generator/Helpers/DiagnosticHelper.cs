@@ -1,5 +1,5 @@
-﻿using Microsoft.CodeAnalysis;
-using System;
+﻿using System;
+using Microsoft.CodeAnalysis;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
@@ -9,23 +9,6 @@ namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 internal static class DiagnosticHelper
 {
     private const string Category = "AltaSoft.DomainPrimitives.Generator";
-
-    ///// <summary>
-    ///// Creates a diagnostic indicating that the AltaSoft.DomainPrimitives.Generator has started.
-    ///// </summary>
-    ///// <returns>
-    ///// The created diagnostic.
-    ///// </returns>
-    //internal static Diagnostic GeneratorStarted()
-    //{
-    //    return Diagnostic.Create(new DiagnosticDescriptor(
-    //        "AL0000",
-    //        "AltaSoft.DomainPrimitives.Generator started",
-    //        "AltaSoft.DomainPrimitives.Generator started",
-    //        Category,
-    //        DiagnosticSeverity.Info,
-    //        isEnabledByDefault: true), null);
-    //}
 
     /// <summary>
     /// Creates a diagnostic for general error
@@ -205,5 +188,47 @@ internal static class DiagnosticHelper
                 Category,
                 DiagnosticSeverity.Error,
                 isEnabledByDefault: true), location, className);
+    }
+
+    /// <summary>
+    /// Creates a diagnostic indicating that the specified type must be a class 
+    /// to support domain primitive generation.
+    /// </summary>
+    /// <param name="location">The source location where the diagnostic should appear.</param>
+    /// <param name="className">The name of the type that is incorrectly used.</param>
+    /// <returns>
+    /// A diagnostic indicating that a domain primitive based on a string type must be a class.
+    /// </returns>
+    internal static Diagnostic InvalidClassTypeSpecified(Location? location, string className)
+    {
+        return Diagnostic.Create(
+            new DiagnosticDescriptor(
+                "AL1052",
+                "Domain primitive types based on string must be declared as classes",
+                "Type '{0}' must be declared as a class when using 'string' as the underlying domain primitive type.",
+                Category,
+                DiagnosticSeverity.Error,
+                isEnabledByDefault: true), location, className);
+    }
+    /// <summary>
+    /// Creates a diagnostic indicating that the specified type must be a struct 
+    /// to support domain primitive generation.
+    /// </summary>
+    /// <param name="location">The source location where the diagnostic should appear.</param>
+    /// <param name="typeName">The name of the underlying type used in the domain primitive.</param>
+    /// <param name="className">The name of the type that is incorrectly used.</param>
+    /// <returns>
+    /// A diagnostic indicating that a domain primitive based on <paramref name="typeName"/> must be a struct.
+    /// </returns>
+    internal static Diagnostic InvalidStructTypeSpecified(Location? location, string typeName, string className)
+    {
+        return Diagnostic.Create(
+            new DiagnosticDescriptor(
+                "AL1052",
+                $"Domain primitive types based on '{typeName}' must be declared as structs",
+                "Type '{0}' must be declared as a struct when using '{1}' as the underlying domain primitive type.",
+                Category,
+                DiagnosticSeverity.Error,
+                isEnabledByDefault: true), location, className, typeName);
     }
 }
