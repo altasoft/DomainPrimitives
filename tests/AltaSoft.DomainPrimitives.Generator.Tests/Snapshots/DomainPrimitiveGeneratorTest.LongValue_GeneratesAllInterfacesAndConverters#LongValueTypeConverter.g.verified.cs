@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "LongValue"/>
 /// </summary>
-public sealed class LongValueTypeConverter : Int64Converter
+internal sealed class LongValueTypeConverter : Int64Converter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

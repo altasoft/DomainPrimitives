@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "StringOfStringValue"/>
 /// </summary>
-public sealed class StringOfStringValueJsonConverter : JsonConverter<StringOfStringValue>
+internal sealed class StringOfStringValueJsonConverter : JsonConverter<StringOfStringValue>
 {
     /// <inheritdoc/>
     public override StringOfStringValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

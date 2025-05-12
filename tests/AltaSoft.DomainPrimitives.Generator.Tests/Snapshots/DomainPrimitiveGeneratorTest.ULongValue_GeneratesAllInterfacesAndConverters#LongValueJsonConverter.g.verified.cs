@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "LongValue"/>
 /// </summary>
-public sealed class LongValueJsonConverter : JsonConverter<LongValue>
+internal sealed class LongValueJsonConverter : JsonConverter<LongValue>
 {
     /// <inheritdoc/>
     public override LongValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

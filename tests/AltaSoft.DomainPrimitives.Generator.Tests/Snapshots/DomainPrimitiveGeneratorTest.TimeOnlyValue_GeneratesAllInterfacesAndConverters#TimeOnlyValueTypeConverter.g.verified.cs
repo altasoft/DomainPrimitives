@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "TimeOnlyValue"/>
 /// </summary>
-public sealed class TimeOnlyValueTypeConverter : TimeOnlyConverter
+internal sealed class TimeOnlyValueTypeConverter : TimeOnlyConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

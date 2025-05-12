@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "DecimalValue"/>
 /// </summary>
-public sealed class DecimalValueTypeConverter : DecimalConverter
+internal sealed class DecimalValueTypeConverter : DecimalConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

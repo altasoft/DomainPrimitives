@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "GuidValue"/>
 /// </summary>
-public sealed class GuidValueJsonConverter : JsonConverter<GuidValue>
+internal sealed class GuidValueJsonConverter : JsonConverter<GuidValue>
 {
     /// <inheritdoc/>
     public override GuidValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

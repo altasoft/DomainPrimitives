@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "ShortValue"/>
 /// </summary>
-public sealed class ShortValueTypeConverter : Int16Converter
+internal sealed class ShortValueTypeConverter : Int16Converter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

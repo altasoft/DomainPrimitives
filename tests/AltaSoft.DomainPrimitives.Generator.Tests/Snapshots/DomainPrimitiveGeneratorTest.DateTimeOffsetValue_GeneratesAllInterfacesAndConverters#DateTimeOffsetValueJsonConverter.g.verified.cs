@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "DateTimeOffsetValue"/>
 /// </summary>
-public sealed class DateTimeOffsetValueJsonConverter : JsonConverter<DateTimeOffsetValue>
+internal sealed class DateTimeOffsetValueJsonConverter : JsonConverter<DateTimeOffsetValue>
 {
     /// <inheritdoc/>
     public override DateTimeOffsetValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

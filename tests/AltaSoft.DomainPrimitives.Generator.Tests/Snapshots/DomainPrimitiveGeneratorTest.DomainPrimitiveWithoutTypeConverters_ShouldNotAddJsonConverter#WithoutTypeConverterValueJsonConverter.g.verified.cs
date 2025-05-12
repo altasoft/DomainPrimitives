@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "WithoutTypeConverterValue"/>
 /// </summary>
-public sealed class WithoutTypeConverterValueJsonConverter : JsonConverter<WithoutTypeConverterValue>
+internal sealed class WithoutTypeConverterValueJsonConverter : JsonConverter<WithoutTypeConverterValue>
 {
     /// <inheritdoc/>
     public override WithoutTypeConverterValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

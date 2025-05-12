@@ -131,24 +131,22 @@ internal static class MethodGeneratorHelper
     /// <param name="context">The source production context.</param>
     internal static void ProcessTypeConverter(GeneratorData data, SourceProductionContext context)
     {
-        var accessibiliy = data.TypeSymbol.GetAccessibility();
-
         var friendlyName = data.UnderlyingType.ToString();
         var builder = new SourceCodeBuilder();
 
         builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
 
-        builder.AppendUsings(new[] {
+        builder.AppendUsings([
             data.Namespace,
             "System",
             "System.ComponentModel",
             "System.Globalization",
             "AltaSoft.DomainPrimitives"
-        });
+        ]);
 
         builder.AppendNamespace(data.Namespace + ".Converters");
         builder.AppendSummary($"TypeConverter for <see cref = \"{data.ClassName}\"/>");
-        builder.AppendClass(false, accessibiliy + " sealed", data.ClassName + "TypeConverter", $"{friendlyName}Converter");
+        builder.AppendClass(false, "internal sealed", data.ClassName + "TypeConverter", $"{friendlyName}Converter");
         builder.AppendInheritDoc()
             .AppendLine("public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)")
             .OpenBracket();
@@ -281,8 +279,6 @@ internal static class MethodGeneratorHelper
     /// <param name="context">The source production context.</param>
     internal static void ProcessJsonConverter(GeneratorData data, SourceProductionContext context)
     {
-        var accessibiliy = data.TypeSymbol.GetAccessibility();
-
         var builder = new SourceCodeBuilder();
 
         builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
@@ -305,7 +301,7 @@ internal static class MethodGeneratorHelper
 
         builder.AppendNamespace(data.Namespace + ".Converters");
         builder.AppendSummary($"JsonConverter for <see cref = \"{data.ClassName}\"/>");
-        builder.AppendClass(false, accessibiliy + " sealed", data.ClassName + "JsonConverter", $"JsonConverter<{data.ClassName}>");
+        builder.AppendClass(false, "internal sealed", data.ClassName + "JsonConverter", $"JsonConverter<{data.ClassName}>");
 
         builder.AppendInheritDoc()
             .Append("public override ").Append(data.ClassName).AppendLine(" Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)")

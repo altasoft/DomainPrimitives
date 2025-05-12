@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "UShortValue"/>
 /// </summary>
-public sealed class UShortValueJsonConverter : JsonConverter<UShortValue>
+internal sealed class UShortValueJsonConverter : JsonConverter<UShortValue>
 {
     /// <inheritdoc/>
     public override UShortValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

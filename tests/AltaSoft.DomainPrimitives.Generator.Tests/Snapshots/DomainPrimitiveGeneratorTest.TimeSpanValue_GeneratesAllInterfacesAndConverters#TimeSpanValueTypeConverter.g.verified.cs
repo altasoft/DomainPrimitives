@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "TimeSpanValue"/>
 /// </summary>
-public sealed class TimeSpanValueTypeConverter : TimeSpanConverter
+internal sealed class TimeSpanValueTypeConverter : TimeSpanConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
