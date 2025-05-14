@@ -893,6 +893,30 @@ internal static class MethodGeneratorHelper
 
         builder
             .AppendLine("/// <summary>")
+            .AppendLine("/// Checks if the specified value is contained within the current instance.")
+            .AppendLine("/// </summary>")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .AppendLine("public bool Contains(string value) => _value.Contains(value);")
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Determines whether a specified string is a prefix of the current instance.")
+            .AppendLine("/// </summary>")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .AppendLine("public bool StartsWith(string value) => _value.StartsWith(value);")
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
+            .AppendLine("/// Determines whether a specified string is a suffix of the current instance.")
+            .AppendLine("/// </summary>")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .AppendLine("public bool EndsWith(string value) => _value.EndsWith(value);")
+            .NewLine();
+
+        builder
+            .AppendLine("/// <summary>")
             .AppendLine("/// Returns the entire string as an array of characters.")
             .AppendLine("/// </summary>")
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
