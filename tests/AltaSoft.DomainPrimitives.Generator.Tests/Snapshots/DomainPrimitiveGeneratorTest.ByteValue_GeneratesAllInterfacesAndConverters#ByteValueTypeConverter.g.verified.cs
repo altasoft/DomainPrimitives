@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "ByteValue"/>
 /// </summary>
-public sealed class ByteValueTypeConverter : ByteConverter
+internal sealed class ByteValueTypeConverter : ByteConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

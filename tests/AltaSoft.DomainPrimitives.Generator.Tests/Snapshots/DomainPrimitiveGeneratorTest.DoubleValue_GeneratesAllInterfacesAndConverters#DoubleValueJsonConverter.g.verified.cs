@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "DoubleValue"/>
 /// </summary>
-public sealed class DoubleValueJsonConverter : JsonConverter<DoubleValue>
+internal sealed class DoubleValueJsonConverter : JsonConverter<DoubleValue>
 {
     /// <inheritdoc/>
     public override DoubleValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

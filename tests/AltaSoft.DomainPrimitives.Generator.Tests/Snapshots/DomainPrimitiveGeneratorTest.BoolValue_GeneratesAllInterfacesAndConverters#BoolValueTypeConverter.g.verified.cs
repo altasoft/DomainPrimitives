@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "BoolValue"/>
 /// </summary>
-public sealed class BoolValueTypeConverter : BooleanConverter
+internal sealed class BoolValueTypeConverter : BooleanConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

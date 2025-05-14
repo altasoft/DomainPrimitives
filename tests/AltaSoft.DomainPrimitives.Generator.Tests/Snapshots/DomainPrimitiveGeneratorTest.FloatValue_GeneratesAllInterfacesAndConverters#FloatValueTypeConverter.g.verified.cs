@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "FloatValue"/>
 /// </summary>
-public sealed class FloatValueTypeConverter : SingleConverter
+internal sealed class FloatValueTypeConverter : SingleConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

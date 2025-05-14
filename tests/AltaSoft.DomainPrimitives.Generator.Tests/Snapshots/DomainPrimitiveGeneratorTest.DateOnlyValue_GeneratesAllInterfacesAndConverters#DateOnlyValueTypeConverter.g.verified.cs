@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "DateOnlyValue"/>
 /// </summary>
-public sealed class DateOnlyValueTypeConverter : DateOnlyConverter
+internal sealed class DateOnlyValueTypeConverter : DateOnlyConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

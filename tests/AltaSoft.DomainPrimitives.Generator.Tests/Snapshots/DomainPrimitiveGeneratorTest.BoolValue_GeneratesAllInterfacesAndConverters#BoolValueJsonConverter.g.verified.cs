@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "BoolValue"/>
 /// </summary>
-public sealed class BoolValueJsonConverter : JsonConverter<BoolValue>
+internal sealed class BoolValueJsonConverter : JsonConverter<BoolValue>
 {
     /// <inheritdoc/>
     public override BoolValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

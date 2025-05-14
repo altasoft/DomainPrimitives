@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "DoubleValue"/>
 /// </summary>
-public sealed class DoubleValueTypeConverter : DoubleConverter
+internal sealed class DoubleValueTypeConverter : DoubleConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

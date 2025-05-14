@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "StringOfStringValue"/>
 /// </summary>
-public sealed class StringOfStringValueTypeConverter : StringConverter
+internal sealed class StringOfStringValueTypeConverter : StringConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

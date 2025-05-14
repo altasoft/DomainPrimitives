@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "GuidValue"/>
 /// </summary>
-public sealed class GuidValueTypeConverter : GuidConverter
+internal sealed class GuidValueTypeConverter : GuidConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

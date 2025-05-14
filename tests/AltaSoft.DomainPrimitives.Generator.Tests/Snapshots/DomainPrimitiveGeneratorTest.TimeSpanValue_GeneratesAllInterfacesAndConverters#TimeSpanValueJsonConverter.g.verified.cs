@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "TimeSpanValue"/>
 /// </summary>
-public sealed class TimeSpanValueJsonConverter : JsonConverter<TimeSpanValue>
+internal sealed class TimeSpanValueJsonConverter : JsonConverter<TimeSpanValue>
 {
     /// <inheritdoc/>
     public override TimeSpanValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)

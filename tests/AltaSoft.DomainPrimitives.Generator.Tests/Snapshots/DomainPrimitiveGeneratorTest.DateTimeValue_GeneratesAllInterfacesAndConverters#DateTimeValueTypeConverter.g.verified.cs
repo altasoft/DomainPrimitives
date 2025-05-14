@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "DateTimeValue"/>
 /// </summary>
-public sealed class DateTimeValueTypeConverter : DateTimeConverter
+internal sealed class DateTimeValueTypeConverter : DateTimeConverter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

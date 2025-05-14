@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// TypeConverter for <see cref = "WithoutJsonConverterValue"/>
 /// </summary>
-public sealed class WithoutJsonConverterValueTypeConverter : UInt32Converter
+internal sealed class WithoutJsonConverterValueTypeConverter : UInt32Converter
 {
     /// <inheritdoc/>
     public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)

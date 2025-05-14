@@ -20,7 +20,7 @@ namespace AltaSoft.DomainPrimitives.Converters;
 /// <summary>
 /// JsonConverter for <see cref = "DecimalValue"/>
 /// </summary>
-public sealed class DecimalValueJsonConverter : JsonConverter<DecimalValue>
+internal sealed class DecimalValueJsonConverter : JsonConverter<DecimalValue>
 {
     /// <inheritdoc/>
     public override DecimalValue Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
