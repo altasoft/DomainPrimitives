@@ -883,7 +883,7 @@ In `AltaSoft.DomainPrimitives`, you can optionally define a static method named 
 
 ## ✅ Signature
 ```csharp
-public static T Transform(T value)  //
+public static T Transform(T value) 
 ```
 - `T` must match the value type of your domain primitive (e.g., `string`, `int`, etc.).
 - The method can be `private`, `internal`, or `public`.
