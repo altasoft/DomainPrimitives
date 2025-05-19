@@ -224,7 +224,7 @@ internal static class DiagnosticHelper
     {
         return Diagnostic.Create(
             new DiagnosticDescriptor(
-                "AL1052",
+                "AL1053",
                 $"Domain primitive types based on '{typeName}' must be declared as structs",
                 "Type '{0}' must be declared as a struct when using '{1}' as the underlying domain primitive type.",
                 Category,
