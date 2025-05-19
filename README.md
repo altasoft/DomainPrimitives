@@ -877,7 +877,7 @@ public static void JsonSerializationAndDeserialization()
 ```
 
 
-# 🔄 Transform Method
+# Transform Method
 
 In `AltaSoft.DomainPrimitives`, you can optionally define a static method named `Transform` inside your domain primitive to automatically preprocess input values before validation or instantiation.
 
