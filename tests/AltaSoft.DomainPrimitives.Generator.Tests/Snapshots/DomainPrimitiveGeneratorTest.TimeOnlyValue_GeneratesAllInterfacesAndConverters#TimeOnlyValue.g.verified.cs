@@ -88,7 +88,7 @@ public readonly partial struct TimeOnlyValue : IEquatable<TimeOnlyValue>
     /// <param name="result">When this method returns, contains the created TimeOnlyValue if the conversion succeeded, or null if the conversion failed.</param>
     /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
     /// <returns>true if the conversion succeeded; otherwise, false.</returns>
-    public static bool TryCreate(TimeOnly value,[NotNullWhen(true)]  out TimeOnlyValue? result, [NotNullWhen(false)]  out string? errorMessage)
+    public static bool TryCreate(TimeOnly value, [NotNullWhen(true)]  out TimeOnlyValue? result, [NotNullWhen(false)]  out string? errorMessage)
     {
         var validationResult = Validate(value);
         if (!validationResult.IsValid)

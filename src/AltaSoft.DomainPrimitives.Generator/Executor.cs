@@ -118,6 +118,12 @@ internal static class Executor
 
         var hasOverridenHashCode = typeSymbol.GetMembersOfType<IMethodSymbol>().Any(x => string.Equals(x.OverriddenMethod?.Name, "GetHashCode", StringComparison.Ordinal));
 
+        var hasTransformMethod = typeSymbol.GetMembersOfType<IMethodSymbol>()
+            .Any(x =>
+                x is { Name: "Transform", IsStatic: true, Parameters.Length: 1 } &&
+                x.ReturnType.Equals(underlyingTypeSymbol, SymbolEqualityComparer.Default) &&
+                x.Parameters[0].Type.Equals(underlyingTypeSymbol, SymbolEqualityComparer.Default));
+
         var generatorData = new GeneratorData
         {
             FieldName = "_valueOrThrow",
@@ -129,7 +135,8 @@ internal static class Executor
             Namespace = typeSymbol.ContainingNamespace.ToDisplayString(),
             GenerateImplicitOperators = true,
             ParentSymbols = parentSymbols,
-            GenerateConvertibles = underlyingType.IsIConvertible()
+            GenerateConvertibles = underlyingType.IsIConvertible(),
+            UseTransformMethod = hasTransformMethod
         };
 
         var attributes = typeSymbol.GetAttributes();
@@ -723,7 +730,8 @@ internal static class Executor
         builder.AppendSummary($"Initializes a new instance of the <see cref=\"{type.Name}\"/> class by validating the specified <see cref=\"{underlyingTypeName}\"/> value using <see cref=\"Validate\"/> static method.");
         builder.AppendParamDescription("value", "The value to be validated.");
 
-        builder.AppendLine($"public {type.Name}({underlyingTypeName} value) : this(value, true)")
+        var ctorCall = data.UseTransformMethod ? "Transform(value)" : "value";
+        builder.AppendLine($"public {type.Name}({underlyingTypeName} value) : this({ctorCall}, true)")
             .OpenBracket()
             .CloseBracket()
             .NewLine();

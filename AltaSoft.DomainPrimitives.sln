@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GitHubActions", "GitHubActi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.SwaggerExtensions", "src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj", "{289BC781-8B67-4A15-87A9-198EEA255160}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.UnitTests", "tests\AltaSoft.DomainPrimitives.UnitTests\AltaSoft.DomainPrimitives.UnitTests.csproj", "{253F7819-7F69-9B49-8257-65A17B56DF55}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{289BC781-8B67-4A15-87A9-198EEA255160}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{289BC781-8B67-4A15-87A9-198EEA255160}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{289BC781-8B67-4A15-87A9-198EEA255160}.Release|Any CPU.Build.0 = Release|Any CPU
+		{253F7819-7F69-9B49-8257-65A17B56DF55}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{253F7819-7F69-9B49-8257-65A17B56DF55}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{253F7819-7F69-9B49-8257-65A17B56DF55}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{253F7819-7F69-9B49-8257-65A17B56DF55}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -69,6 +75,7 @@ Global
 		{A3D3536F-993E-4606-B9DF-A4C4B3E1AF69} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
 		{E49201A0-DCC3-4ED2-A5A0-25DDD5E3D017} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
 		{A7BFF96E-3DFF-4132-AD2B-7C529C14A3E8} = {BF9447CC-2D00-495A-A8C3-D4890EADB01B}
+		{253F7819-7F69-9B49-8257-65A17B56DF55} = {09A03F75-1F18-45BC-9D0A-289AC607DAD0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {84804F7F-F00C-454C-A90E-4013B6EA6263}

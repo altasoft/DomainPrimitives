@@ -10,6 +10,40 @@ namespace AltaSoft.DomainPrimitives.Generator.Tests;
 
 public class DomainPrimitiveGeneratorTest
 {
+
+    [Fact]
+    public Task StringValue_WithTransformerGeneratesTransformerCall()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              /// <inheritdoc/>
+                              internal partial class TransformableString : IDomainValue<string>
+                              {
+                                  /// <inheritdoc/>
+                                  public static PrimitiveValidationResult Validate(string value)
+                                  {
+                                      if (value=="Test")
+                                          return "Invalid Value";
+
+                                      return PrimitiveValidationResult.Ok;
+                                  }
+                                  
+                                  private static string Transform(string value) => value;
+                              }
+                              
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
+
     [Fact]
     public Task StringValue_GeneratesAllInterfacesAndConvertersForInternalClass()
     {

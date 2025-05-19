@@ -122,4 +122,9 @@ internal sealed class GeneratorData
     /// if StringLengthAttribute validation is applied to a domain Primitive this will be used to determine the values and use them before calling validation method.
     /// </summary>
     public (int minLength, int maxLength)? StringLengthAttributeValidation { get; set; }
+
+    /// <summary>
+    /// If Transform Method should be used before using the values.
+    /// </summary>
+    public bool UseTransformMethod { get; set; }
 }
