@@ -12,6 +12,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Remove="Snapshots\**" />
+		<EmbeddedResource Remove="Snapshots\**" />
+		<None Remove="Snapshots\**" />
+	</ItemGroup>
+
+
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
 		<PackageReference Include="xunit" Version="2.9.3" />
 		<PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
@@ -24,8 +32,12 @@
 		</PackageReference>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.XmlDataTypes\AltaSoft.DomainPrimitives.XmlDataTypes.csproj" />
+
+
+  <ItemGroup>
+		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
+		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj" />
+		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj"  OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime"  />
 	</ItemGroup>
 
 </Project>

@@ -118,6 +118,12 @@ internal static class Executor
 
         var hasOverridenHashCode = typeSymbol.GetMembersOfType<IMethodSymbol>().Any(x => string.Equals(x.OverriddenMethod?.Name, "GetHashCode", StringComparison.Ordinal));
 
+        var hasTransformMethod = typeSymbol.GetMembersOfType<IMethodSymbol>()
+            .Any(x =>
+                x is { Name: "Transform", IsStatic: true, Parameters.Length: 1 } &&
+                x.ReturnType.Equals(underlyingTypeSymbol, SymbolEqualityComparer.Default) &&
+                x.Parameters[0].Type.Equals(underlyingTypeSymbol, SymbolEqualityComparer.Default));
+
         var generatorData = new GeneratorData
         {
             FieldName = "_valueOrThrow",
@@ -129,7 +135,8 @@ internal static class Executor
             Namespace = typeSymbol.ContainingNamespace.ToDisplayString(),
             GenerateImplicitOperators = true,
             ParentSymbols = parentSymbols,
-            GenerateConvertibles = underlyingType.IsIConvertible()
+            GenerateConvertibles = underlyingType.IsIConvertible(),
+            UseTransformMethod = hasTransformMethod
         };
 
         var attributes = typeSymbol.GetAttributes();
@@ -142,6 +149,17 @@ internal static class Executor
         if (!isNumeric && attributeData is not null)
         {
             context.ReportDiagnostic(DiagnosticHelper.TypeMustBeNumericType(attributeData.GetAttributeLocation(), typeSymbol.Name));
+            return null;
+        }
+
+        if (underlyingType == DomainPrimitiveUnderlyingType.String && typeSymbol.TypeKind != TypeKind.Class)
+        {
+            context.ReportDiagnostic(DiagnosticHelper.InvalidClassTypeSpecified(typeSymbol.Locations.FirstOrDefault(), typeSymbol.Name));
+            return null;
+        }
+        if (underlyingType != DomainPrimitiveUnderlyingType.String && typeSymbol.TypeKind != TypeKind.Struct)
+        {
+            context.ReportDiagnostic(DiagnosticHelper.InvalidStructTypeSpecified(typeSymbol.Locations.FirstOrDefault(), underlyingType.ToString(), typeSymbol.Name));
             return null;
         }
 
@@ -184,78 +202,6 @@ internal static class Executor
 
         return generatorData;
     }
-
-    //private static bool DefaultPropertyReturnsDefaultValue(IPropertySymbol property, DomainPrimitiveUnderlyingType underlyingType)
-    //{
-    //    var syntaxRefs = property.GetMethod?.DeclaringSyntaxReferences;
-    //    if (syntaxRefs is null)
-    //    {
-    //        // If there are no syntax references, the property doesn't have a getter
-    //        return false;
-    //    }
-
-    //    ExpressionSyntax? returnExpression = null;
-
-    //    foreach (var syntaxRef in syntaxRefs)
-    //    {
-    //        var syntaxNode = syntaxRef.GetSyntax();
-
-    //        // Handle expression-bodied properties
-    //        if (syntaxNode is ArrowExpressionClauseSyntax arrowExpressionClauseSyntax)
-    //        {
-    //            returnExpression = arrowExpressionClauseSyntax.Expression;
-    //            break;
-    //        }
-
-    //        // Handle expression-bodied properties
-    //        if (syntaxNode is PropertyDeclarationSyntax { ExpressionBody: { } expressionBody })
-    //        {
-    //            returnExpression = expressionBody.Expression;
-    //            break;
-    //        }
-
-    //        // Handle properties with getters that have a body
-    //        if (syntaxNode is AccessorDeclarationSyntax { Body: not null } accessorDeclaration)
-    //        {
-    //            var returnExpressions = accessorDeclaration.Body.DescendantNodes()
-    //                .OfType<ReturnStatementSyntax>()
-    //                .Select(r => r.Expression)
-    //                .ToArray();
-
-    //            if (returnExpressions.Length != 1)
-    //                return false;
-
-    //            returnExpression = returnExpressions[0];
-    //            break;
-    //        }
-    //    }
-
-    //    // Check if the return expression is a default value for the type
-    //    switch (returnExpression)
-    //    {
-    //        case null:
-    //            return false;
-
-    //        case DefaultExpressionSyntax:
-    //            return true;
-
-    //        // Simplified check for literal or default expressions
-    //        case LiteralExpressionSyntax literal:
-    //            if (literal.IsKind(SyntaxKind.DefaultLiteralExpression))
-    //                return true;
-
-    //            // Determine the default value for the property's type
-    //            var defaultValue = underlyingType.GetDefaultValue();
-    //            if (defaultValue is null)
-    //                return literal.Token.Value is null;
-
-    //            return defaultValue.Equals(literal.Token.Value);
-
-    //        // For more complex expressions, additional analysis is required
-    //        default:
-    //            return false;
-    //    }
-    //}
 
     /// <summary>
     /// Retrieves the SupportedOperationsAttributeData for a specified class, considering inheritance.
@@ -784,7 +730,8 @@ internal static class Executor
         builder.AppendSummary($"Initializes a new instance of the <see cref=\"{type.Name}\"/> class by validating the specified <see cref=\"{underlyingTypeName}\"/> value using <see cref=\"Validate\"/> static method.");
         builder.AppendParamDescription("value", "The value to be validated.");
 
-        builder.AppendLine($"public {type.Name}({underlyingTypeName} value) : this(value, true)")
+        var ctorCall = data.UseTransformMethod ? "Transform(value)" : "value";
+        builder.AppendLine($"public {type.Name}({underlyingTypeName} value) : this({ctorCall}, true)")
             .OpenBracket()
             .CloseBracket()
             .NewLine();

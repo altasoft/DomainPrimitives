@@ -406,9 +406,15 @@ internal static class MethodGeneratorHelper
             .AppendParamDescription("errorMessage", "When this method returns, contains the error message if the conversion failed; otherwise, null.")
             .AppendReturnsDescription("true if the conversion succeeded; otherwise, false.");
 
-        builder.Append("public static bool TryCreate(").Append(primitiveType).Append(" value,[NotNullWhen(true)]  out ").Append(data.ClassName)
+        builder.Append("public static bool TryCreate(").Append(primitiveType).Append(" value, [NotNullWhen(true)]  out ").Append(data.ClassName)
             .AppendLine("? result, [NotNullWhen(false)]  out string? errorMessage)")
             .OpenBracket();
+
+        if (data.UseTransformMethod)
+        {
+            builder.AppendLine("value = Transform(value);");
+        }
+
         AddStringLengthValidation(data, builder);
 
         builder.AppendLine("var validationResult = Validate(value);")

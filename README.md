@@ -1,4 +1,4 @@
-# DomainPrimitives for C#  
+﻿# DomainPrimitives for C#  
 
 [![Version](https://img.shields.io/nuget/v/AltaSoft.DomainPrimitives?label=Version&color=0c3c60&style=for-the-badge&logo=nuget)](https://www.nuget.org/profiles/AltaSoft)
 [![Dot NET 7+](https://img.shields.io/static/v1?label=DOTNET&message=7%2B&color=0c3c60&style=for-the-badge)](https://dotnet.microsoft.com)
@@ -14,6 +14,7 @@
 - [Installation](#installation)
 - [Creating your Domain type](#creating-your-domain-type)
 - [Json Conversion](#json-conversion)
+- [Transform Method](#transform-method)
 - [Contributions](#contributions)
 - [Contact](#contact)
 - [License](#license)
@@ -874,6 +875,51 @@ public static void JsonSerializationAndDeserialization()
     "Fees": null
 }
 ```
+
+
+# 🔄 Transform Method
+
+In `AltaSoft.DomainPrimitives`, you can optionally define a static method named `Transform` inside your domain primitive to automatically preprocess input values before validation or instantiation.
+
+## ✅ Signature
+```csharp
+public static T Transform(T value)  //
+```
+- `T` must match the value type of your domain primitive (e.g., `string`, `int`, etc.).
+- The method can be `private`, `internal`, or `public`.
+- It **must be static** and **accept a single parameter** of type `T`.
+
+## 🎯 When It's Invoked
+
+If present, the `Transform` method is automatically called before:
+
+- Running `Validate(value)`
+- Invoking the constructor or `TryCreate(...)` method
+
+This ensures the input is normalized consistently at the boundary of your domain object.
+
+## 📌 Example: `ToUpperString`
+
+```csharp
+public sealed partial class ToUpperString : IDomainValue<string>
+{
+    static PrimitiveValidationResult Validate(string value) =>
+        value.All(char.IsUpper) ? PrimitiveValidationResult.Ok : "Value must be all uppercase.";
+
+    // This method is automatically invoked before validation and construction.
+    static string Transform(string value) => value.ToUpperInvariant();
+
+    public ToUpperString(string value) : this(Transform(value), true) { }
+}
+```
+
+### What happens:
+
+- A user provides `"hello"` to `TryCreate("hello", out var result, out var error)`
+- `Transform("hello")` runs and returns `"HELLO"`
+- `"HELLO"` is then validated with `Validate(...)`
+---
+
 
 # Contributions 
 Contributions to AltaSoft.DomainPrimitives are welcome! Whether you have suggestions or wish to contribute code, feel free to submit a pull request or open an issue.

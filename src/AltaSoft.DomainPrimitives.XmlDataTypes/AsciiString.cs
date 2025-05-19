@@ -24,4 +24,5 @@ public partial class AsciiString : IDomainValue<string>
 
         return PrimitiveValidationResult.Ok;
     }
+
 }
