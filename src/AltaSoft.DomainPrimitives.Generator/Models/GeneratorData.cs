@@ -124,7 +124,7 @@ internal sealed class GeneratorData
     public (int minLength, int maxLength)? StringLengthAttributeValidation { get; set; }
 
     /// <summary>
-    /// If Transform Method should be used before using the values.
+    /// Indicates whether the `Transform` method should be invoked before validation and instantiation.
     /// </summary>
     public bool UseTransformMethod { get; set; }
 }
