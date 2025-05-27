@@ -34,14 +34,14 @@ public static class SwaggerTypeHelper
     {
         options.MapType<DateOnlyValue>(() => new OpenApiSchema
         {
-            Type = "date",
-            Format = "yyyy-MM-dd",
+            Type = "string",
+            Format = "date",
             Title = "DateOnlyValue"
         });
         options.MapType<DateOnlyValue?>(() => new OpenApiSchema
         {
-            Type = "date",
-            Format = "yyyy-MM-dd",
+            Type = "string",
+            Format = "date",
             Nullable = true,
             Title = "Nullable<DateOnlyValue>"
         });

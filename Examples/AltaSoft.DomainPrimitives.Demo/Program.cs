@@ -1,5 +1,5 @@
-using AltaSoft.DomainPrimitives;
 using AltaSoft.DomainPrimitives.Demo;
+using AltaSoft.DomainPrimitives.SwaggerExtensions;
 using DomainPrimitivesDemo;
 using Microsoft.AspNetCore.Mvc;
 
@@ -46,6 +46,6 @@ void AddTransferEndpoints(IEndpointRouteBuilder routeGroupBuilder)
     routeGroupBuilder.MapGet("ListTotalAmounts", async (TransferService service) =>
     {
         var result = await service.ListAsync();
-        return (PositiveAmount)result.Sum(x => x.TransferAmount + x.TransferFee ?? Fee.Default);
+        return (PositiveAmount)result.Sum(x => x.TransferAmount + x.TransferFee ?? 0);
     });
 }

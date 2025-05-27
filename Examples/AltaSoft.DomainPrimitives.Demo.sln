@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.D
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DomainPrimitivesDemo", "DomainPrimitivesDemo\DomainPrimitivesDemo.csproj", "{9FC289DD-3CB9-4A2D-95D5-B8DD6187D131}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.Generator", "..\src\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj", "{0B6B8ED4-8D2B-93ED-6219-79A1237AFAFA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives", "..\src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj", "{E15AD85A-80BF-DBA3-9850-D9E144EB26AA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.SwaggerExtensions", "..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj", "{CAEE1818-F333-DF43-89BA-DEC9BD64E279}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +27,18 @@ Global
 		{9FC289DD-3CB9-4A2D-95D5-B8DD6187D131}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FC289DD-3CB9-4A2D-95D5-B8DD6187D131}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FC289DD-3CB9-4A2D-95D5-B8DD6187D131}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0B6B8ED4-8D2B-93ED-6219-79A1237AFAFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0B6B8ED4-8D2B-93ED-6219-79A1237AFAFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0B6B8ED4-8D2B-93ED-6219-79A1237AFAFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0B6B8ED4-8D2B-93ED-6219-79A1237AFAFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E15AD85A-80BF-DBA3-9850-D9E144EB26AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E15AD85A-80BF-DBA3-9850-D9E144EB26AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E15AD85A-80BF-DBA3-9850-D9E144EB26AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E15AD85A-80BF-DBA3-9850-D9E144EB26AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CAEE1818-F333-DF43-89BA-DEC9BD64E279}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CAEE1818-F333-DF43-89BA-DEC9BD64E279}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CAEE1818-F333-DF43-89BA-DEC9BD64E279}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CAEE1818-F333-DF43-89BA-DEC9BD64E279}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

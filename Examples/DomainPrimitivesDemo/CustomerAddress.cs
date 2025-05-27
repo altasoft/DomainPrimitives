@@ -8,11 +8,12 @@ namespace DomainPrimitivesDemo;
 /// <example> Customer address N35 apt 14</example>
 public sealed partial class CustomerAddress : IDomainValue<string>
 {
-    public static void Validate(string value)
+    public static PrimitiveValidationResult Validate(string value)
     {
         if (value.Length < 10)
-            throw new InvalidDomainValueException("Address must be at least 10 characters");
+            return "Address must be at least 10 characters";
+
+        return PrimitiveValidationResult.Ok;
     }
 
-    public static string Default => "N/A";
 }

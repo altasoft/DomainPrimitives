@@ -1,5 +1,5 @@
-﻿using AltaSoft.DomainPrimitives;
-using System;
+﻿using System;
+using AltaSoft.DomainPrimitives;
 
 namespace DomainPrimitivesDemo;
 
@@ -9,9 +9,9 @@ namespace DomainPrimitivesDemo;
 /// <example>608eadda-6730-4031-9333-8a21e40210ed</example>
 public readonly partial struct CustomerId : IDomainValue<Guid>
 {
-    public static void Validate(Guid value)
+    public static PrimitiveValidationResult Validate(Guid value)
     {
+        return PrimitiveValidationResult.Ok;
     }
 
-    public static Guid Default => default;
 }

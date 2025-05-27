@@ -46,7 +46,6 @@ internal static class CompilationExt
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static bool IsPublic(this ISymbol symbol) => symbol.DeclaredAccessibility == Accessibility.Public;
 
-
     /// <summary>
     /// Gets the modifiers for the named type symbol.
     /// </summary>
@@ -201,7 +200,7 @@ internal static class CompilationExt
             DomainPrimitiveUnderlyingType.Char => ("string", ""),
 
             DomainPrimitiveUnderlyingType.DateTime => ("string", "date-time"),
-            DomainPrimitiveUnderlyingType.DateOnly => ("date", "yyyy-MM-dd"),
+            DomainPrimitiveUnderlyingType.DateOnly => ("string", "date"),
             DomainPrimitiveUnderlyingType.TimeOnly => ("string", "HH:mm:ss"),
             DomainPrimitiveUnderlyingType.DateTimeOffset => ("string", "date-time"),
             DomainPrimitiveUnderlyingType.TimeSpan => ("integer", "int64"),

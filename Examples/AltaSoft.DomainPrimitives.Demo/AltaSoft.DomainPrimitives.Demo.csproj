@@ -18,6 +18,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
     <ProjectReference Include="..\DomainPrimitivesDemo\DomainPrimitivesDemo.csproj" />
   </ItemGroup>
 

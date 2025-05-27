@@ -8,11 +8,12 @@ namespace DomainPrimitivesDemo;
 /// <example>132</example>
 public readonly partial struct TransferId : IDomainValue<long>
 {
-    public static void Validate(long value)
+    public static PrimitiveValidationResult Validate(long value)
     {
         if (value <= 0)
-            throw new InvalidDomainValueException("Value must be positive");
+            return "Value must be positive";
+
+        return PrimitiveValidationResult.Ok;
     }
 
-    public static long Default => default;
 }
