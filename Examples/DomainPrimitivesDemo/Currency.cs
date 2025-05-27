@@ -7,13 +7,15 @@ namespace DomainPrimitivesDemo;
 /// </summary>
 public sealed partial class Currency : IDomainValue<string>
 {
-    public static void Validate(string value)
+    public static PrimitiveValidationResult Validate(string value)
     {
         if (value.Length != 3)
-            throw new InvalidDomainValueException("Value must have length of 3");
+            return "Value must have length of 3";
 
         if (!IsUppercaseLetters(value))
-            throw new InvalidDomainValueException("Currency code must consist of uppercase letters.");
+            return "Currency code must consist of uppercase letters.";
+
+        return PrimitiveValidationResult.Ok;
     }
 
     private static bool IsUppercaseLetters(string value)
@@ -28,5 +30,4 @@ public sealed partial class Currency : IDomainValue<string>
         return true;
     }
 
-    public static string Default => "USD";
 }

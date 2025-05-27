@@ -1,5 +1,5 @@
-﻿using AltaSoft.DomainPrimitives;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using AltaSoft.DomainPrimitives;
 
 namespace DomainPrimitivesDemo;
 
@@ -9,11 +9,11 @@ namespace DomainPrimitivesDemo;
 /// <example>GB82WEST12345698765432</example>
 public sealed partial class Iban : IDomainValue<string>
 {
-    public static void Validate(string value)
+    public static PrimitiveValidationResult Validate(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            throw new InvalidDomainValueException("IBAN cannot be null or empty.");
+            return "IBAN cannot be null or empty.";
         }
 
         // Remove spaces from the IBAN (some formats include spaces for readability)
@@ -21,11 +21,11 @@ public sealed partial class Iban : IDomainValue<string>
 
         if (!CreateIbanRegex().IsMatch(cleanedIban))
         {
-            throw new InvalidDomainValueException("Invalid IBAN format.");
+            return "Invalid IBAN format.";
         }
-    }
 
-    public static string Default => "";
+        return PrimitiveValidationResult.Ok;
+    }
 
     [GeneratedRegex(@"^[A-Z]{2}\d{2}[A-Za-z0-9]{4,}$")]
     private static partial Regex CreateIbanRegex();

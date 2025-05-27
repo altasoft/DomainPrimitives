@@ -8,11 +8,12 @@ namespace DomainPrimitivesDemo;
 /// <example> 10.5 </example>
 public readonly partial struct PositiveAmount : IDomainValue<decimal>
 {
-    public static void Validate(decimal value)
+    public static PrimitiveValidationResult Validate(decimal value)
     {
         if (value <= 0m)
-            throw new InvalidDomainValueException("Positive amount number must be positive");
+            return "Positive amount number must be positive";
+
+        return PrimitiveValidationResult.Ok;
     }
 
-    public static decimal Default => 0.01m;
 }

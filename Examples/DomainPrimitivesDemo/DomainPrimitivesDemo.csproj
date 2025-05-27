@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -9,9 +9,12 @@
   </PropertyGroup>
 
 
+
+
   <ItemGroup>
-    <PackageReference Include="AltaSoft.DomainPrimitives" Version="2.0.0" />
-    <PackageReference Include="AltaSoft.DomainPrimitives.Generator" Version="2.0.0" PrivateAssets="all" />
+    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime" />
+    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
+    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj" />
   </ItemGroup>
 
 
