@@ -31,12 +31,12 @@ public static class ToXmlStringExt
     public static string ToXmlString(this DateOnly value) => value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     /// <summary>
-    /// Converts a <see cref="TimeOnly" /> value to its XML string representation in the format "HH:mm:sszzz".
+    /// Converts a <see cref="TimeOnly" /> value to its XML string representation in the format "HH:mm:ss".
     /// </summary>
     /// <param name="value">The TimeOnly value to convert.</param>
     /// <returns>The XML string representation of the TimeOnly value.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ToXmlString(this TimeOnly value) => value.ToString("HH:mm:sszzz", CultureInfo.InvariantCulture);
+    public static string ToXmlString(this TimeOnly value) => value.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Converts a <see cref="DateTimeOffset" /> value to its XML string representation
