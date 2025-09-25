@@ -13,6 +13,9 @@
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Creating your Domain type](#creating-your-domain-type)
+- [Managing Generated Operators for numeric types](#managing-generated-operators-for-numeric-types)
+- [Managing Serialization Format for date-related types](#managing-serialization-format-for-date-related-types)
+- [Enhanced DateTime Interoperability](#enhanced-datetime-interoperability)
 - [Json Conversion](#json-conversion)
 - [Transform Method](#transform-method)
 - [Contributions](#contributions)
@@ -34,14 +37,20 @@ With `AltaSoft.DomainPrimitives`, experience an accelerated development process 
 
 The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 
-* **Implicit Operators:** Streamlines type conversion to/from the underlying primitive type. [Example](#implicit-usage-of-domaintype)
+* **Implicit Operators:** Streamlines type conversion to/from the underlying primitive type, including nullable conversions. [Example](#implicit-usage-of-domaintype)
+* **Enhanced Date/Time Conversions:** `DateOnly` and `TimeOnly` domain primitives include additional implicit conversion operators to/from `DateTime` for seamless interoperability.
 * **Specialized Constructor Generation:**  Automatically validates and constructs instances of this domain type. This constructor, tailored for the domain primitive, utilizes the underlying type as a parameter, ensuring the value's correctness within the domain.
 * **TryCreate method:** Introduces a TryCreate method that attempts to create an instance of the domain type and returns a bool indicating the success or failure of the creation process, along with any validation errors.
-* **JsonConverters:** Handles JSON serialization and deserialization for the underlying type. [Example](#json-conversion)
+* **JsonConverters:** Handles JSON serialization and deserialization for the underlying type, including property name serialization support. [Example](#json-conversion)
 * **TypeConverters:** Assists in type conversion to/from it's underlying type. [Please refer to generated type converter below](#type-converter)
-* **Swagger Custom Type Mappings:** Facilitates easy integration with Swagger by treating the primitive type as it's underlying type. [Please refer to generated swagger helper below](#swagger-mappers)
-* **Interface Implementations:** All DomainPritmitives Implement `IConvertible`, `IComparable`, `IComparable<T>`, `IEquatable<T>`, `IEqualityComparer<T>`, `IParsable` interfaces.
-* **NumberType Operations:** Automatically generates basic arithmetic and comparison operators, by implementing Static abstract interfaces. [More details regarding numeric types](#number-types-attribute)
+* **Swagger Custom Type Mappings:** Facilitates easy integration with Swagger by treating the primitive type as it's underlying type, with full nullable support. [Please refer to generated swagger helper below](#swagger-mappers)
+* **Interface Implementations:** All DomainPrimitives implement comprehensive interfaces for full framework integration:
+  - `IEquatable<T>`, `IComparable`, `IComparable<T>` for equality and comparison operations
+  - `IConvertible` for type conversion support
+  - `IParsable<T>` for parsing from strings
+  - `ISpanFormattable` and `IUtf8SpanFormattable` (NET8+) for efficient formatting
+  - Numeric types implement `IAdditionOperators<T>`, `ISubtractionOperators<T>`, etc. as appropriate
+* **NumberType Operations:** Automatically generates basic arithmetic and comparison operators, by implementing Static abstract interfaces. [More details regarding numeric types](#managing-generated-operators-for-numeric-types)
 * **IParsable Implementation:** Automatically generates parsing for non-string types.
 * **XML Serialiaziton** Generates IXmlSerializable interface implementation, to serialize and deserialize from/to xml.
 * **EntityFrameworkCore ValueConverters** Facilitates seamless integration with EntityFrameworkCore by using ValueConverters to treat the primitive type as its underlying type. For more details, refer to [EntityFrameworkCore ValueConverters](EntityFrameworkCoreExample.md)
@@ -51,8 +60,8 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 2. `Guid`
 3. `byte`
 4. `sbyte`
-5. `short`
-6. `ushort`
+5. `short` (Int16)
+6. `ushort` (UInt16)
 7. `int`
 8. `uint`
 9. `long`
@@ -67,6 +76,31 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 18. `DateTimeOffset`
 19. `DateOnly`
 20. `TimeOnly`
+
+### Example Primitive Types
+
+You can create domain primitive types for any supported underlying type. Here are some examples:
+
+```csharp
+// String-based primitives
+public readonly partial struct EmailAddress : IDomainValue<string> { /* validation */ }
+public readonly partial struct ProductCode : IDomainValue<string> { /* validation */ }
+
+// Numeric primitives  
+public readonly partial struct Age : IDomainValue<int> { /* validation */ }
+public readonly partial struct Price : IDomainValue<decimal> { /* validation */ }
+public readonly partial struct Weight : IDomainValue<double> { /* validation */ }
+public readonly partial struct Score : IDomainValue<float> { /* validation */ }
+
+// Date/Time primitives
+public readonly partial struct BirthDate : IDomainValue<DateOnly> { /* validation */ }
+public readonly partial struct BusinessHours : IDomainValue<TimeOnly> { /* validation */ }
+public readonly partial struct CreatedAt : IDomainValue<DateTime> { /* validation */ }
+
+// Identifier primitives
+public readonly partial struct CustomerId : IDomainValue<Guid> { /* validation */ }
+public readonly partial struct OrderNumber : IDomainValue<long> { /* validation */ }
+```
 
 
 ## Getting Started
@@ -621,13 +655,16 @@ static virtual string ToString(T value) => value.ToString() ?? string.Empty;
 
 Mathematical operators for particular numeric types can be customized using the `SupportedOperationsAttribute`. If left unspecified, all operators are generated by default (as shown below). Once this attribute is applied, manual specification of the operators becomes mandatory. Note that for `byte`, `sbyte`, `short`, and `ushort` types, mathematical operators will not be generated by default.
 
+**Special Note for `byte`, `sbyte`, `short`, and `ushort` types:** When mathematical operators are enabled for these smaller integer types (via `SupportedOperationsAttribute`), an additional private constructor accepting an `int` parameter is automatically generated to handle overflow scenarios properly during mathematical operations.
+
 ### Default numeric types Generated Operators 
 1. `byte, sbyte` => `None`
 2. `short, ushort` => `None`
 3. `int, uint` => `+ - / * %`
-3. `long, ulong` => `+ - / * %`
-3. `double` => `+ - / * %`
-3. `decimal` => `+ - / * %`
+4. `long, ulong` => `+ - / * %`
+5. `float` => `+ - / * %`
+6. `double` => `+ - / * %`
+7. `decimal` => `+ - / * %`
 
 ### using `SupportedOperationsAttribute`
 
@@ -694,6 +731,40 @@ public readonly partial struct GDay : IDomainValue<DateOnly>
 	/// <inheritdoc/>
 	public static string ToString(DateOnly value) => value.ToString("dd");
 }
+```
+
+## Enhanced DateTime Interoperability
+
+Domain primitives based on `DateOnly` and `TimeOnly` include additional implicit conversion operators for seamless interoperability with `DateTime`:
+
+### DateOnly Domain Primitives
+```csharp
+public readonly partial struct MyDate : IDomainValue<DateOnly>
+{
+    public static PrimitiveValidationResult Validate(DateOnly value) => PrimitiveValidationResult.Ok;
+}
+
+// Usage examples:
+var myDate = new MyDate(DateOnly.FromDateTime(DateTime.Now));
+
+// Additional conversions available:
+DateTime dateTime = myDate;        // Implicit conversion to DateTime
+MyDate fromDateTime = DateTime.Now; // Implicit conversion from DateTime
+```
+
+### TimeOnly Domain Primitives  
+```csharp
+public readonly partial struct MyTime : IDomainValue<TimeOnly>
+{
+    public static PrimitiveValidationResult Validate(TimeOnly value) => PrimitiveValidationResult.Ok;
+}
+
+// Usage examples:
+var myTime = new MyTime(TimeOnly.FromDateTime(DateTime.Now));
+
+// Additional conversions available:
+DateTime dateTime = myTime;        // Implicit conversion to DateTime  
+MyTime fromDateTime = DateTime.Now; // Implicit conversion from DateTime
 ```
 
 # Disable Generation of Converters 
@@ -835,10 +906,10 @@ public static class Example
 [SupportedOperations] // no mathematical operators should be generated
 public readonly partial struct CustomerId : IDomainValue<int>
 {
-	public static PrimitiveValidationResult Validate(decimal value)
+	public static PrimitiveValidationResult Validate(int value)
 	{
-		if (value <= 0m)
-			return "Must be a a positive number";
+		if (value <= 0)
+			return "Must be a positive number";
 
 		return PrimitiveValidationResult.Ok;		
 	}
@@ -908,8 +979,6 @@ public sealed partial class ToUpperString : IDomainValue<string>
 
     // This method is automatically invoked before validation and construction.
     static string Transform(string value) => value.ToUpperInvariant();
-
-    public ToUpperString(string value) : this(Transform(value), true) { }
 }
 ```
 
