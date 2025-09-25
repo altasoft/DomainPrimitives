@@ -873,10 +873,10 @@ public static class Example
 [SupportedOperations] // no mathematical operators should be generated
 public readonly partial struct CustomerId : IDomainValue<int>
 {
-	public static PrimitiveValidationResult Validate(decimal value)
+	public static PrimitiveValidationResult Validate(int value)
 	{
-		if (value <= 0m)
-			return "Must be a a positive number";
+		if (value <= 0)
+			return "Must be a positive number";
 
 		return PrimitiveValidationResult.Ok;		
 	}
@@ -946,8 +946,6 @@ public sealed partial class ToUpperString : IDomainValue<string>
 
     // This method is automatically invoked before validation and construction.
     static string Transform(string value) => value.ToUpperInvariant();
-
-    public ToUpperString(string value) : this(Transform(value), true) { }
 }
 ```
 
