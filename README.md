@@ -13,6 +13,9 @@
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Creating your Domain type](#creating-your-domain-type)
+- [Managing Generated Operators for numeric types](#managing-generated-operators-for-numeric-types)
+- [Managing Serialization Format for date-related types](#managing-serialization-format-for-date-related-types)
+- [Enhanced DateTime Interoperability](#enhanced-datetime-interoperability)
 - [Json Conversion](#json-conversion)
 - [Transform Method](#transform-method)
 - [Contributions](#contributions)
@@ -41,7 +44,12 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 * **JsonConverters:** Handles JSON serialization and deserialization for the underlying type, including property name serialization support. [Example](#json-conversion)
 * **TypeConverters:** Assists in type conversion to/from it's underlying type. [Please refer to generated type converter below](#type-converter)
 * **Swagger Custom Type Mappings:** Facilitates easy integration with Swagger by treating the primitive type as it's underlying type, with full nullable support. [Please refer to generated swagger helper below](#swagger-mappers)
-* **Interface Implementations:** All DomainPritmitives Implement `IConvertible`, `IComparable`, `IComparable<T>`, `IEquatable<T>`, `IEqualityComparer<T>`, `IParsable` interfaces.
+* **Interface Implementations:** All DomainPrimitives implement comprehensive interfaces for full framework integration:
+  - `IEquatable<T>`, `IComparable`, `IComparable<T>` for equality and comparison operations
+  - `IConvertible` for type conversion support
+  - `IParsable<T>` for parsing from strings
+  - `ISpanFormattable` and `IUtf8SpanFormattable` (NET8+) for efficient formatting
+  - Numeric types implement `IAdditionOperators<T>`, `ISubtractionOperators<T>`, etc. as appropriate
 * **NumberType Operations:** Automatically generates basic arithmetic and comparison operators, by implementing Static abstract interfaces. [More details regarding numeric types](#managing-generated-operators-for-numeric-types)
 * **IParsable Implementation:** Automatically generates parsing for non-string types.
 * **XML Serialiaziton** Generates IXmlSerializable interface implementation, to serialize and deserialize from/to xml.
@@ -68,6 +76,31 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 18. `DateTimeOffset`
 19. `DateOnly`
 20. `TimeOnly`
+
+### Example Primitive Types
+
+You can create domain primitive types for any supported underlying type. Here are some examples:
+
+```csharp
+// String-based primitives
+public readonly partial struct EmailAddress : IDomainValue<string> { /* validation */ }
+public readonly partial struct ProductCode : IDomainValue<string> { /* validation */ }
+
+// Numeric primitives  
+public readonly partial struct Age : IDomainValue<int> { /* validation */ }
+public readonly partial struct Price : IDomainValue<decimal> { /* validation */ }
+public readonly partial struct Weight : IDomainValue<double> { /* validation */ }
+public readonly partial struct Score : IDomainValue<float> { /* validation */ }
+
+// Date/Time primitives
+public readonly partial struct BirthDate : IDomainValue<DateOnly> { /* validation */ }
+public readonly partial struct BusinessHours : IDomainValue<TimeOnly> { /* validation */ }
+public readonly partial struct CreatedAt : IDomainValue<DateTime> { /* validation */ }
+
+// Identifier primitives
+public readonly partial struct CustomerId : IDomainValue<Guid> { /* validation */ }
+public readonly partial struct OrderNumber : IDomainValue<long> { /* validation */ }
+```
 
 
 ## Getting Started
