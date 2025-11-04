@@ -7,9 +7,9 @@ public class ToXmlStringExtTests
     [Fact]
     public void DateTime_ToXmlString_ReturnsExpectedFormat()
     {
-        var dt = new DateTime(2024, 4, 1, 13, 45, 30, DateTimeKind.Local);
+        var dt = new DateTime(2024, 4, 1, 13, 45, 30, DateTimeKind.Utc);
         var xml = dt.ToXmlString();
-        Assert.Equal("2024-04-01T13:45:30+04:00", xml);
+        Assert.Equal("2024-04-01T13:45:30+00:00", xml);
     }
 
     [Fact]
