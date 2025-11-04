@@ -8,5 +8,6 @@ public static class ModuleInitializer
     public static void Init()
     {
         VerifySourceGenerators.Initialize();
+
     }
 }
