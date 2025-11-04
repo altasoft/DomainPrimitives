@@ -1,6 +1,6 @@
 ﻿namespace AltaSoft.DomainPrimitives.UnitTests.TransformableTests;
 
-public partial struct NestedInt : IDomainValue<AbsoluteInt>
+public readonly partial struct NestedInt : IDomainValue<AbsoluteInt>
 {
     public static PrimitiveValidationResult Validate(AbsoluteInt value)
     {

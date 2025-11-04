@@ -55,7 +55,6 @@ public class NestedDomainPrimitivesTests
     {
         var abs = new AbsoluteInt(5);
         var nested = new NestedInt(abs);
-        Assert.NotNull(nested);
         Assert.Equal(5, (int)nested);
 
         var nested2 = new NestedInt(5);
@@ -66,7 +65,7 @@ public class NestedDomainPrimitivesTests
     public void CanCreateNestedInt_FromInt_ImplicitCast()
     {
         NestedInt nested = 5;
-        Assert.NotNull(nested);
+        Assert.Equal(5, (int)nested);
 
         NestedInt? nestedNull = (int?)null;
         Assert.Null(nestedNull);
@@ -77,7 +76,7 @@ public class NestedDomainPrimitivesTests
     {
         AbsoluteInt abs = 5;
         NestedInt nested = abs;
-        Assert.NotNull(nested);
+        Assert.Equal(5, (int)nested);
 
         NestedInt? nestedNull = (AbsoluteInt?)null;
         Assert.Null(nestedNull);
