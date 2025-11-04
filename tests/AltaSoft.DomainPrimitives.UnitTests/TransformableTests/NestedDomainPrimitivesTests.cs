@@ -47,7 +47,7 @@ public class NestedDomainPrimitivesTests
     [Fact]
     public void CreatingNestedString_FromStringWithError_Throws()
     {
-        Assert.Throws<InvalidDomainValueException>(() => { NestedString n = "ErrorValue"; });
+        Assert.Throws<InvalidDomainValueException>(() => { NestedString _ = "ErrorValue"; });
     }
 
     [Fact]
