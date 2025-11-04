@@ -245,7 +245,7 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(value))]
-    public static implicit operator StringOfStringValue?(StringValue? value) => value is null ? null : (StringOfStringValue?)value;
+    public static implicit operator StringOfStringValue?(StringValue? value) => value is null ? null : new StringOfStringValue(value);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -194,7 +194,7 @@ public readonly partial struct IntOfIntValue : IEquatable<IntOfIntValue>
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     [return: NotNullIfNotNull(nameof(value))]
-    public static implicit operator IntOfIntValue?(IntValue? value) => value is null ? null : (IntOfIntValue?)value.Value;
+    public static implicit operator IntOfIntValue?(IntValue? value) => value is null ? null : new IntOfIntValue(value.Value);
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
