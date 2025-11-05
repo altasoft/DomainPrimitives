@@ -5,6 +5,37 @@
 /// </summary>
 internal sealed record DomainPrimitiveGlobalOptions
 {
+    // Behavior toggles
+    /// <summary>
+    /// Controls whether the generator emits implicit conversions between a domain primitive and its underlying CLR type.
+    /// </summary>
+    /// <remarks>
+    /// MSBuild key: build_property.DomainPrimitiveGenerator_GenerateImplicitConversions (default: true).
+    /// When false, no implicit operator to/from the underlying type is generated, reducing accidental conversions at API boundaries.
+    /// Existing consumers are unaffected unless they opt out by setting the MSBuild property to false.
+    /// </remarks>
+    public bool GenerateImplicitConversions { get; set; } = true;
+
+    /// <summary>
+    /// Controls whether numeric operators are enabled by default for primitives backed by numeric types.
+    /// </summary>
+    /// <remarks>
+    /// MSBuild key: build_property.DomainPrimitiveGenerator_DefaultNumericOperationsEnabled (default: true).
+    /// When false, addition/subtraction/multiplication/division/modulus are not generated unless explicitly enabled via
+    /// <c>[SupportedOperations]</c> on the type. This helps prevent accidental arithmetic on domain values.
+    /// </remarks>
+    public bool DefaultNumericOperationsEnabled { get; set; } = true;
+
+    /// <summary>
+    /// Enables safe semantics for default(struct) domain primitives.
+    /// </summary>
+    /// <remarks>
+    /// MSBuild key: build_property.DomainPrimitiveGenerator_SafeDefaultStructSemantics (default: false).
+    /// When true: default == default, default.GetHashCode() == 0, and comparisons treat default as less than initialized.
+    /// Kept off by default for backward compatibility; opt in per project to standardize safer equality/hash.
+    /// </remarks>
+    public bool SafeDefaultStructSemantics { get; set; }
+
     /// <summary>
     /// Gets or sets a value indicating whether to generate JSON converters for Domain Primitive types.
     /// The default value is true.

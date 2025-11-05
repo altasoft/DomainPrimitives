@@ -84,6 +84,18 @@ internal static class TestHelpers
             {
                 switch (key)
                 {
+                    case "build_property.DomainPrimitiveGenerator_GenerateImplicitConversions":
+                        value = _options.GenerateImplicitConversions.ToString();
+                        return true;
+
+                    case "build_property.DomainPrimitiveGenerator_DefaultNumericOperationsEnabled":
+                        value = _options.DefaultNumericOperationsEnabled.ToString();
+                        return true;
+
+                    case "build_property.DomainPrimitiveGenerator_SafeDefaultStructSemantics":
+                        value = _options.SafeDefaultStructSemantics.ToString();
+                        return true;
+
                     case "build_property.DomainPrimitiveGenerator_GenerateJsonConverters":
                         value = _options.GenerateJsonConverters.ToString();
                         return true;

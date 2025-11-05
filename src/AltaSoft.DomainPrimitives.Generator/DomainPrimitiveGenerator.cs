@@ -101,10 +101,28 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
             result.GenerateJsonConverters = generateJsonConverters;
         }
 
+        if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateImplicitConversions", out var implicitConversions)
+            && bool.TryParse(implicitConversions, out var generateImplicitConversions))
+        {
+            result.GenerateImplicitConversions = generateImplicitConversions;
+        }
+
+        if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_DefaultNumericOperationsEnabled", out var defaultNumericOps)
+            && bool.TryParse(defaultNumericOps, out var defaultNumericEnabled))
+        {
+            result.DefaultNumericOperationsEnabled = defaultNumericEnabled;
+        }
+
         if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateTypeConverters", out value)
             && bool.TryParse(value, out var generateTypeConverter))
         {
             result.GenerateTypeConverters = generateTypeConverter;
+        }
+
+        if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_SafeDefaultStructSemantics", out value)
+            && bool.TryParse(value, out var safeDefaults))
+        {
+            result.SafeDefaultStructSemantics = safeDefaults;
         }
 
         if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateSwaggerConverters", out value)

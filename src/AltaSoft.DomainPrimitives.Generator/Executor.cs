@@ -133,7 +133,8 @@ internal static class Executor
             PrimitiveTypeSymbol = underlyingTypeSymbol,
             PrimitiveTypeFriendlyName = underlyingTypeSymbol.GetFriendlyName(),
             Namespace = typeSymbol.ContainingNamespace.ToDisplayString(),
-            GenerateImplicitOperators = true,
+            // Generate implicit conversions based on global option
+            GenerateImplicitOperators = globalOptions.GenerateImplicitConversions,
             ParentSymbols = parentSymbols,
             GenerateConvertibles = underlyingType.IsIConvertible(),
             UseTransformMethod = hasTransformMethod
@@ -177,7 +178,7 @@ internal static class Executor
 
         if (isNumeric)
         {
-            var supportedOperationsAttributeData = GetSupportedOperationsAttributeData(typeSymbol, underlyingType, parentSymbols, cachedOperationsAttributes);
+            var supportedOperationsAttributeData = GetSupportedOperationsAttributeData(typeSymbol, underlyingType, parentSymbols, cachedOperationsAttributes, globalOptions);
 
             generatorData.GenerateAdditionOperators = supportedOperationsAttributeData.Addition && !typeSymbol.ImplementsInterface("System.Numerics.IAdditionOperators");
 
@@ -207,11 +208,11 @@ internal static class Executor
     /// Retrieves the SupportedOperationsAttributeData for a specified class, considering inheritance.
     /// </summary>
     /// <returns>The combined SupportedOperationsAttributeData for the class and its inherited types.</returns>
-    private static SupportedOperationsAttributeData GetSupportedOperationsAttributeData(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, List<INamedTypeSymbol> parentSymbols, Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData> cachedOperationsAttributes)
+    private static SupportedOperationsAttributeData GetSupportedOperationsAttributeData(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, List<INamedTypeSymbol> parentSymbols, Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData> cachedOperationsAttributes, DomainPrimitiveGlobalOptions options)
     {
-        return CreateCombinedAttribute(@class, underlyingType, parentSymbols.Count, cachedOperationsAttributes);
+        return CreateCombinedAttribute(@class, underlyingType, parentSymbols.Count, cachedOperationsAttributes, options);
 
-        static SupportedOperationsAttributeData CreateCombinedAttribute(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, int parentCount, Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData> cachedOperationsAttributes)
+        static SupportedOperationsAttributeData CreateCombinedAttribute(INamedTypeSymbol @class, DomainPrimitiveUnderlyingType underlyingType, int parentCount, Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData> cachedOperationsAttributes, DomainPrimitiveGlobalOptions options)
         {
             if (cachedOperationsAttributes.TryGetValue(@class, out var parentAttribute))
             {
@@ -224,7 +225,7 @@ internal static class Executor
 
             if (parentCount == 0)
             {
-                attribute ??= GetDefaultAttributeData(underlyingType);
+                attribute ??= GetDefaultAttributeData(underlyingType, options);
                 cachedOperationsAttributes[@class] = attribute;
 
                 return attribute;
@@ -232,7 +233,7 @@ internal static class Executor
 
             var parentType = @class.Interfaces.First(x => x.IsDomainValue());
 
-            var attr = CombineAttribute(attribute, CreateCombinedAttribute((parentType.TypeArguments[0] as INamedTypeSymbol)!, underlyingType, parentCount - 1, cachedOperationsAttributes));
+            var attr = CombineAttribute(attribute, CreateCombinedAttribute((parentType.TypeArguments[0] as INamedTypeSymbol)!, underlyingType, parentCount - 1, cachedOperationsAttributes, options));
 
             cachedOperationsAttributes[@class] = attr;
             return attr;
@@ -259,9 +260,9 @@ internal static class Executor
     /// </summary>
     /// <param name="underlyingType">The NumericType for which to determine default attribute values.</param>
     /// <returns>The default SupportedOperationsAttributeData with attributes set based on the NumericType.</returns>
-    private static SupportedOperationsAttributeData GetDefaultAttributeData(DomainPrimitiveUnderlyingType underlyingType)
+    private static SupportedOperationsAttributeData GetDefaultAttributeData(DomainPrimitiveUnderlyingType underlyingType, DomainPrimitiveGlobalOptions options)
     {
-        var @default = DefaultAttributeValue(underlyingType);
+        var @default = options.DefaultNumericOperationsEnabled && DefaultAttributeValue(underlyingType);
 
         return new SupportedOperationsAttributeData
         {
@@ -437,7 +438,7 @@ internal static class Executor
             builder.NewLine();
         }
 
-        MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.TypeSymbol.IsValueType, builder);
+        MethodGeneratorHelper.GenerateEquatableOperators(data.ClassName, data.TypeSymbol.IsValueType, options.SafeDefaultStructSemantics, builder);
         builder.NewLine();
 
         MethodGeneratorHelper.GenerateComparableCode(data.ClassName, data.TypeSymbol.IsValueType, builder);
@@ -505,7 +506,15 @@ internal static class Executor
         {
             builder.AppendInheritDoc();
             builder.AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]");
-            builder.AppendLine($"public override int GetHashCode() => {data.FieldName}.GetHashCode();");
+            // For value types, avoid throwing for default(struct) when safe semantics enabled
+            if (data.TypeSymbol.IsValueType && options.SafeDefaultStructSemantics)
+            {
+                builder.AppendLine("public override int GetHashCode() => _isInitialized ? _value.GetHashCode() : 0;");
+            }
+            else
+            {
+                builder.AppendLine($"public override int GetHashCode() => {data.FieldName}.GetHashCode();");
+            }
             builder.NewLine();
         }
 

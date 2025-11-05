@@ -27,6 +27,9 @@
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateSwaggerConverters" />
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateEntityFrameworkCoreValueConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateImplicitConversions" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_DefaultNumericOperationsEnabled" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_SafeDefaultStructSemantics" />
 	</ItemGroup>
 
 	<!-- This ensures the library will be packaged as a source generator when we use `dotnet pack` -->
