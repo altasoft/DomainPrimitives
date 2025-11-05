@@ -934,8 +934,9 @@ internal static class MethodGeneratorHelper
     /// </summary>
     /// <param name="className">The name of the class.</param>
     /// <param name="isValueType">A flag indicating if the type is a value type.</param>
+    /// <param name="safeDefaultStructSemantics"></param>
     /// <param name="builder">The source code builder.</param>
-    public static void GenerateEquatableOperators(string className, bool isValueType, SourceCodeBuilder builder)
+    public static void GenerateEquatableOperators(string className, bool isValueType, bool safeDefaultStructSemantics, SourceCodeBuilder builder)
     {
         builder.AppendInheritDoc()
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
@@ -946,9 +947,32 @@ internal static class MethodGeneratorHelper
         builder.AppendInheritDoc()
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
             .AppendLine($"public bool Equals({className}{nullable} other)")
-            .OpenBracket()
-            .Append("if (").AppendIf(!isValueType, "other is null || ").AppendLine("!_isInitialized || !other._isInitialized)")
-            .AppendIndentation().AppendLine("return false;")
+            .OpenBracket();
+
+        if (safeDefaultStructSemantics)
+        {
+            builder
+                // Both uninitialized => equal
+                .Append("if (")
+                .AppendIf(!isValueType, "other is not null && ")
+                .AppendLine("!_isInitialized && !other._isInitialized)")
+                .AppendIndentation().AppendLine("return true;")
+                // One uninitialized => not equal
+                .AppendLine("if (!_isInitialized || ")
+                .AppendIndentation().AppendLine("    !other._isInitialized)")
+                .AppendIndentation().AppendLine("return false;");
+        }
+        else
+        {
+            builder
+                .Append("if (")
+                .AppendIf(!isValueType, "other is null || ")
+                .AppendLine("!_isInitialized || !other._isInitialized)")
+                .AppendIndentation().AppendLine("return false;");
+        }
+
+        builder
+            // Compare underlying values when both initialized
             .AppendLine("return _value.Equals(other._value);")
             .CloseBracket();
 

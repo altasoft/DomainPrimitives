@@ -15,6 +15,40 @@
 		<Compile Remove="Snapshots\**" />
 		<EmbeddedResource Remove="Snapshots\**" />
 		<None Remove="Snapshots\**" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.ULongValue_GeneratesAllInterfacesAndConverters#LongValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.UIntValue_GeneratesAllInterfacesAndConverters#IntValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.UInt16Value_GeneratesAllInterfacesAndConverters#UShortValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.TimeSpanValue_GeneratesAllInterfacesAndConverters#TimeSpanValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.TimeOnlyValue_GeneratesAllInterfacesAndConverters#TimeOnlyValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.StringValue_WithTransformerGeneratesTransformerCall#TransformableString.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.StringValue_GeneratesAllInterfacesAndConvertersForInternalClass#InternalStringValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.StringValue_GeneratesAllInterfacesAndConverters#StringValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.StringOfStringValue_GeneratesAllInterfacesAndConverters#StringValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.SByteValue_GeneratesAllInterfacesAndConverters#SByteValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.NumericOperators_DefaultEnabled_Generated#SwaggerTypeHelper.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.NumericOperators_DefaultEnabled_Generated#MyIntTypeConverter.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.NumericOperators_DefaultEnabled_Generated#MyIntJsonConverter.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.NumericOperators_DefaultEnabled_Generated#MyInt.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.LongValue_GeneratesAllInterfacesAndConverters#LongValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.IntValue_GeneratesAllInterfacesAndConverters#IntValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.IntOfIntValue_GeneratesAllInterfacesAndConverters#IntOfIntValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.Int16Value_GeneratesAllInterfacesAndConverters#ShortValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.ImplicitConversions_DefaultEnabled_Generated#SwaggerTypeHelper.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.ImplicitConversions_DefaultEnabled_Generated#MyIntTypeConverter.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.ImplicitConversions_DefaultEnabled_Generated#MyIntJsonConverter.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.ImplicitConversions_DefaultEnabled_Generated#MyInt.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.GuidValue_GeneratesAllInterfacesAndConverters#GuidValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.FloatValue_GeneratesAllInterfacesAndConverters#FloatValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.DoubleValue_GeneratesAllInterfacesAndConverters#DoubleValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.DomainPrimitiveWithoutTypeConverters_ShouldNotAddJsonConverter#WithoutTypeConverterValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.DomainPrimitiveWithoutJsonConverters_ShouldNotAddJsonConverter#WithoutJsonConverterValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.DecimalValue_GeneratesAllInterfacesAndConverters#DecimalValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.DateTimeValue_GeneratesAllInterfacesAndConverters#DateTimeValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.DateTimeOffsetValue_GeneratesAllInterfacesAndConverters#DateTimeOffsetValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.DateOnlyValue_GeneratesAllInterfacesAndConverters#DateOnlyValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.CharValue_GeneratesAllInterfacesAndConverters#CharValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.ByteValue_GeneratesAllInterfacesAndConverters#ByteValue.g.received.cs" />
+		<None Remove="Snapshots\DomainPrimitiveGeneratorTest.BoolValue_GeneratesAllInterfacesAndConverters#BoolValue.g.received.cs" />
 	</ItemGroup>
 
 	<ItemGroup>

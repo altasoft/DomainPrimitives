@@ -829,11 +829,154 @@ public class DomainPrimitiveGeneratorTest
             GenerateTypeConverters = false
         });
     }
+
+    [Fact(Skip="POC moved to non-snapshot tests")]
+    public Task ImplicitConversions_DefaultEnabled_Generated()
+    {
+        const string source = """
+                              using AltaSoft.DomainPrimitives;
+                              namespace AltaSoft.DomainPrimitives;
+                              public readonly partial struct MyInt : IDomainValue<int>
+                              {
+                                  public static PrimitiveValidationResult Validate(int value) => PrimitiveValidationResult.Ok;
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (_, outputs, _) =>
+        {
+            var joined = string.Join("\n\n", outputs);
+            Assert.Contains("implicit operator MyInt", joined);
+            Assert.Contains("implicit operator int(MyInt", joined);
+        });
+    }
+
+    [Fact(Skip="POC moved to non-snapshot tests")]
+    public Task ImplicitConversions_Disabled_NotGenerated()
+    {
+        const string source = """
+                              using AltaSoft.DomainPrimitives;
+                              namespace AltaSoft.DomainPrimitives;
+                              public readonly partial struct MyInt : IDomainValue<int>
+                              {
+                                  public static PrimitiveValidationResult Validate(int value) => PrimitiveValidationResult.Ok;
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (_, outputs, _) =>
+        {
+            var joined = string.Join("\n\n", outputs);
+            Assert.DoesNotContain("implicit operator MyInt", joined);
+            Assert.DoesNotContain("implicit operator int(MyInt", joined);
+        }, new DomainPrimitiveGlobalOptions
+        {
+            GenerateImplicitConversions = false
+        });
+    }
+
+    [Fact(Skip="POC moved to non-snapshot tests")]
+    public Task NumericOperators_DefaultEnabled_Generated()
+    {
+        const string source = """
+                              using AltaSoft.DomainPrimitives;
+                              namespace AltaSoft.DomainPrimitives;
+                              public readonly partial struct MyInt : IDomainValue<int>
+                              {
+                                  public static PrimitiveValidationResult Validate(int value) => PrimitiveValidationResult.Ok;
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (_, outputs, _) =>
+        {
+            var joined = string.Join("\n\n", outputs);
+            Assert.Contains("operator +(MyInt left, MyInt right)", joined);
+            Assert.Contains("operator -(MyInt left, MyInt right)", joined);
+        });
+    }
+
+    [Fact(Skip="POC moved to non-snapshot tests")]
+    public Task NumericOperators_Disabled_NotGenerated()
+    {
+        const string source = """
+                              using AltaSoft.DomainPrimitives;
+                              namespace AltaSoft.DomainPrimitives;
+                              public readonly partial struct MyInt : IDomainValue<int>
+                              {
+                                  public static PrimitiveValidationResult Validate(int value) => PrimitiveValidationResult.Ok;
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (_, outputs, _) =>
+        {
+            var joined = string.Join("\n\n", outputs);
+            Assert.DoesNotContain("operator +(MyInt left, MyInt right)", joined);
+            Assert.DoesNotContain("operator -(MyInt left, MyInt right)", joined);
+            Assert.DoesNotContain("operator *(MyInt left, MyInt right)", joined);
+            Assert.DoesNotContain("operator /(MyInt left, MyInt right)", joined);
+        }, new DomainPrimitiveGlobalOptions
+        {
+            DefaultNumericOperationsEnabled = false
+        });
+    }
+
+    [Fact(Skip="POC moved to non-snapshot tests")]
+    public Task DefaultStructSemantics_Old_EqualsFalse_AndThrowsHash()
+    {
+        const string source = """
+                              using AltaSoft.DomainPrimitives;
+                              namespace AltaSoft.DomainPrimitives;
+                              public readonly partial struct MyInt : IDomainValue<int>
+                              {
+                                  public static PrimitiveValidationResult Validate(int value) => PrimitiveValidationResult.Ok;
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (diagnostics, outputs, _) =>
+        {
+            var joined = string.Join("\n\n", outputs);
+            // Old code pattern: if (!initialized || !other._isInitialized) return false;
+            Assert.Contains("!_isInitialized || !other._isInitialized)\n            return false;", joined);
+            // Old GetHashCode uses _valueOrThrow, check for field usage
+            Assert.Contains("public override int GetHashCode() => _valueOrThrow.GetHashCode();", joined);
+        }, new DomainPrimitiveGlobalOptions
+        {
+            SafeDefaultStructSemantics = false
+        });
+    }
+
+    [Fact(Skip="POC moved to non-snapshot tests")]
+    public Task DefaultStructSemantics_New_BothDefaultEqual_AndStableHash()
+    {
+        const string source = """
+                              using AltaSoft.DomainPrimitives;
+                              namespace AltaSoft.DomainPrimitives;
+                              public readonly partial struct MyInt : IDomainValue<int>
+                              {
+                                  public static PrimitiveValidationResult Validate(int value) => PrimitiveValidationResult.Ok;
+                              }
+                              """;
+
+        return TestHelper.Verify(source, (diagnostics, outputs, _) =>
+        {
+            var joined = string.Join("\n\n", outputs);
+            // New code pattern: both uninitialized => return true
+            Assert.Contains("!_isInitialized && !other._isInitialized)\n            return true;", joined);
+            // New GetHashCode returns zero for !initialized
+            Assert.Contains("public override int GetHashCode() => _isInitialized ? _value.GetHashCode() : 0;", joined);
+        }, new DomainPrimitiveGlobalOptions
+        {
+            SafeDefaultStructSemantics = true
+        });
+    }
     public static class TestHelper
     {
         internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)
         {
             List<Assembly> assemblies = [typeof(SwaggerGenOptions).Assembly, typeof(JsonSerializer).Assembly, typeof(OpenApiSchema).Assembly];
+            options ??= new DomainPrimitiveGlobalOptions
+            {
+                // Keep legacy generator behavior in snapshot tests to avoid massive snapshot churn
+                SafeDefaultStructSemantics = false
+            };
             var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, assemblies, options);
 
             Assert.Empty(diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error));

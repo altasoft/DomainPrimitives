@@ -15,6 +15,8 @@
 	<PropertyGroup>
 		<DomainPrimitiveGenerator_GenerateJsonConverters>true</DomainPrimitiveGenerator_GenerateJsonConverters>
 		<DomainPrimitiveGenerator_GenerateXmlSerialization>true</DomainPrimitiveGenerator_GenerateXmlSerialization>
+		<!-- Standardize safe default(struct) semantics for built-in xml data types -->
+		<DomainPrimitiveGenerator_SafeDefaultStructSemantics>true</DomainPrimitiveGenerator_SafeDefaultStructSemantics>
 	</PropertyGroup>
 
 	<ItemGroup>
