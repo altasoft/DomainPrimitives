@@ -829,6 +829,44 @@ public class DomainPrimitiveGeneratorTest
             GenerateTypeConverters = false
         });
     }
+
+    [Fact]
+    public Task DateOnlyValue_GeneratesAllInterfacesAndConvertersWithXml()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              public readonly partial struct DateOnlyXmlValue : IDomainValue<DateOnly>
+                              {
+                              	/// <inheritdoc/>
+                              	public static PrimitiveValidationResult Validate(DateOnly value)
+                              	{
+                              		if (value == default)
+                              			return "Invalid Value";
+
+                              		return PrimitiveValidationResult.Ok;
+                              	}
+                              }
+
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(1, x.Count), new DomainPrimitiveGlobalOptions()
+        {
+            GenerateEntityFrameworkCoreValueConverters = false,
+            GenerateJsonConverters = false,
+            GenerateSwaggerConverters = false,
+            GenerateTypeConverters = false,
+            GenerateXmlSerialization = true
+        });
+    }
+
     public static class TestHelper
     {
         internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)
