@@ -20,11 +20,10 @@ if (app.Environment.IsDevelopment())
 
 var customerGroup = app.MapGroup("v1/Customers")
     .WithTags("Customers")
-    .WithOpenApi();
+    ;
 
 var transferGroup = app.MapGroup("v1/Transfers")
-    .WithTags("Transfers")
-    .WithOpenApi();
+    .WithTags("Transfers");
 
 AddCustomerEndpoints(customerGroup);
 AddTransferEndpoints(transferGroup);
@@ -36,6 +35,7 @@ void AddCustomerEndpoints(IEndpointRouteBuilder routeGroupBuilder)
 {
     routeGroupBuilder.MapPost("Add", (Customer command, [FromServices] CustomerService customerService) => customerService.AddCustomerAsync(command));
     routeGroupBuilder.MapPost("SetAddress", (SetCustomerAddress command, [FromServices] CustomerService customerService) => customerService.SetCustomerAddressAsync(command));
+    routeGroupBuilder.MapPost("SetAddressNullable", (SetCustomerAddressNullable command, [FromServices] CustomerService customerService) => customerService.SetCustomerAddressNullableAsync(command));
     routeGroupBuilder.MapGet("{id}", (CustomerId id, [FromServices] CustomerService customerService) => customerService.GetCustomerByIdAsync(id));
 }
 
@@ -43,6 +43,7 @@ void AddTransferEndpoints(IEndpointRouteBuilder routeGroupBuilder)
 {
     routeGroupBuilder.MapPost("Add", (Transfer command, [FromServices] TransferService service) => service.AddTransferAsync(command));
     routeGroupBuilder.MapGet("{id}", (TransferId id, [FromServices] TransferService service) => service.GetTransferByIdAsync(id));
+    routeGroupBuilder.MapGet("filterValues", ([FromQuery] TransferId? id, [FromServices] TransferService service) => id is null ? Task.FromResult<Transfer?>(null) : service.GetTransferByIdAsync(id.Value));
     routeGroupBuilder.MapGet("ListTotalAmounts", async (TransferService service) =>
     {
         var result = await service.ListAsync();

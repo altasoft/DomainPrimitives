@@ -25,10 +25,10 @@ internal static class MethodGeneratorHelper
         var builder = new SourceCodeBuilder();
         builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
         var usings = types.ConvertAll(x => x.Namespace);
+        usings.Add("System.Text.Json.Nodes");
         usings.Add("Microsoft.Extensions.DependencyInjection");
         usings.Add("Swashbuckle.AspNetCore.SwaggerGen");
-        usings.Add("Microsoft.OpenApi.Models");
-        usings.Add("Microsoft.OpenApi.Any");
+        usings.Add("Microsoft.OpenApi");
         usings.Add("AltaSoft.DomainPrimitives");
         builder.AppendUsings(usings);
 
@@ -59,32 +59,28 @@ internal static class MethodGeneratorHelper
 
         foreach (var data in types)
         {
-            var (typeName, format) = data.PrimitiveTypeSymbol.GetSwaggerTypeAndFormat();
+            var (typeName, format) = data.PrimitiveTypeSymbol.GetOpenApiTypeAndFormat();
 
             // Get the XML documentation comment for the namedTypeSymbol
             var xmlDocumentation = data.TypeSymbol.GetDocumentationCommentXml(cancellationToken: context.CancellationToken);
 
-            AddMapping(false);
-            if (data.TypeSymbol.IsValueType)
-                AddMapping(true);
+            AddMapping(data.TypeSymbol.IsValueType);
 
             continue;
 
-            void AddMapping(bool isNullable)
+            void AddMapping(bool canBeNull)
             {
                 builder.Append("options.MapType<").Append(data.ClassName);
-                if (isNullable)
-                    builder.Append("?");
+
                 builder.Append(">(() => new OpenApiSchema")
                     .OpenBracket()
 
-                    .Append("Type = ").Append(Quote(typeName)).AppendLine(",");
+                    .Append("Type = ").Append(typeName).AppendIf(canBeNull, "| JsonSchemaType.Null").AppendLine(",");
+
                 if (!string.IsNullOrEmpty(format))
                     builder.Append("Format = ").Append(Quote(data.SerializationFormat ?? format)).AppendLine(",");
-                if (isNullable)
-                    builder.AppendLine("Nullable = true,");
 
-                var title = isNullable ? $"Nullable<{data.ClassName}>" : data.ClassName;
+                var title = data.ClassName;
                 builder.Append("Title = ").Append(Quote(title)).AppendLine(",");
 
                 if (!string.IsNullOrEmpty(xmlDocumentation))
@@ -104,7 +100,10 @@ internal static class MethodGeneratorHelper
                     if (example is not null)
                     {
                         var exampleValue = example.InnerText.Trim().Replace("\"", "\\\"");
-                        builder.Append("Example = new OpenApiString(").Append("\"" + exampleValue + "\"").AppendLine("),");
+                        if (!data.UnderlyingType.IsNumeric())
+                            exampleValue = Quote(exampleValue);
+
+                        builder.Append("Example = JsonValue.Create(").Append(exampleValue).AppendLine("),");
                     }
                 }
 
