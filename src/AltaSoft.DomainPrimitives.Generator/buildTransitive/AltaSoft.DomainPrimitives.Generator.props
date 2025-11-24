@@ -3,6 +3,10 @@
 	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
 	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
 	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
-	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateSwaggerConverters" />
+	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateOpenApiHelper" />
+
+	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateEntityFrameworkCoreValueConverters" />
+	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateImplicitConversions" />
+	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateNumericOperations" />
   </ItemGroup>
 </Project>

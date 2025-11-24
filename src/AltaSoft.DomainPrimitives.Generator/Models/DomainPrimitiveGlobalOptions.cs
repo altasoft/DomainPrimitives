@@ -24,13 +24,13 @@ internal sealed record DomainPrimitiveGlobalOptions
     public bool GenerateTypeConverters { get; set; } = true;
 
     /// <summary>
-    /// Gets or sets a value indicating whether to generate Swagger converters for Domain Primitive types.
+    /// Gets or sets a value indicating whether to generate OpenAPI helper for Domain Primitive types.
     /// The default value is true.
     /// </summary>
     /// <value>
     ///   <c>true</c> if Swagger converters should be generated; otherwise, <c>false</c>.
     /// </value>
-    public bool GenerateSwaggerConverters { get; set; } = true;
+    public bool GenerateOpenApiHelper { get; set; } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether XML serialization should be generated for Domain Primitive types.
@@ -48,4 +48,20 @@ internal sealed record DomainPrimitiveGlobalOptions
     ///   <c>true</c> if Entity Framework Core value converters should be generated; otherwise, <c>false</c>.
     /// </value>
     public bool GenerateEntityFrameworkCoreValueConverters { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether Implicit operators should be generated for Domain Primitive types.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if Implicit operators should be generated; otherwise, <c>false</c>.
+    /// </value>
+    public bool GenerateImplicitOperators { get; set; } = true;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether Numeric operators should be generated for Domain Primitive types.
+    /// </summary>
+    /// <value>
+    ///   <c>true</c> if Numeric operators should be generated; otherwise, <c>false</c>.
+    /// </value>
+    public bool GenerateNumericOperators { get; set; } = true;
 }

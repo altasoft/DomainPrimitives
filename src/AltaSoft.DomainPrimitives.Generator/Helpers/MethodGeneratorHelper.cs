@@ -17,7 +17,7 @@ internal static class MethodGeneratorHelper
     /// <param name="assemblyName">The AssemblyName of the project.</param>
     /// <param name="types">A list of custom types to add Swagger mappings for.</param>
     /// <param name="context">The source production context.</param>
-    internal static void AddSwaggerOptions(string assemblyName, List<GeneratorData> types, SourceProductionContext context)
+    internal static void AddOpenApiSchemas(string assemblyName, List<GeneratorData> types, SourceProductionContext context)
     {
         if (types.Count == 0)
             return;
@@ -25,9 +25,11 @@ internal static class MethodGeneratorHelper
         var builder = new SourceCodeBuilder();
         builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
         var usings = types.ConvertAll(x => x.Namespace);
+        usings.Add("System");
+        usings.Add("System.Collections.Frozen");
+        usings.Add("System.Collections.Generic");
         usings.Add("System.Text.Json.Nodes");
         usings.Add("Microsoft.Extensions.DependencyInjection");
-        usings.Add("Swashbuckle.AspNetCore.SwaggerGen");
         usings.Add("Microsoft.OpenApi");
         usings.Add("AltaSoft.DomainPrimitives");
         builder.AppendUsings(usings);
@@ -36,25 +38,26 @@ internal static class MethodGeneratorHelper
 
         var ns = string.Join(".", assemblyName.Split('.').Select(s => char.IsDigit(s[0]) ? '_' + s : s));
 
-        builder.AppendNamespace(ns + ".Converters.Extensions");
+        builder.AppendNamespace(ns + ".Converters.Helpers");
 
         builder.AppendSummary($"Helper class providing methods to configure Swagger mappings for DomainPrimitive types of {assemblyName}");
 
-        builder.AppendClass(false, "public static", "SwaggerTypeHelper");
+        builder.AppendClass(false, "public static", "OpenApiHelper");
 
-        builder.AppendSummary("Adds Swagger mappings for specific custom types to ensure proper OpenAPI documentation generation.");
-        builder.AppendParamDescription("options", "The SwaggerGenOptions instance to which mappings are added.");
+        builder.AppendSummary("Mapping of DomainPrimitive types to OpenApiSchema definitions.");
 
         builder.AppendLine("/// <remarks>");
-        builder.AppendLine("/// The method adds Swagger mappings for the following types:");
+        builder.AppendLine("/// The Dictionary contains mappings for the following types:");
 
         foreach (var data in types)
         {
+            builder.AppendLine("/// <para>");
             builder.Append("/// <see cref=\"").Append(data.ClassName).AppendLine("\" />");
+            builder.AppendLine("/// </para>");
         }
         builder.AppendLine("/// </remarks>");
 
-        builder.AppendLine("public static void AddSwaggerMappings(this SwaggerGenOptions options)")
+        builder.AppendLine("public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()")
             .OpenBracket();
 
         foreach (var data in types)
@@ -64,18 +67,19 @@ internal static class MethodGeneratorHelper
             // Get the XML documentation comment for the namedTypeSymbol
             var xmlDocumentation = data.TypeSymbol.GetDocumentationCommentXml(cancellationToken: context.CancellationToken);
 
+            builder.OpenBracket();
             AddMapping(data.TypeSymbol.IsValueType);
+            builder.CloseBracketWithComma();
 
             continue;
 
             void AddMapping(bool canBeNull)
             {
-                builder.Append("options.MapType<").Append(data.ClassName);
-
-                builder.Append(">(() => new OpenApiSchema")
+                builder.Append("typeof(").Append(data.ClassName).AppendLine("),");
+                builder.Append("new OpenApiSchema")
                     .OpenBracket()
 
-                    .Append("Type = ").Append(typeName).AppendIf(canBeNull, "| JsonSchemaType.Null").AppendLine(",");
+                    .Append("Type = ").Append(typeName).AppendIf(canBeNull, " | JsonSchemaType.Null").AppendLine(",");
 
                 if (!string.IsNullOrEmpty(format))
                     builder.Append("Format = ").Append(Quote(data.SerializationFormat ?? format)).AppendLine(",");
@@ -109,14 +113,15 @@ internal static class MethodGeneratorHelper
 
                 builder.Length -= SourceCodeBuilder.s_newLineLength + 1;
                 builder.NewLine();
-                builder.AppendLine("});");
+                builder.AppendLine("}");
             }
         }
 
-        builder.CloseBracket();
+        builder.Rollback(builder.GetNewLineLength() + 1).NewLine();
+        builder.CloseBracketWithString(".ToFrozenDictionary();");
         builder.CloseBracket();
 
-        context.AddSource("SwaggerTypeHelper.g.cs", builder.ToString());
+        context.AddSource("OpenApiHelper.g.cs", builder.ToString());
 
         return;
 

@@ -4,7 +4,7 @@ using AltaSoft.DomainPrimitives;
 namespace DomainPrimitivesDemo
 {
     /// <summary>
-    /// CustomerId
+    /// Birth Date domain primitive representing a customer's date of birth.
     /// </summary>
     public readonly partial struct BirthDate : IDomainValue<DateOnly>
     {

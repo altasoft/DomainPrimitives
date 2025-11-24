@@ -268,6 +268,18 @@ internal sealed class SourceCodeBuilder
     public SourceCodeBuilder CloseBracket() => AppendLine("}");
 
     /// <summary>
+    /// Appends a closing bracket '}' followed by a specified string to the source code on a new line.
+    /// </summary>
+    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    public SourceCodeBuilder CloseBracketWithString(string endWith) => AppendLine($"}}{endWith}");
+
+    /// <summary>
+    /// Appends a closing bracket '}' and colon ',' to the source code on a new line.
+    /// </summary>
+    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    public SourceCodeBuilder CloseBracketWithComma() => AppendLine("},");
+
+    /// <summary>
     /// Appends a closing bracket '}' and semicolon ';' to the source code on a new line.
     /// </summary>
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>

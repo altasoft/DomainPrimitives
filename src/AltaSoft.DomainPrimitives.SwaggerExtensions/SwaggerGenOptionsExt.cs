@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -68,13 +69,13 @@ public static class SwaggerGenOptionsExt
     private static void ProcessAssembly(Assembly assembly, SwaggerGenOptions options)
     {
         var typesWithAddSwaggerMappings = assembly.GetExportedTypes()
-            .Where(type => type is { IsPublic: true, Name: "OpenApiTypeHelper" })
-            .Select(type => type.GetProperty("Mappings", BindingFlags.Public | BindingFlags.Static));
+            .Where(type => type is { IsPublic: true, Name: "OpenApiHelper" })
+            .Select(type => type.GetField("Schemas", BindingFlags.Public | BindingFlags.Static));
 
         // Calls the AddSwaggerMappings method for each type.
         foreach (var method in typesWithAddSwaggerMappings)
         {
-            var values = method?.GetValue(null) as Dictionary<Type, OpenApiSchema>;
+            var values = method?.GetValue(null) as FrozenDictionary<Type, OpenApiSchema>;
             if (values is null or { Count: 0 })
                 continue;
 

@@ -71,7 +71,7 @@ internal static class Executor
                     MethodGeneratorHelper.ProcessTypeConverter(generatorData, context);
                 }
 
-                if (globalOptions.GenerateSwaggerConverters)
+                if (globalOptions.GenerateOpenApiHelper)
                 {
                     swaggerTypes.Add(generatorData);
                 }
@@ -83,7 +83,7 @@ internal static class Executor
                 }
             }
 
-            MethodGeneratorHelper.AddSwaggerOptions(assemblyName, swaggerTypes, context);
+            MethodGeneratorHelper.AddOpenApiSchemas(assemblyName, swaggerTypes, context);
 
             MethodGeneratorHelper.GenerateValueConvertersExtension(swaggerTypes.Count == 0, assemblyName, efCoreValueConverterTypes, context);
         }
@@ -133,10 +133,10 @@ internal static class Executor
             PrimitiveTypeSymbol = underlyingTypeSymbol,
             PrimitiveTypeFriendlyName = underlyingTypeSymbol.GetFriendlyName(),
             Namespace = typeSymbol.ContainingNamespace.ToDisplayString(),
-            GenerateImplicitOperators = true,
+            GenerateImplicitOperators = globalOptions.GenerateImplicitOperators,
             ParentSymbols = parentSymbols,
             GenerateConvertibles = underlyingType.IsIConvertible(),
-            UseTransformMethod = hasTransformMethod
+            UseTransformMethod = hasTransformMethod,
         };
 
         var attributes = typeSymbol.GetAttributes();
@@ -175,18 +175,14 @@ internal static class Executor
             generatorData.SerializationFormat = value.Value?.ToString();
         }
 
-        if (isNumeric)
+        if (isNumeric && globalOptions.GenerateNumericOperators)
         {
             var supportedOperationsAttributeData = GetSupportedOperationsAttributeData(typeSymbol, underlyingType, parentSymbols, cachedOperationsAttributes);
 
             generatorData.GenerateAdditionOperators = supportedOperationsAttributeData.Addition && !typeSymbol.ImplementsInterface("System.Numerics.IAdditionOperators");
-
             generatorData.GenerateSubtractionOperators = supportedOperationsAttributeData.Subtraction && !typeSymbol.ImplementsInterface("System.Numerics.ISubtractionOperators");
-
             generatorData.GenerateDivisionOperators = supportedOperationsAttributeData.Division && !typeSymbol.ImplementsInterface("System.Numerics.IDivisionOperators");
-
             generatorData.GenerateMultiplyOperators = supportedOperationsAttributeData.Multiplication && !typeSymbol.ImplementsInterface("System.Numerics.IMultiplyOperators");
-
             generatorData.GenerateModulusOperator = supportedOperationsAttributeData.Modulus && !typeSymbol.ImplementsInterface("System.Numerics.IModulusOperator");
         }
 
