@@ -28,7 +28,7 @@ internal sealed record DomainPrimitiveGlobalOptions
     /// The default value is true.
     /// </summary>
     /// <value>
-    ///   <c>true</c> if Swagger converters should be generated; otherwise, <c>false</c>.
+    ///   <c>true</c> if OpenApiHelper should be generated; otherwise, <c>false</c>.
     /// </value>
     public bool GenerateOpenApiHelper { get; set; } = true;
 

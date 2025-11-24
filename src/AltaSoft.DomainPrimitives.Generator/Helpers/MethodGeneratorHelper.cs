@@ -7,15 +7,15 @@ using Microsoft.CodeAnalysis;
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
 /// <summary>
-/// A helper class providing methods for generating code related to Swagger, TypeConverter, JsonConverter, and other operations.
+/// A helper class providing methods for generating code related to OpenApi mapping, TypeConverter, JsonConverter, and other operations.
 /// </summary>
 internal static class MethodGeneratorHelper
 {
     /// <summary>
-    /// Adds Swagger mappings for specific custom types to ensure proper OpenAPI documentation generation.
+    /// Adds OpenApiSchema mappings for specific custom types to ensure proper OpenAPI documentation generation.
     /// </summary>
     /// <param name="assemblyName">The AssemblyName of the project.</param>
-    /// <param name="types">A list of custom types to add Swagger mappings for.</param>
+    /// <param name="types">A list of custom types to add OpenApiSchema mappings for.</param>
     /// <param name="context">The source production context.</param>
     internal static void AddOpenApiSchemas(string assemblyName, List<GeneratorData> types, SourceProductionContext context)
     {
@@ -40,7 +40,7 @@ internal static class MethodGeneratorHelper
 
         builder.AppendNamespace(ns + ".Converters.Helpers");
 
-        builder.AppendSummary($"Helper class providing methods to configure Swagger mappings for DomainPrimitive types of {assemblyName}");
+        builder.AppendSummary($"Helper class providing methods to configure OpenApiSchema mappings for DomainPrimitive types of {assemblyName}");
 
         builder.AppendClass(false, "public static", "OpenApiHelper");
 

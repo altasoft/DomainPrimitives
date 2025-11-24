@@ -1,25 +1,12 @@
 using AltaSoft.DomainPrimitives.Demo;
 using AltaSoft.DomainPrimitives.SwaggerExtensions;
 using DomainPrimitivesDemo;
-using DomainPrimitivesDemo.Converters.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi(options =>
-{
-    options.AddSchemaTransformer((schema, context, _) =>
-    {
-        var type = context.JsonTypeInfo.Type;
-
-        if (OpenApiHelper.Schemas.TryGetValue(type, out var value))
-            schema = value;
-
-        return Task.CompletedTask;
-    });
-});
-
+builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => { options.AddAllDomainPrimitivesSwaggerMappings(); });
 builder.Services.AddSingleton<CustomerService>();
@@ -33,7 +20,6 @@ app.MapOpenApi();
 
 //scalar
 app.MapScalarApiReference();
-
 
 var customerGroup = app.MapGroup("v1/Customers").WithTags("Customers");
 

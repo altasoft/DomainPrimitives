@@ -3,7 +3,7 @@ using System.Reflection;
 using System.Text.Json;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 namespace AltaSoft.DomainPrimitives.Generator.Tests;

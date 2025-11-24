@@ -92,8 +92,8 @@ internal static class TestHelpers
                         value = _options.GenerateXmlSerialization.ToString();
                         return true;
 
-                    case "build_property.DomainPrimitiveGenerator_GenerateSwaggerConverters":
-                        value = _options.GenerateSwaggerConverters.ToString();
+                    case "build_property.DomainPrimitiveGenerator_GenerateOpenApiHelper":
+                        value = _options.GenerateOpenApiHelper.ToString();
                         return true;
 
                     case "build_property.DomainPrimitiveGenerator_GenerateTypeConverters":
@@ -104,6 +104,13 @@ internal static class TestHelpers
                         value = _options.GenerateEntityFrameworkCoreValueConverters.ToString();
                         return true;
 
+                    case "build_property.DomainPrimitiveGenerator_GenerateImplicitConversions":
+                        value = _options.GenerateImplicitOperators.ToString();
+                        return true;
+
+                    case "build_property.DomainPrimitiveGenerator_GenerateNumericOperations":
+                        value = _options.GenerateNumericOperators.ToString();
+                        return true;
                     default:
                         value = null;
                         return false;

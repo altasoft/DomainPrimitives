@@ -20,12 +20,12 @@
 	<ItemGroup>
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
-		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateSwaggerConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateOpenApiHelper" />
 		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="8.1.1" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.0.1" />
 	</ItemGroup>
 
 

@@ -32,7 +32,7 @@ internal static class Executor
         if (typesToGenerate.IsDefaultOrEmpty)
             return;
 
-        var swaggerTypes = new List<GeneratorData>(typesToGenerate.Length);
+        var openApiTypes = new List<GeneratorData>(typesToGenerate.Length);
         var efCoreValueConverterTypes = new List<INamedTypeSymbol>(typesToGenerate.Length);
         var cachedOperationsAttributes = new Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData>(SymbolEqualityComparer.Default);
 
@@ -73,7 +73,7 @@ internal static class Executor
 
                 if (globalOptions.GenerateOpenApiHelper)
                 {
-                    swaggerTypes.Add(generatorData);
+                    openApiTypes.Add(generatorData);
                 }
 
                 if (globalOptions.GenerateEntityFrameworkCoreValueConverters)
@@ -83,9 +83,9 @@ internal static class Executor
                 }
             }
 
-            MethodGeneratorHelper.AddOpenApiSchemas(assemblyName, swaggerTypes, context);
+            MethodGeneratorHelper.AddOpenApiSchemas(assemblyName, openApiTypes, context);
 
-            MethodGeneratorHelper.GenerateValueConvertersExtension(swaggerTypes.Count == 0, assemblyName, efCoreValueConverterTypes, context);
+            MethodGeneratorHelper.GenerateValueConvertersExtension(openApiTypes.Count == 0, assemblyName, efCoreValueConverterTypes, context);
         }
         catch (Exception ex)
         {

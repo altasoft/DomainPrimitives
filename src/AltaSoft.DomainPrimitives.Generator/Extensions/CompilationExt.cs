@@ -179,9 +179,9 @@ internal static class CompilationExt
         }
 
         /// <summary>
-        /// Gets the Swagger type and format for a given primitive type.
+        /// Gets the OpenApiType and format for a given primitive type.
         /// </summary>
-        /// <returns>A tuple containing the Swagger type and format as strings.</returns>
+        /// <returns>A tuple containing the OpenApi type and format as strings.</returns>
         public (string type, string format) GetOpenApiTypeAndFormat()
         {
             var underlyingType = domainPrimitiveType.GetDomainPrimitiveUnderlyingType();
