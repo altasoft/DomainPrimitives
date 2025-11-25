@@ -23,6 +23,5 @@ public static class OpenApiOptionsExt
             return options;
         }
     }
-    
 }
 #endif

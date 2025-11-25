@@ -14,7 +14,7 @@ public sealed class CustomerService
 
     public Task AddCustomerAsync(Customer customer)
     {
-        if (!_customers.TryAdd(customer.CustomerId, customer))
+        if (!_customers.TryAdd(customer.A_CustomerId, customer))
             throw new BadHttpRequestException("Customer already exists");
 
         return Task.CompletedTask;

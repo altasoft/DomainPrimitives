@@ -68,18 +68,18 @@ internal static class MethodGeneratorHelper
             var xmlDocumentation = data.TypeSymbol.GetDocumentationCommentXml(cancellationToken: context.CancellationToken);
 
             builder.OpenBracket();
-            AddMapping(data.TypeSymbol.IsValueType);
+            AddMapping();
             builder.CloseBracketWithComma();
 
             continue;
 
-            void AddMapping(bool canBeNull)
+            void AddMapping()
             {
                 builder.Append("typeof(").Append(data.ClassName).AppendLine("),");
                 builder.Append("new OpenApiSchema")
                     .OpenBracket()
 
-                    .Append("Type = ").Append(typeName).AppendIf(canBeNull, " | JsonSchemaType.Null").AppendLine(",");
+                    .Append("Type = ").Append(typeName).AppendLine(",");
 
                 if (!string.IsNullOrEmpty(format))
                     builder.Append("Format = ").Append(Quote(data.SerializationFormat ?? format)).AppendLine(",");

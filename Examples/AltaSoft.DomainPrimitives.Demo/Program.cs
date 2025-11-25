@@ -20,13 +20,15 @@ var app = builder.Build();
 app.UseSwagger();
 app.UseSwaggerUI();
 
-app.MapOpenApi();
 
 //scalar
-app.MapScalarApiReference();
+app.MapOpenApi();
+app.MapScalarApiReference(options =>
+{
+    options.Theme = ScalarTheme.DeepSpace;
+});
 
 var customerGroup = app.MapGroup("v1/Customers").WithTags("Customers");
-
 var transferGroup = app.MapGroup("v1/Transfers").WithTags("Transfers");
 
 AddCustomerEndpoints(customerGroup);
@@ -39,6 +41,10 @@ static void AddCustomerEndpoints(IEndpointRouteBuilder routeGroupBuilder)
 {
     routeGroupBuilder.MapPost("Add",
         (Customer command, [FromServices] CustomerService customerService) => customerService.AddCustomerAsync(command));
+
+    routeGroupBuilder.MapPost("AddNull",
+        (CustomerNullable command, [FromServices] CustomerService customerService) => "1");
+
     routeGroupBuilder.MapPost("SetAddress",
         (SetCustomerAddress command, [FromServices] CustomerService customerService) => customerService.SetCustomerAddressAsync(command));
     routeGroupBuilder.MapPost("SetAddressNullable",
@@ -60,3 +66,4 @@ static void AddTransferEndpoints(IEndpointRouteBuilder routeGroupBuilder)
         return (PositiveAmount)result.Sum(x => x.TransferAmount + x.TransferFee ?? 0);
     });
 }
+

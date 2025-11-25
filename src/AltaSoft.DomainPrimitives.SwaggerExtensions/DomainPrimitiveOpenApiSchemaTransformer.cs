@@ -14,7 +14,7 @@ namespace AltaSoft.DomainPrimitives.SwaggerExtensions;
 /// </summary>
 internal sealed class DomainPrimitiveOpenApiSchemaTransformer : IOpenApiSchemaTransformer
 {
-    private readonly Lazy<FrozenDictionary<Type, OpenApiSchema>> _schemas = new(Initialize);
+    private static readonly Lazy<FrozenDictionary<Type, OpenApiSchema>> s_schemas = new(Initialize);
     private static FrozenDictionary<Type, OpenApiSchema> Initialize()
     {
         var result = new Dictionary<Type, OpenApiSchema>();
@@ -28,7 +28,14 @@ internal sealed class DomainPrimitiveOpenApiSchemaTransformer : IOpenApiSchemaTr
     /// <inheritdoc />
     public Task TransformAsync(OpenApiSchema schema, OpenApiSchemaTransformerContext context, CancellationToken cancellationToken)
     {
-        if (!_schemas.Value.TryGetValue(context.JsonTypeInfo.Type, out var domainPrimitiveSchema))
+        var type = context.JsonTypeInfo.Type;
+        var isNullable = false;
+        if (Nullable.GetUnderlyingType(type) is { } t)
+        {
+            type = t;
+            isNullable = true;
+        }
+        if (!s_schemas.Value.TryGetValue(type, out var domainPrimitiveSchema))
             return Task.CompletedTask;
 
         schema.Type = domainPrimitiveSchema.Type;
@@ -43,6 +50,19 @@ internal sealed class DomainPrimitiveOpenApiSchemaTransformer : IOpenApiSchemaTr
         schema.Minimum = domainPrimitiveSchema.Minimum;
         schema.Maximum = domainPrimitiveSchema.Maximum;
         schema.Pattern = domainPrimitiveSchema.Pattern;
+        if (schema.Metadata is not null)
+        {
+            //that's how it is filled
+            isNullable |= schema.Metadata.TryGetValue("x-is-nullable-property", out var nullable) && nullable is true;
+            schema.Metadata.Clear();
+            schema.Metadata.Add("x-schema-id", "");
+        }
+
+        if (context.JsonPropertyInfo is null)
+            return Task.CompletedTask;
+
+        if (isNullable)
+            schema.Type |= JsonSchemaType.Null;
 
         return Task.CompletedTask;
     }
