@@ -6,7 +6,11 @@ using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddOpenApi();
+builder.Services.AddOpenApi(options =>
+{
+    options.AddAllDomainPrimitivesSchemaTransformer();
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => { options.AddAllDomainPrimitivesSwaggerMappings(); });
 builder.Services.AddSingleton<CustomerService>();

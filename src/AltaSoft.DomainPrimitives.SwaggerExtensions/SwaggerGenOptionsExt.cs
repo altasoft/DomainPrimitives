@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Frozen;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -27,7 +26,7 @@ public static class SwaggerGenOptionsExt
         {
             foreach (var assembly in assemblies)
             {
-                ProcessAssembly(assembly, options);
+                OpenApiHelperProcessor.ProcessAssembly(assembly, options.ProcessSwaggerOptions);
             }
         }
 
@@ -36,59 +35,18 @@ public static class SwaggerGenOptionsExt
         /// </summary>
         public void AddAllDomainPrimitivesSwaggerMappings()
         {
-            var loadedAssemblies = new HashSet<string>(AppDomain.CurrentDomain.GetAssemblies()
-                .Where(a => IsSystemAssembly(a.FullName)).Select(a => a.FullName!));
-
-            var assembliesToCheck = new Queue<Assembly>(AppDomain.CurrentDomain.GetAssemblies());
-            var processedPrimitiveAssemblies = new HashSet<Assembly>();
-
-            while (assembliesToCheck.Count > 0)
-            {
-                var assembly = assembliesToCheck.Dequeue();
-
-                if (!processedPrimitiveAssemblies.Contains(assembly) &&
-                    assembly.GetCustomAttribute<DomainPrimitiveAssemblyAttribute>() is not null)
-                {
-                    ProcessAssembly(assembly, options);
-                    processedPrimitiveAssemblies.Add(assembly);
-                }
-
-                foreach (var reference in assembly.GetReferencedAssemblies())
-                {
-                    if (loadedAssemblies.Contains(reference.FullName) || IsSystemAssembly(reference.FullName))
-                        continue;
-
-                    var loadedAssembly = Assembly.Load(reference);
-                    assembliesToCheck.Enqueue(loadedAssembly);
-                    loadedAssemblies.Add(reference.FullName);
-                }
-            }
+            OpenApiHelperProcessor.ProcessOpenApiHelpers(options.ProcessSwaggerOptions);
         }
-    }
 
-    private static void ProcessAssembly(Assembly assembly, SwaggerGenOptions options)
-    {
-        var typesWithAddSwaggerMappings = assembly.GetExportedTypes()
-            .Where(type => type is { IsPublic: true, Name: "OpenApiHelper" })
-            .Select(type => type.GetField("Schemas", BindingFlags.Public | BindingFlags.Static));
-
-        // Calls the AddSwaggerMappings method for each type.
-        foreach (var method in typesWithAddSwaggerMappings)
+        /// <summary>
+        /// Processes swagger options
+        /// </summary>
+        /// <returns></returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        private void ProcessSwaggerOptions(FrozenDictionary<Type, OpenApiSchema> values)
         {
-            var values = method?.GetValue(null) as FrozenDictionary<Type, OpenApiSchema>;
-            if (values is null or { Count: 0 })
-                continue;
-
             foreach (var (type, schema) in values)
-            {
                 options.MapType(type, () => schema);
-
-            }
         }
-    }
-
-    private static bool IsSystemAssembly(string? assemblyFullName)
-    {
-        return assemblyFullName?.StartsWith("System.") != false || assemblyFullName.StartsWith("Microsoft.");
     }
 }
