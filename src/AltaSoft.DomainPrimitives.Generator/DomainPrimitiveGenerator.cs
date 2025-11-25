@@ -134,7 +134,8 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
         if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateNumericOperations", out value)
             && bool.TryParse(value, out var generateNumericOperators))
         {
-            result.GenerateImplicitOperators = generateNumericOperators;
+            // previously incorrectly assigned to GenerateImplicitOperators; fix to assign numeric flag
+            result.GenerateNumericOperators = generateNumericOperators;
         }
 
         return result;

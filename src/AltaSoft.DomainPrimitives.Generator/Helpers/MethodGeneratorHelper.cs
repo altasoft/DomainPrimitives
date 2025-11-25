@@ -313,9 +313,12 @@ internal static class MethodGeneratorHelper
 
         if (data.SerializationFormat is null)
         {
+            var rawValueStr = $"JsonInternalConverters.{converterName}Converter.Read(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")}";
+
             builder.AppendLine("try")
                 .OpenBracket()
-                .AppendLine($"return JsonInternalConverters.{converterName}Converter.Read(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")};")
+                .AppendLineIf(data.GenerateImplicitOperators, $"return {rawValueStr};")
+                .AppendLineIf(!data.GenerateImplicitOperators, $"return new ({rawValueStr});")
                 .CloseBracket();
         }
         else
@@ -349,9 +352,13 @@ internal static class MethodGeneratorHelper
 
         if (data.SerializationFormat is null)
         {
+
+            var rawValueStr = $"JsonInternalConverters.{converterName}Converter.ReadAsPropertyName(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")}";
+
             builder.AppendLine("try")
                 .OpenBracket()
-                .AppendLine($"return JsonInternalConverters.{converterName}Converter.ReadAsPropertyName(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")};")
+                .AppendLineIf(data.GenerateImplicitOperators, $"return {rawValueStr};")
+                .AppendLineIf(!data.GenerateImplicitOperators, $"return new({rawValueStr});")
                 .CloseBracket();
         }
         else
@@ -770,25 +777,30 @@ internal static class MethodGeneratorHelper
         var isChar = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.Char;
         var isBool = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.Boolean;
 
+        if (!data.GenerateImplicitOperators)
+            builder.Append("new (");
+
         if (isString)
         {
-            builder.AppendLine("s;");
+            builder.Append("s");
         }
         else
         if (isChar)
         {
-            builder.AppendLine("char.Parse(s);");
+            builder.Append("char.Parse(s)");
         }
         else
         if (isBool)
         {
-            builder.AppendLine("bool.Parse(s);");
+            builder.Append("bool.Parse(s)");
         }
         else
         {
             builder.Append($"{underlyingType}.")
-                .AppendLineIfElse(format is null, "Parse(s, provider);", $"ParseExact(s, \"{format}\", provider);");
+                .AppendIfElse(format is null, "Parse(s, provider)", $"ParseExact(s, \"{format}\", provider)");
         }
+
+        builder.AppendLine(!data.GenerateImplicitOperators ? ");" : ";");
 
         builder.NewLine();
 

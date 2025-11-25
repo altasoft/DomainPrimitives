@@ -10,6 +10,5 @@ public static class ModuleInitializer
     {
         VerifySourceGenerators.Initialize();
         DiffTools.UseOrder(DiffTool.VisualStudioCode, DiffTool.VisualStudio);
-
     }
 }
