@@ -855,7 +855,7 @@ public class DomainPrimitiveGeneratorTest
         {
             GenerateEntityFrameworkCoreValueConverters = false,
             GenerateJsonConverters = false,
-            GenerateSwaggerConverters = false,
+            GenerateOpenApiHelper = false,
             GenerateTypeConverters = false,
             GenerateXmlSerialization = true
         });
