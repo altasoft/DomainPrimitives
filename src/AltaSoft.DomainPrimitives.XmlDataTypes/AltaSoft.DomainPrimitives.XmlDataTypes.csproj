@@ -1,36 +1,38 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project Sdk="Microsoft.NET.Sdk">
-	<PropertyGroup>
-		<TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
-		<AssemblyTitle>Domain Primitives XML Data Types</AssemblyTitle>
-		<Description>Domain Primitives library for C# (XML Data Types).</Description>
-	</PropertyGroup>
+  <PropertyGroup>
+	<TargetFrameworks>$(DefaultTargetFrameworks)</TargetFrameworks>
+	<AssemblyTitle>Domain Primitives XML Data Types</AssemblyTitle>
+	<Description>Domain Primitives library for C# (XML Data Types).</Description>
+	<IncludeSymbols>true</IncludeSymbols>
+	<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<Title>Domain Primitives XML Data Types</Title>
-		<PackageTags>ddd;domain;entity;dotnet-core;value-object;strongly-typed;xml data types</PackageTags>
-	</PropertyGroup>
+  <PropertyGroup>
+	<Title>Domain Primitives XML Data Types</Title>
+	<PackageTags>ddd;domain;entity;dotnet-core;value-object;strongly-typed;xml data types</PackageTags>
+  </PropertyGroup>
 
-	<PropertyGroup>
-		<DomainPrimitiveGenerator_GenerateJsonConverters>true</DomainPrimitiveGenerator_GenerateJsonConverters>
-		<DomainPrimitiveGenerator_GenerateXmlSerialization>true</DomainPrimitiveGenerator_GenerateXmlSerialization>
-	</PropertyGroup>
+  <PropertyGroup>
+	<DomainPrimitiveGenerator_GenerateJsonConverters>true</DomainPrimitiveGenerator_GenerateJsonConverters>
+	<DomainPrimitiveGenerator_GenerateXmlSerialization>true</DomainPrimitiveGenerator_GenerateXmlSerialization>
+  </PropertyGroup>
 
-	<ItemGroup>
-		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
-		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
-		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateOpenApiHelper" />
-		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
-	</ItemGroup>
+  <ItemGroup>
+	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
+	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
+	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateOpenApiHelper" />
+	<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
+  </ItemGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
-	</ItemGroup>
+  <ItemGroup>
+	<PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" />
+  </ItemGroup>
 
 
-	<ItemGroup>
-	  <ProjectReference Include="..\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj" />
-	  <ProjectReference Include="..\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime" />
-	</ItemGroup>
+  <ItemGroup>
+	<ProjectReference Include="..\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj" />
+	<ProjectReference Include="..\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime" />
+  </ItemGroup>
 
 </Project>

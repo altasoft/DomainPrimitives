@@ -19,14 +19,17 @@
   <PropertyGroup>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
 	<ProjectUrl>https://github.com/altasoft/DomainPrimitives</ProjectUrl>
+
+	<PublishRepositoryUrl>true</PublishRepositoryUrl>
 	<RepositoryUrl>https://github.com/altasoft/DomainPrimitives</RepositoryUrl>
 	<RepositoryType>git</RepositoryType>
 	<PackageLicenseExpression>MIT</PackageLicenseExpression>
-	<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+	<GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 	<PackageProjectUrl>https://github.com/altasoft/DomainPrimitives</PackageProjectUrl>
-	<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
+	<EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
 	<EnforceExtendedAnalyzerRules>true</EnforceExtendedAnalyzerRules>
-	<EnableNETAnalyzers>True</EnableNETAnalyzers>
+	<EnableNETAnalyzers>true</EnableNETAnalyzers>
+
 	<PackageTags>ddd;domain;entity;dotnet-core;value-object;strongly-typed;</PackageTags>
   </PropertyGroup>
 

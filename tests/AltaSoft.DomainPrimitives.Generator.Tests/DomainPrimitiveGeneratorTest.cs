@@ -851,7 +851,7 @@ public class DomainPrimitiveGeneratorTest
 
                               """;
 
-        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(1, x.Count), new DomainPrimitiveGlobalOptions()
+        return TestHelper.Verify(source, (_, x, _) => Assert.Single(x), new DomainPrimitiveGlobalOptions()
         {
             GenerateEntityFrameworkCoreValueConverters = false,
             GenerateJsonConverters = false,
