@@ -1008,6 +1008,7 @@ internal static class MethodGeneratorHelper
         {
             "string" => "ReadElementContentAsString",
             "bool" => "ReadElementContentAsBoolean",
+            "DateOnly" => "ReadElementContentAsDateOnly",
             _ => $"ReadElementContentAs<{data.PrimitiveTypeFriendlyName}>"
         };
 
