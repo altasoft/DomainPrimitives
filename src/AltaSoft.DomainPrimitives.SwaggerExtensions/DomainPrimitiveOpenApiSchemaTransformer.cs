@@ -58,9 +58,6 @@ internal sealed class DomainPrimitiveOpenApiSchemaTransformer : IOpenApiSchemaTr
             schema.Metadata.Add("x-schema-id", "");
         }
 
-        if (context.JsonPropertyInfo is null)
-            return Task.CompletedTask;
-
         if (isNullable)
             schema.Type |= JsonSchemaType.Null;
 

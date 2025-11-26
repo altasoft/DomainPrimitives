@@ -17,7 +17,7 @@ public static class OpenApiOptionsExt
         /// <summary>
         /// Registers a schema transformer that applies OpenApi helper schemas for all domain primitives discovered in assemblies.
         /// </summary>
-        public OpenApiOptions AddAllDomainPrimitivesSchemaTransformer()
+        public OpenApiOptions AddDomainPrimitivesSchemaTransformer()
         {
             options.AddSchemaTransformer(new DomainPrimitiveOpenApiSchemaTransformer());
             return options;
