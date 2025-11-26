@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(LongValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Integer | JsonSchemaType.Null,
+                Type = JsonSchemaType.Integer,
                 Format = "int64",
                 Title = "LongValue"
             }

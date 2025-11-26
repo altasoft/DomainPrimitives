@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(CharValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.String | JsonSchemaType.Null,
+                Type = JsonSchemaType.String,
                 Title = "CharValue"
             }
         }

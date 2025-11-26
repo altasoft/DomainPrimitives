@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(ByteValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Integer | JsonSchemaType.Null,
+                Type = JsonSchemaType.Integer,
                 Format = "byte",
                 Title = "ByteValue"
             }

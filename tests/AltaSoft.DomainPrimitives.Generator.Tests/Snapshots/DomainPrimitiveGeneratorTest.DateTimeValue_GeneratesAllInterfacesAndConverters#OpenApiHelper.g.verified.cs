@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(DateTimeValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.String | JsonSchemaType.Null,
+                Type = JsonSchemaType.String,
                 Format = "date-time",
                 Title = "DateTimeValue"
             }

@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(ShortValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Integer | JsonSchemaType.Null,
+                Type = JsonSchemaType.Integer,
                 Format = "int16",
                 Title = "ShortValue"
             }

@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(DoubleValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Number | JsonSchemaType.Null,
+                Type = JsonSchemaType.Number,
                 Format = "double",
                 Title = "DoubleValue"
             }

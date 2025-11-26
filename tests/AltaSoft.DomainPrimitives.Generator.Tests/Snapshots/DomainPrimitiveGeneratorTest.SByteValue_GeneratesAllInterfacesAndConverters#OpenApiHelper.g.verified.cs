@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(SByteValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Integer | JsonSchemaType.Null,
+                Type = JsonSchemaType.Integer,
                 Format = "sbyte",
                 Title = "SByteValue"
             }

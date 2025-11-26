@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(BoolValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Boolean | JsonSchemaType.Null,
+                Type = JsonSchemaType.Boolean,
                 Title = "BoolValue"
             }
         }

@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(FloatValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Number | JsonSchemaType.Null,
+                Type = JsonSchemaType.Number,
                 Format = "single",
                 Title = "FloatValue"
             }

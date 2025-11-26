@@ -42,7 +42,7 @@ public static class OpenApiHelper
             typeof(IntValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Integer | JsonSchemaType.Null,
+                Type = JsonSchemaType.Integer,
                 Format = "int32",
                 Title = "IntValue"
             }
@@ -51,7 +51,7 @@ public static class OpenApiHelper
             typeof(IntOfIntValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.Integer | JsonSchemaType.Null,
+                Type = JsonSchemaType.Integer,
                 Format = "int32",
                 Title = "IntOfIntValue"
             }

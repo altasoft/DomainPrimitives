@@ -39,7 +39,7 @@ public static class OpenApiHelper
             typeof(GuidValue),
             new OpenApiSchema
             {
-                Type = JsonSchemaType.String | JsonSchemaType.Null,
+                Type = JsonSchemaType.String,
                 Format = "uuid",
                 Title = "GuidValue"
             }
