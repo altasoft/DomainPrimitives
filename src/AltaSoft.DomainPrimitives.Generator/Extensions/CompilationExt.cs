@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -186,29 +185,39 @@ internal static class CompilationExt
         {
             var underlyingType = domainPrimitiveType.GetDomainPrimitiveUnderlyingType();
 
-            if (!underlyingType.IsNumeric())
+            //mapping is retrieved from: https://github.com/dotnet/aspnetcore/blob/main/src/OpenApi/src/Extensions/JsonNodeSchemaExtensions.cs#L27
+            return underlyingType switch
             {
-                return underlyingType switch
-                {
-                    DomainPrimitiveUnderlyingType.Boolean => ("JsonSchemaType.Boolean", ""),
-                    DomainPrimitiveUnderlyingType.Guid => ("JsonSchemaType.String", "uuid"),
-                    DomainPrimitiveUnderlyingType.Char => ("JsonSchemaType.String", ""),
+                DomainPrimitiveUnderlyingType.String => ("JsonSchemaType.String", ""),
 
-                    DomainPrimitiveUnderlyingType.DateTime => ("JsonSchemaType.String", "date-time"),
-                    DomainPrimitiveUnderlyingType.DateOnly => ("JsonSchemaType.String", "date"),
-                    DomainPrimitiveUnderlyingType.TimeOnly => ("JsonSchemaType.String", "time"), // ISO 8601 time format
-                    DomainPrimitiveUnderlyingType.DateTimeOffset => ("JsonSchemaType.String", "date-time"),
-                    DomainPrimitiveUnderlyingType.TimeSpan => ("JsonSchemaType.Integer", "int64"),
+                DomainPrimitiveUnderlyingType.Boolean => ("JsonSchemaType.Boolean", ""),
+                DomainPrimitiveUnderlyingType.Guid => ("JsonSchemaType.String", "uuid"),
+                DomainPrimitiveUnderlyingType.Char => ("JsonSchemaType.String", "char"),
 
-                    _ => ("JsonSchemaType.String", "")
-                };
-            }
+                DomainPrimitiveUnderlyingType.DateTime => ("JsonSchemaType.String", "date-time"),
+                DomainPrimitiveUnderlyingType.DateTimeOffset => ("JsonSchemaType.String", "date-time"),
+                DomainPrimitiveUnderlyingType.DateOnly => ("JsonSchemaType.String", "date"),
+                DomainPrimitiveUnderlyingType.TimeOnly => ("JsonSchemaType.String", "time"), // ISO 8601 time format
+                DomainPrimitiveUnderlyingType.TimeSpan => ("JsonSchemaType.Integer", "int64"),
 
-            var format = underlyingType.ToString();
-            return underlyingType.IsFloatingPoint()
-                ? ("JsonSchemaType.Number", format.ToLower(CultureInfo.InvariantCulture))
-                : ("JsonSchemaType.Integer", format.ToLower(CultureInfo.InvariantCulture));
+                //integer type
+                DomainPrimitiveUnderlyingType.SByte => ("JsonSchemaType.Integer", "int8"),
+                DomainPrimitiveUnderlyingType.Byte => ("JsonSchemaType.Integer", "uint8"),
+                DomainPrimitiveUnderlyingType.Int16 => ("JsonSchemaType.Integer", "int16"),
+                DomainPrimitiveUnderlyingType.UInt16 => ("JsonSchemaType.Integer", "uint16"),
+                DomainPrimitiveUnderlyingType.Int32 => ("JsonSchemaType.Integer", "int32"),
+                DomainPrimitiveUnderlyingType.UInt32 => ("JsonSchemaType.Integer", "uint32"),
+                DomainPrimitiveUnderlyingType.Int64 => ("JsonSchemaType.Integer", "int64"),
+                DomainPrimitiveUnderlyingType.UInt64 => ("JsonSchemaType.Integer", "uint64"),
 
+                //floating points
+                DomainPrimitiveUnderlyingType.Single => ("JsonSchemaType.Number", "float"),
+                DomainPrimitiveUnderlyingType.Double => ("JsonSchemaType.Number", "double"),
+                // decimal
+                DomainPrimitiveUnderlyingType.Decimal => ("JsonSchemaType.Number", "double"),
+
+                _ => ("JsonSchemaType.String", "")
+            };
         }
 
         /// <summary>

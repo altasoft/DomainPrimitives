@@ -40,6 +40,7 @@ public static class OpenApiHelper
             new OpenApiSchema
             {
                 Type = JsonSchemaType.String,
+                Format = "char",
                 Title = "CharValue"
             }
         }

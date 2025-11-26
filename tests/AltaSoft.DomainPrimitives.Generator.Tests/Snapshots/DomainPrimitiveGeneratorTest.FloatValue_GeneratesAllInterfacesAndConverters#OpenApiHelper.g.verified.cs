@@ -40,7 +40,7 @@ public static class OpenApiHelper
             new OpenApiSchema
             {
                 Type = JsonSchemaType.Number,
-                Format = "single",
+                Format = "float",
                 Title = "FloatValue"
             }
         }

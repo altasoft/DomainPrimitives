@@ -40,7 +40,7 @@ public static class OpenApiHelper
             new OpenApiSchema
             {
                 Type = JsonSchemaType.Integer,
-                Format = "byte",
+                Format = "uint8",
                 Title = "ByteValue"
             }
         }
