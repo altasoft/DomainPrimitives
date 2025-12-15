@@ -423,7 +423,7 @@ internal static class Executor
         {
             // Add int constructor
             builder.AppendComment("// Private constructor with 'int' value");
-            builder.AppendLine($"private {data.ClassName}(int value) : this(value is >= {data.PrimitiveTypeFriendlyName}.MinValue and <= {data.PrimitiveTypeFriendlyName}.MaxValue ? ({data.PrimitiveTypeFriendlyName})value : throw InvalidDomainValueException.LimitExceededException(\"{data.PrimitiveTypeFriendlyName}\", typeof({data.ClassName}), value))")
+            builder.AppendLine($"private {data.ClassName}(int value) : this(value is >= {data.PrimitiveTypeFriendlyName}.MinValue and <= {data.PrimitiveTypeFriendlyName}.MaxValue ? ({data.PrimitiveTypeFriendlyName})value : throw InvalidDomainValueException.LimitExceededException(typeof({data.ClassName}), value, \"{data.PrimitiveTypeFriendlyName}\"))")
                 .OpenBracket()
                 .CloseBracket()
                 .NewLine();
