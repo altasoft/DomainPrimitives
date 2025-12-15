@@ -78,7 +78,13 @@ public class InvalidDomainValueException : Exception
     private static string GenerateErrorMessage(string message, Type type, object? value)
     {
         var typeName = type.FullName ?? type.Name;
-        return $"Cannot create instance of '{typeName}'. {message}. Value: {value ?? "null"}";
+        var strValue = value switch
+        {
+            null => "(null)",
+            string s => $"\"{s}\"",
+            _ => value.ToString()
+        };
+        return $"Cannot create instance of '{typeName}'. {message}. Value: {strValue}";
     }
 
     /// <summary>

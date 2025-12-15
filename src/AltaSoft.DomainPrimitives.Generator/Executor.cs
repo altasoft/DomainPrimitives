@@ -797,7 +797,7 @@ internal static class Executor
             .AppendIf(hasMinValue, $"< {minValue}")
             .AppendIf(hasMinValue && hasMaxValue, " or ")
             .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
-            .AppendLine($"\tthrow InvalidDomainValueException.StringRangeException(value, {minValue.ToString(CultureInfo.InvariantCulture)}, {maxValue.ToString(CultureInfo.InvariantCulture)});")
+            .AppendLine($"\tthrow InvalidDomainValueException.StringRangeException(typeof({data.ClassName}), value, {minValue.ToString(CultureInfo.InvariantCulture)}, {maxValue.ToString(CultureInfo.InvariantCulture)});")
             .NewLine();
     }
 }

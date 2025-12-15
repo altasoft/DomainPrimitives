@@ -53,6 +53,9 @@ internal partial class TransformableString : IEquatable<TransformableString>
     {
         if (validate)
         {
+            if (value.Length is < 1 or > 100)
+            	throw InvalidDomainValueException.StringRangeException(typeof(TransformableString), value, 1, 100);
+
             ValidateOrThrow(value);
         }
         _value = value;
@@ -88,6 +91,13 @@ internal partial class TransformableString : IEquatable<TransformableString>
     public static bool TryCreate(string value, [NotNullWhen(true)]  out TransformableString? result, [NotNullWhen(false)]  out string? errorMessage)
     {
         value = Transform(value);
+        if (value.Length is < 1 or > 100)
+        {
+            result = null;
+            errorMessage = "String length is out of range 1..100";
+            return false;
+        }
+
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
         {
