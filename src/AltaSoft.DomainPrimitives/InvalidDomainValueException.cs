@@ -44,14 +44,15 @@ public class InvalidDomainValueException : Exception
     /// <summary>
     /// Creates an <see cref="InvalidDomainValueException"/> for string length range violations.
     /// </summary>
+    /// <param name="type">The <see cref="Type"/> of the domain primitive.</param>
     /// <param name="value">The string value that caused the violation.</param>
     /// <param name="min">The minimum allowed length.</param>
     /// <param name="max">The maximum allowed length.</param>
     /// <returns>An <see cref="InvalidDomainValueException"/> describing the range violation.</returns>
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public static InvalidDomainValueException StringRangeException(string value, int min, int max)
+    public static InvalidDomainValueException StringRangeException(Type type, string value, int min, int max)
     {
-        return new InvalidDomainValueException($"String length is out of range {min}..{max}", typeof(string), value);
+        return new InvalidDomainValueException($"String length is out of range {min}..{max}", type, value);
     }
 
     /// <summary>
