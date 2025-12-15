@@ -39,7 +39,7 @@ public readonly partial struct DateOnlyXmlValue : IEquatable<DateOnlyXmlValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (DateOnly)this;
 
-    private DateOnly _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    private DateOnly _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof(DateOnlyXmlValue));
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly DateOnly _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -103,7 +103,7 @@ public readonly partial struct DateOnlyXmlValue : IEquatable<DateOnlyXmlValue>
     }
 
     /// <summary>
-    ///  Validates the specified value and throws an exception if it is not valid.
+    /// Validates the specified value and throws an exception if it is not valid.
     /// </summary>
     /// <param name="value">The value to validate</param>
     /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
@@ -111,7 +111,7 @@ public readonly partial struct DateOnlyXmlValue : IEquatable<DateOnlyXmlValue>
     {
         var result = Validate(value);
         if (!result.IsValid)
-        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+        	throw new InvalidDomainValueException(result.ErrorMessage, typeof(DateOnlyXmlValue), value);
     }
 
 

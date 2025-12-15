@@ -44,7 +44,7 @@ public readonly partial struct LongValue : IEquatable<LongValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (ulong)this;
 
-    private ulong _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    private ulong _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof(LongValue));
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly ulong _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -108,7 +108,7 @@ public readonly partial struct LongValue : IEquatable<LongValue>
     }
 
     /// <summary>
-    ///  Validates the specified value and throws an exception if it is not valid.
+    /// Validates the specified value and throws an exception if it is not valid.
     /// </summary>
     /// <param name="value">The value to validate</param>
     /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
@@ -116,7 +116,7 @@ public readonly partial struct LongValue : IEquatable<LongValue>
     {
         var result = Validate(value);
         if (!result.IsValid)
-        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+        	throw new InvalidDomainValueException(result.ErrorMessage, typeof(LongValue), value);
     }
 
 

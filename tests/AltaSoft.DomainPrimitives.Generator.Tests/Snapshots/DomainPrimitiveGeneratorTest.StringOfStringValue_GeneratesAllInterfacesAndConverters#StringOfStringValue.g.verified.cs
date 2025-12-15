@@ -35,7 +35,7 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (string)this;
 
-    private StringValue _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    private StringValue _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof(StringOfStringValue));
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly StringValue _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -101,7 +101,7 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     }
 
     /// <summary>
-    ///  Validates the specified value and throws an exception if it is not valid.
+    /// Validates the specified value and throws an exception if it is not valid.
     /// </summary>
     /// <param name="value">The value to validate</param>
     /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
@@ -109,7 +109,7 @@ public partial class StringOfStringValue : IEquatable<StringOfStringValue>
     {
         var result = Validate(value);
         if (!result.IsValid)
-        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+        	throw new InvalidDomainValueException(result.ErrorMessage, typeof(StringOfStringValue), value);
     }
 
 

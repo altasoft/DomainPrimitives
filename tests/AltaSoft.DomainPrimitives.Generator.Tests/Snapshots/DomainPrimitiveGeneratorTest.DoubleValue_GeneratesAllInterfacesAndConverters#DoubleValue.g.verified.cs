@@ -44,7 +44,7 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (double)this;
 
-    private double _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    private double _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof(DoubleValue));
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly double _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -108,7 +108,7 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     }
 
     /// <summary>
-    ///  Validates the specified value and throws an exception if it is not valid.
+    /// Validates the specified value and throws an exception if it is not valid.
     /// </summary>
     /// <param name="value">The value to validate</param>
     /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
@@ -116,7 +116,7 @@ public readonly partial struct DoubleValue : IEquatable<DoubleValue>
     {
         var result = Validate(value);
         if (!result.IsValid)
-        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+        	throw new InvalidDomainValueException(result.ErrorMessage, typeof(DoubleValue), value);
     }
 
 
