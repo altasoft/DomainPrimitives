@@ -40,7 +40,7 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (DateTime)this;
 
-    private DateTime _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    private DateTime _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof(DateTimeValue));
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly DateTime _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -104,7 +104,7 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
     }
 
     /// <summary>
-    ///  Validates the specified value and throws an exception if it is not valid.
+    /// Validates the specified value and throws an exception if it is not valid.
     /// </summary>
     /// <param name="value">The value to validate</param>
     /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
@@ -112,7 +112,7 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
     {
         var result = Validate(value);
         if (!result.IsValid)
-        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+        	throw new InvalidDomainValueException(result.ErrorMessage, typeof(DateTimeValue), value);
     }
 
 

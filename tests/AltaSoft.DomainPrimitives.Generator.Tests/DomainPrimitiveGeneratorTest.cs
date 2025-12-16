@@ -19,6 +19,7 @@ public class DomainPrimitiveGeneratorTest
                               namespace AltaSoft.DomainPrimitives;
 
                               /// <inheritdoc/>
+                              [StringLength(1, 100)]
                               internal partial class TransformableString : IDomainValue<string>
                               {
                                   /// <inheritdoc/>

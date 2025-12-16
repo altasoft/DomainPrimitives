@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Xml.Serialization;
@@ -413,7 +414,7 @@ internal static class Executor
         {
             // Add int constructor
             builder.AppendComment("// Private constructor with 'int' value");
-            builder.AppendLine($"private {data.ClassName}(int value) : this(value is >= {data.PrimitiveTypeFriendlyName}.MinValue and <= {data.PrimitiveTypeFriendlyName}.MaxValue ? ({data.PrimitiveTypeFriendlyName})value : throw new InvalidDomainValueException(\"The value has exceeded a {data.PrimitiveTypeFriendlyName} limit\"))")
+            builder.AppendLine($"private {data.ClassName}(int value) : this(value is >= {data.PrimitiveTypeFriendlyName}.MinValue and <= {data.PrimitiveTypeFriendlyName}.MaxValue ? ({data.PrimitiveTypeFriendlyName})value : throw InvalidDomainValueException.LimitExceededException(typeof({data.ClassName}), value, \"{data.PrimitiveTypeFriendlyName}\"))")
                 .OpenBracket()
                 .CloseBracket()
                 .NewLine();
@@ -741,7 +742,7 @@ internal static class Executor
 
         var underlyingTypeName = interfaceGenericType.GetFriendlyName();
 
-        builder.AppendLine($"private {underlyingTypeName} _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException(\"The domain value has not been initialized\", this);");
+        builder.AppendLine($"private {underlyingTypeName} _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof({type.Name}));");
 
         builder.AppendLine("[DebuggerBrowsable(DebuggerBrowsableState.Never)]");
         builder.AppendLine($"private readonly {underlyingTypeName} _value;");
@@ -819,7 +820,7 @@ internal static class Executor
             .AppendIf(hasMinValue, $"< {minValue}")
             .AppendIf(hasMinValue && hasMaxValue, " or ")
             .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
-            .AppendLine($"\tthrow new InvalidDomainValueException(\"String length is out of range {minValue}..{maxValue}\", this);")
+            .AppendLine($"\tthrow InvalidDomainValueException.StringRangeException(typeof({data.ClassName}), value, {minValue.ToString(CultureInfo.InvariantCulture)}, {maxValue.ToString(CultureInfo.InvariantCulture)});")
             .NewLine();
     }
 }

@@ -443,7 +443,7 @@ internal static class MethodGeneratorHelper
                .CloseBracket()
                .NewLine();
 
-        builder.AppendSummary(" Validates the specified value and throws an exception if it is not valid.")
+        builder.AppendSummary("Validates the specified value and throws an exception if it is not valid.")
             .AppendParamDescription("value", "The value to validate")
             .AppendExceptionDescription("InvalidDomainValueException", "Thrown when the value is not valid.");
 
@@ -451,7 +451,7 @@ internal static class MethodGeneratorHelper
             .OpenBracket()
             .AppendLine("var result = Validate(value);")
             .AppendLine("if (!result.IsValid)")
-            .AppendLine("\tthrow new InvalidDomainValueException(result.ErrorMessage, this);")
+            .AppendLine($"\tthrow new InvalidDomainValueException(result.ErrorMessage, typeof({data.ClassName}), value);")
             .CloseBracket()
             .NewLine();
 
@@ -475,7 +475,7 @@ internal static class MethodGeneratorHelper
                 .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
                 .OpenBracket()
                 .AppendLine("result = null;")
-                .AppendLine($"errorMessage =\" String length is out of range {minValue}..{maxValue}\";")
+                .AppendLine($"errorMessage = \"String length is out of range {minValue}..{maxValue}\";")
                 .AppendLine("return false;")
                 .CloseBracket()
                 .NewLine();

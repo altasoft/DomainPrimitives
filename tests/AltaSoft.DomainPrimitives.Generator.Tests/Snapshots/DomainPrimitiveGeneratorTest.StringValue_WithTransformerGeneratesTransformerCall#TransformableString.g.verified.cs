@@ -35,7 +35,7 @@ internal partial class TransformableString : IEquatable<TransformableString>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (string)this;
 
-    private string _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    private string _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof(TransformableString));
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly string _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -53,6 +53,9 @@ internal partial class TransformableString : IEquatable<TransformableString>
     {
         if (validate)
         {
+            if (value.Length is < 1 or > 100)
+            	throw InvalidDomainValueException.StringRangeException(typeof(TransformableString), value, 1, 100);
+
             ValidateOrThrow(value);
         }
         _value = value;
@@ -88,6 +91,13 @@ internal partial class TransformableString : IEquatable<TransformableString>
     public static bool TryCreate(string value, [NotNullWhen(true)]  out TransformableString? result, [NotNullWhen(false)]  out string? errorMessage)
     {
         value = Transform(value);
+        if (value.Length is < 1 or > 100)
+        {
+            result = null;
+            errorMessage = "String length is out of range 1..100";
+            return false;
+        }
+
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
         {
@@ -102,7 +112,7 @@ internal partial class TransformableString : IEquatable<TransformableString>
     }
 
     /// <summary>
-    ///  Validates the specified value and throws an exception if it is not valid.
+    /// Validates the specified value and throws an exception if it is not valid.
     /// </summary>
     /// <param name="value">The value to validate</param>
     /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
@@ -110,7 +120,7 @@ internal partial class TransformableString : IEquatable<TransformableString>
     {
         var result = Validate(value);
         if (!result.IsValid)
-        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+        	throw new InvalidDomainValueException(result.ErrorMessage, typeof(TransformableString), value);
     }
 
 

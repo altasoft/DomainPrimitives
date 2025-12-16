@@ -39,7 +39,7 @@ public readonly partial struct SByteValue : IEquatable<SByteValue>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (sbyte)this;
 
-    private sbyte _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    private sbyte _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof(SByteValue));
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly sbyte _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -103,7 +103,7 @@ public readonly partial struct SByteValue : IEquatable<SByteValue>
     }
 
     /// <summary>
-    ///  Validates the specified value and throws an exception if it is not valid.
+    /// Validates the specified value and throws an exception if it is not valid.
     /// </summary>
     /// <param name="value">The value to validate</param>
     /// <exception cref="InvalidDomainValueException">Thrown when the value is not valid.</exception>
@@ -111,7 +111,7 @@ public readonly partial struct SByteValue : IEquatable<SByteValue>
     {
         var result = Validate(value);
         if (!result.IsValid)
-        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+        	throw new InvalidDomainValueException(result.ErrorMessage, typeof(SByteValue), value);
     }
 
 
