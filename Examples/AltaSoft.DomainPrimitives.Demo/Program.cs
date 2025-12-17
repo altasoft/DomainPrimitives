@@ -1,4 +1,5 @@
 using AltaSoft.DomainPrimitives.Demo;
+using AltaSoft.DomainPrimitives.OpenApiExtensions;
 using AltaSoft.DomainPrimitives.SwaggerExtensions;
 using DomainPrimitivesDemo;
 using Microsoft.AspNetCore.Mvc;
@@ -8,7 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi(options =>
 {
-    options.AddDomainPrimitivesSchemaTransformer();
+    options.AddDomainPrimitivesOpenApiSchemaTransformer();
+
+    //options.AddSchemaTransformer(new DomainPrimitiveOpenApiReflectionTransformer());
 });
 
 builder.Services.AddEndpointsApiExplorer();
@@ -19,7 +22,6 @@ var app = builder.Build();
 
 app.UseSwagger();
 app.UseSwaggerUI();
-
 
 //scalar
 app.MapOpenApi();

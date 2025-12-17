@@ -19,6 +19,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.OpenApiExtensions\AltaSoft.DomainPrimitives.OpenApiExtensions.csproj" />
     <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
     <ProjectReference Include="..\DomainPrimitivesDemo\DomainPrimitivesDemo.csproj" />
   </ItemGroup>

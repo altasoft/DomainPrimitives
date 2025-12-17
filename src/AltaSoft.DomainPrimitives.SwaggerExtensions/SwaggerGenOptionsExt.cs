@@ -2,6 +2,7 @@
 using System.Collections.Frozen;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using AltaSoft.DomainPrimitives.OpenApiExtensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 using Swashbuckle.AspNetCore.SwaggerGen;
