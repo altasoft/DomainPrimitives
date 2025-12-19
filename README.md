@@ -46,7 +46,7 @@ The library now supports .NET 8, .NET 9, and .NET 10, with .NET 7 support deprec
 * **Multi-Framework Support:** Target frameworks updated to `net8.0`, `net9.0`, and `net10.0`
 * **Central Package Management:** Introduced `Directory.Packages.props` for centralized NuGet package version management
 * **Source Link Support:** Enhanced debugging experience with embedded source code and deterministic builds in CI/CD pipelines
-* **OpenAPI Extensions:** New `AltaSoft.DomainPrimitives.OpenApiExtensions` package for .NET 9+ minimal API integration with native OpenAPI support
+* **OpenAPI Extensions:** New `AltaSoft.DomainPrimitives.OpenApiExtensions` package for OpenAPI integration with native OpenAPI support
 * **Generation Control Flags:** Fine-grained control over code generation with new MSBuild properties:
   - `DomainPrimitiveGenerator_GenerateImplicitOperators` - Control implicit operator generation
   - `DomainPrimitiveGenerator_GenerateNumericOperators` - Control numeric operator generation for numeric types
@@ -65,7 +65,7 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 * **JsonConverters:** Handles JSON serialization and deserialization for the underlying type, including property name serialization support. [Example](#json-conversion)
 * **TypeConverters:** Assists in type conversion to/from it's underlying type. [Please refer to generated type converter below](#type-converter)
 * **Swagger Custom Type Mappings:** Facilitates easy integration with Swagger by treating the primitive type as it's underlying type, with full nullable support. [Please refer to generated swagger helper below](#swagger-mappers)
-* **OpenAPI Schema Transformers:** For .NET 9+ applications using minimal APIs with OpenAPI support, the new `AltaSoft.DomainPrimitives.OpenApiExtensions` package provides schema transformers that automatically configure OpenAPI documentation. [See OpenAPI Integration](#openapi-integration)
+* **OpenAPI Schema Transformers:** The `AltaSoft.DomainPrimitives.OpenApiExtensions` package provides schema transformers that automatically configure OpenAPI documentation for any application using OpenAPI. [See OpenAPI Integration](#openapi-integration)
 * **Interface Implementations:** All DomainPrimitives implement comprehensive interfaces for full framework integration:
   - `IEquatable<T>`, `IComparable`, `IComparable<T>` for equality and comparison operations
   - `IConvertible` for type conversion support
@@ -154,7 +154,7 @@ In your project file add references as follows:
 <PackageReference Include="AltaSoft.DomainPrimitives.SwaggerExtensions" Version="x.x.x" />
 ```
 
-**For OpenAPI integration (.NET 9+ minimal APIs):**
+**For OpenAPI integration:**
 ```xml
 <PackageReference Include="AltaSoft.DomainPrimitives.OpenApiExtensions" Version="x.x.x" />
 ```
@@ -733,7 +733,7 @@ This helper provides a frozen dictionary for efficient lookups and can be used f
 
 ## OpenAPI Integration
 
-For .NET 9+ applications using minimal APIs with OpenAPI support, the `AltaSoft.DomainPrimitives.OpenApiExtensions` package provides enhanced integration:
+The `AltaSoft.DomainPrimitives.OpenApiExtensions` package provides enhanced OpenAPI integration for any application using OpenAPI support:
 
 ### Installation
 
@@ -741,7 +741,7 @@ For .NET 9+ applications using minimal APIs with OpenAPI support, the `AltaSoft.
 <PackageReference Include="AltaSoft.DomainPrimitives.OpenApiExtensions" Version="x.x.x" />
 ```
 
-### Usage with Minimal APIs
+### Usage
 
 ```csharp
 var builder = WebApplication.CreateBuilder(args);
