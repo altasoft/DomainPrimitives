@@ -760,6 +760,31 @@ app.Run();
 
 The OpenAPI extensions automatically register schema transformers that ensure domain primitives are properly represented in your OpenAPI documentation, mapping them to their underlying primitive types while preserving nullable information.
 
+### Alternative: Using Reflection-Based Transformer
+
+If you prefer not to generate OpenAPI helper mappings or need a reflection-based approach, you can use the `UnderlyingPrimitiveOpenApiSchemaTransformer`:
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Add OpenAPI services
+builder.Services.AddOpenApi(options =>
+{
+    // Use reflection-based transformer instead of generated mappings
+    options.AddSchemaTransformer(new UnderlyingPrimitiveOpenApiSchemaTransformer());
+});
+
+var app = builder.Build();
+
+app.MapOpenApi();
+app.Run();
+```
+
+The `UnderlyingPrimitiveOpenApiSchemaTransformer` uses reflection to determine the underlying primitive type of your domain primitives at runtime, making it useful when:
+- You have disabled OpenAPI helper generation (`DomainPrimitiveGenerator_GenerateOpenApiHelper=false`)
+- You want to avoid generated code and prefer runtime reflection
+- You're working with dynamically loaded assemblies
+
 ## Specialized ToString method 
 By Default IDomainValue uses its underlying type's ToString method however this can be overriden by implementing a method specified below
 
