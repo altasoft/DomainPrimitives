@@ -926,7 +926,7 @@ To disable the generation of Converters, Swagger Mappers, XML serialization, or 
     <DomainPrimitiveGenerator_GenerateImplicitConversions>false</DomainPrimitiveGenerator_GenerateImplicitConversions>
     
     <!-- Disable numeric operators for numeric types (default: true) -->
-    <DomainPrimitiveGenerator_GenerateNumericOperators>false</DomainPrimitiveGenerator_GenerateNumericOperators>
+    <DomainPrimitiveGenerator_GenerateNumericOperations>false</DomainPrimitiveGenerator_GenerateNumericOperations>
   </PropertyGroup>
 ```
 
