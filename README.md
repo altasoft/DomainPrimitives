@@ -923,7 +923,7 @@ To disable the generation of Converters, Swagger Mappers, XML serialization, or 
     <DomainPrimitiveGenerator_GenerateOpenApiHelper>false</DomainPrimitiveGenerator_GenerateOpenApiHelper>
     
     <!-- Disable implicit operators (default: true) -->
-    <DomainPrimitiveGenerator_GenerateImplicitOperators>false</DomainPrimitiveGenerator_GenerateImplicitOperators>
+    <DomainPrimitiveGenerator_GenerateImplicitConversions>false</DomainPrimitiveGenerator_GenerateImplicitConversions>
     
     <!-- Disable numeric operators for numeric types (default: true) -->
     <DomainPrimitiveGenerator_GenerateNumericOperators>false</DomainPrimitiveGenerator_GenerateNumericOperators>
