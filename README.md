@@ -916,7 +916,6 @@ To disable the generation of Converters, Swagger Mappers, XML serialization, or 
     <!-- Disable specific converters -->
     <DomainPrimitiveGenerator_GenerateJsonConverters>false</DomainPrimitiveGenerator_GenerateJsonConverters>
     <DomainPrimitiveGenerator_GenerateTypeConverters>false</DomainPrimitiveGenerator_GenerateTypeConverters>
-    <DomainPrimitiveGenerator_GenerateSwaggerConverters>false</DomainPrimitiveGenerator_GenerateSwaggerConverters>
     <DomainPrimitiveGenerator_GenerateXmlSerialization>false</DomainPrimitiveGenerator_GenerateXmlSerialization>
     
     <!-- Disable OpenAPI helper generation (default: true) -->
