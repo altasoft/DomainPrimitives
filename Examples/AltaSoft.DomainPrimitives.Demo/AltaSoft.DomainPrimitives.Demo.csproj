@@ -10,13 +10,11 @@
   </PropertyGroup>
 
 
-  <ItemGroup>
-    <PackageReference Include="Scalar.AspNetCore" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
-    <PackageReference Include="Swashbuckle.AspNetCore" />
-  </ItemGroup>
-
-
+	<ItemGroup>
+		<PackageReference Include="Scalar.AspNetCore" Version="1.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+	</ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.OpenApiExtensions\AltaSoft.DomainPrimitives.OpenApiExtensions.csproj" />

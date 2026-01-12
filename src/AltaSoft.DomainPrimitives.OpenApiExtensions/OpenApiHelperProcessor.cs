@@ -18,7 +18,7 @@ namespace AltaSoft.DomainPrimitives.OpenApiExtensions;
 /// and invokes the callback for each discovered <see cref="FrozenDictionary{TKey, TValue}"/>
 /// containing <see cref="OpenApiSchema"/> definitions.
 /// </remarks>
-public static class OpenApiHelperProcessor
+internal static class OpenApiHelperProcessor
 {
     /// <summary>
     /// Scans all loaded assemblies and their references to find those marked with

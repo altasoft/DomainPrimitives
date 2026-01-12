@@ -25,10 +25,7 @@ app.UseSwaggerUI();
 
 //scalar
 app.MapOpenApi();
-app.MapScalarApiReference(options =>
-{
-    options.Theme = ScalarTheme.DeepSpace;
-});
+app.MapScalarApiReference();
 
 var customerGroup = app.MapGroup("v1/Customers").WithTags("Customers");
 var transferGroup = app.MapGroup("v1/Transfers").WithTags("Transfers");
