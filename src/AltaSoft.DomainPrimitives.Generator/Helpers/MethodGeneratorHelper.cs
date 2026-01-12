@@ -158,10 +158,9 @@ internal static class MethodGeneratorHelper
 
                 AddOldMapping(false);
 
-                builder.NewLine();
-
                 if (data.TypeSymbol.IsValueType)
                 {
+                    builder.NewLine();
                     AddOldMapping(true);
                 }
 

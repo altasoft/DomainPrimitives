@@ -73,7 +73,6 @@ public static class OpenApiHelper
                 Title = "StringValue"
             }
         },
-
         {
             typeof(StringOfStringValue),
             new OpenApiSchema
@@ -81,8 +80,7 @@ public static class OpenApiHelper
                 Type = "string",
                 Title = "StringOfStringValue"
             }
-        },
-
+        }
     }.ToFrozenDictionary();
 #endif
 }

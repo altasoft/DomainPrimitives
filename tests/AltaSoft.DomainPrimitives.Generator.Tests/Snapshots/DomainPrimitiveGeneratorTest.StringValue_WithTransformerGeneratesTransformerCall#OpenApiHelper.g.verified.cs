@@ -61,8 +61,7 @@ public static class OpenApiHelper
                 Type = "string",
                 Title = "TransformableString"
             }
-        },
-
+        }
     }.ToFrozenDictionary();
 #endif
 }
