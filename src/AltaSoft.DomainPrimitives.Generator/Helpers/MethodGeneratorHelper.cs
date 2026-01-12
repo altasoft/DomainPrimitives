@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
@@ -24,12 +25,19 @@ internal static class MethodGeneratorHelper
 
         var builder = new SourceCodeBuilder();
         builder.AppendSourceHeader("AltaSoft DomainPrimitives Generator");
+
+        builder.AppendLine("#if NET10_0_OR_GREATER", false)
+            .AppendLine("using Microsoft.OpenApi;", false)
+            .AppendLine("#else", false)
+            .AppendLine("using Microsoft.OpenApi.Models;", false)
+            .AppendLine("using Microsoft.OpenApi.Any;", false)
+            .AppendLine("#endif");
+
         var usings = types.ConvertAll(x => x.Namespace);
         usings.Add("System");
         usings.Add("System.Collections.Frozen");
         usings.Add("System.Collections.Generic");
         usings.Add("System.Text.Json.Nodes");
-        usings.Add("Microsoft.OpenApi");
         usings.Add("AltaSoft.DomainPrimitives");
         builder.AppendUsings(usings);
 
@@ -56,6 +64,7 @@ internal static class MethodGeneratorHelper
         }
         builder.AppendLine("/// </remarks>");
 
+        builder.NewLine().AppendLine("#if NET10_0_OR_GREATER", false);
         builder.AppendLine("public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()")
             .OpenBracket();
 
@@ -118,13 +127,94 @@ internal static class MethodGeneratorHelper
 
         builder.Rollback(builder.GetNewLineLength() + 1).NewLine();
         builder.CloseBracketWithString(".ToFrozenDictionary();");
-        builder.CloseBracket();
 
+        builder.NewLine();
+        builder.AppendLine("#else", false);
+
+        builder.AppendLine("public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()")
+            .OpenBracket();
+
+        ProcessOldVersionOpenApi(types, builder, context.CancellationToken);
+
+        builder.Rollback(builder.GetNewLineLength() + 1).NewLine();
+        builder.CloseBracketWithString(".ToFrozenDictionary();");
+        builder.AppendLine("#endif", false);
+
+        builder.CloseBracket();
         context.AddSource("OpenApiHelper.g.cs", builder.ToString());
 
         return;
 
         static string Quote(string? value) => '\"' + value?.Replace("\"", "\"\"") + '\"';
+
+        static void ProcessOldVersionOpenApi(List<GeneratorData> types, SourceCodeBuilder builder, CancellationToken cancellationToken)
+        {
+            foreach (var data in types)
+            {
+                var (typeName, format) = data.PrimitiveTypeSymbol.GetOldOpenApiTypeAndFormat();
+
+                // Get the XML documentation comment for the namedTypeSymbol
+                var xmlDocumentation = data.TypeSymbol.GetDocumentationCommentXml(cancellationToken: cancellationToken);
+
+                AddOldMapping(false);
+
+                builder.NewLine();
+
+                if (data.TypeSymbol.IsValueType)
+                {
+                    AddOldMapping(true);
+                }
+
+                continue;
+
+                void AddOldMapping(bool isNullable)
+                {
+                    builder.OpenBracket();
+
+                    builder.Append("typeof(").Append(data.ClassName).AppendIf(isNullable, "?").AppendLine("),");
+
+                    builder.Append("new OpenApiSchema")
+                        .OpenBracket()
+                        .Append("Type = ").Append(Quote(typeName)).AppendLine(",");
+
+                    if (!string.IsNullOrEmpty(format))
+                        builder.Append("Format = ").Append(Quote(data.SerializationFormat ?? format)).AppendLine(",");
+
+                    if (isNullable)
+                        builder.AppendLine("Nullable = true,");
+
+                    var title = isNullable ? $"Nullable<{data.ClassName}>" : data.ClassName;
+
+                    builder.Append("Title = ").Append(Quote(title)).AppendLine(",");
+
+                    if (!string.IsNullOrEmpty(xmlDocumentation))
+                    {
+                        var xmlDoc = new System.Xml.XmlDocument();
+                        xmlDoc.LoadXml(xmlDocumentation);
+
+                        // Select the <summary> node
+                        var summaryNode = xmlDoc.SelectSingleNode("member/summary");
+
+                        if (summaryNode is not null)
+                        {
+                            builder.Append("Description = @").Append(Quote(summaryNode.InnerText.Trim())).AppendLine(",");
+                        }
+
+                        var example = xmlDoc.SelectSingleNode("member/example");
+                        if (example is not null)
+                        {
+                            var exampleValue = example.InnerText.Trim().Replace("\"", "\\\"");
+                            builder.Append("Example = new OpenApiString(").Append("\"" + exampleValue + "\"").AppendLine("),");
+                        }
+                    }
+
+                    builder.Length -= SourceCodeBuilder.s_newLineLength + 1;
+                    builder.NewLine();
+                    builder.CloseBracket();
+                    builder.CloseBracketWithComma();
+                }
+            }
+        }
     }
 
     /// <summary>

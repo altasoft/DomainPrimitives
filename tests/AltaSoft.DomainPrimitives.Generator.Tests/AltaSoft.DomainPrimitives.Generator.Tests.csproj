@@ -26,6 +26,8 @@
 		<PackageReference Include="Microsoft.CodeAnalysis.CSharp" PrivateAssets="all" />
 
 		<PackageReference Include="Microsoft.NET.Test.Sdk" />
+
+		<PackageReference Include="Microsoft.OpenApi" />
 		<PackageReference Include="Verify.SourceGenerators" />
 		<PackageReference Include="Verify.Xunit" />
 		<PackageReference Include="xunit" />
@@ -41,7 +43,6 @@
 
 
   <ItemGroup>
-		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
 		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj" />
 		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj" />
 	</ItemGroup>

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -32,7 +33,7 @@ internal static class CompilationExt
     /// <returns>An IEnumerable of members of the specified type.</returns>
     public static IEnumerable<TMember> GetMembersOfType<TMember>(this ITypeSymbol? self) where TMember : ISymbol
     {
-        return self?.GetMembers().OfType<TMember>() ?? Enumerable.Empty<TMember>();
+        return self?.GetMembers().OfType<TMember>() ?? [];
     }
 
     #region Accessibility
@@ -175,6 +176,38 @@ internal static class CompilationExt
                 domainTypes.Add(domainPrimitiveType);
                 domainPrimitiveType = primitiveType;
             }
+        }
+
+        /// <summary>
+        /// Gets the Old type and format for a given primitive type.
+        /// </summary>
+        /// <returns>A tuple containing the Swagger type and format as strings.</returns>
+        public (string type, string format) GetOldOpenApiTypeAndFormat()
+        {
+            var underlyingType = domainPrimitiveType.GetDomainPrimitiveUnderlyingType();
+
+            if (underlyingType.IsNumeric())
+            {
+                var format = underlyingType.ToString();
+                return underlyingType.IsFloatingPoint()
+                    ? ("number", format.ToLower(CultureInfo.InvariantCulture))
+                    : ("integer", format.ToLower(CultureInfo.InvariantCulture));
+            }
+
+            return underlyingType switch
+            {
+                DomainPrimitiveUnderlyingType.Boolean => ("boolean", ""),
+                DomainPrimitiveUnderlyingType.Guid => ("string", "uuid"),
+                DomainPrimitiveUnderlyingType.Char => ("string", ""),
+
+                DomainPrimitiveUnderlyingType.DateTime => ("string", "date-time"),
+                DomainPrimitiveUnderlyingType.DateOnly => ("string", "date"),
+                DomainPrimitiveUnderlyingType.TimeOnly => ("string", "HH:mm:ss"),
+                DomainPrimitiveUnderlyingType.DateTimeOffset => ("string", "date-time"),
+                DomainPrimitiveUnderlyingType.TimeSpan => ("integer", "int64"),
+
+                _ => ("string", "")
+            };
         }
 
         /// <summary>
