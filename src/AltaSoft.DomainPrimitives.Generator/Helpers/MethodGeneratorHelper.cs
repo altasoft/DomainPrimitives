@@ -29,7 +29,6 @@ internal static class MethodGeneratorHelper
         usings.Add("System.Collections.Frozen");
         usings.Add("System.Collections.Generic");
         usings.Add("System.Text.Json.Nodes");
-        usings.Add("Microsoft.Extensions.DependencyInjection");
         usings.Add("Microsoft.OpenApi");
         usings.Add("AltaSoft.DomainPrimitives");
         builder.AppendUsings(usings);
