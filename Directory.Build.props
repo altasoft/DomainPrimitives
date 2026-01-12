@@ -32,11 +32,9 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
-	<DebugType>embedded</DebugType>
 	<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	<EmbedAllSources>false</EmbedAllSources>
 	<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-	<Deterministic>true</Deterministic>
   </PropertyGroup>
 
   <ItemGroup>
