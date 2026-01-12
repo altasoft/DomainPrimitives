@@ -13,7 +13,6 @@ using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi;
 
 [assembly: AltaSoft.DomainPrimitives.DomainPrimitiveAssemblyAttribute]
