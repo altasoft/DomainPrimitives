@@ -1,5 +1,5 @@
-using DomainPrimitivesDemo;
 using System.Collections.Concurrent;
+using DomainPrimitivesDemo;
 
 namespace AltaSoft.DomainPrimitives.Demo;
 
@@ -14,7 +14,7 @@ public sealed class CustomerService
 
     public Task AddCustomerAsync(Customer customer)
     {
-        if (!_customers.TryAdd(customer.CustomerId, customer))
+        if (!_customers.TryAdd(customer.A_CustomerId, customer))
             throw new BadHttpRequestException("Customer already exists");
 
         return Task.CompletedTask;
@@ -22,6 +22,20 @@ public sealed class CustomerService
 
     public Task SetCustomerAddressAsync(SetCustomerAddress command)
     {
+        if (!_customers.TryGetValue(command.CustomerId, out var customer))
+            throw new BadHttpRequestException("Customer already exists");
+
+        customer = customer with { CustomerAddress = command.CustomerAddress };
+
+        _customers[command.CustomerId] = customer;
+        return Task.CompletedTask;
+    }
+
+    public Task SetCustomerAddressNullableAsync(SetCustomerAddressNullable command)
+    {
+        if (command.CustomerAddress is null)
+            return Task.CompletedTask;
+
         if (!_customers.TryGetValue(command.CustomerId, out var customer))
             throw new BadHttpRequestException("Customer already exists");
 

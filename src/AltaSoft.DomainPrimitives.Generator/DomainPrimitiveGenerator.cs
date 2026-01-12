@@ -107,10 +107,10 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
             result.GenerateTypeConverters = generateTypeConverter;
         }
 
-        if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateSwaggerConverters", out value)
-            && bool.TryParse(value, out var generateSwaggerConverters))
+        if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateOpenApiHelper", out value)
+            && bool.TryParse(value, out var generateOpenApiHelper))
         {
-            result.GenerateSwaggerConverters = generateSwaggerConverters;
+            result.GenerateOpenApiHelper = generateOpenApiHelper;
         }
 
         if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateXmlSerialization", out value)
@@ -123,6 +123,19 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
             && bool.TryParse(value, out var generateEntityFrameworkValueConverters))
         {
             result.GenerateEntityFrameworkCoreValueConverters = generateEntityFrameworkValueConverters;
+        }
+
+        if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateImplicitConversions", out value)
+            && bool.TryParse(value, out var generateImplicitOperators))
+        {
+            result.GenerateImplicitOperators = generateImplicitOperators;
+        }
+
+        if (analyzerOptions.GlobalOptions.TryGetValue("build_property.DomainPrimitiveGenerator_GenerateNumericOperations", out value)
+            && bool.TryParse(value, out var generateNumericOperators))
+        {
+            // previously incorrectly assigned to GenerateImplicitOperators; fix to assign numeric flag
+            result.GenerateNumericOperators = generateNumericOperators;
         }
 
         return result;

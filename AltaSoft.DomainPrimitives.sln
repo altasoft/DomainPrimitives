@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.0.31903.59
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11217.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AltaSoft.DomainPrimitives.XmlDataTypes", "src\AltaSoft.DomainPrimitives.XmlDataTypes\AltaSoft.DomainPrimitives.XmlDataTypes.csproj", "{E5F41084-26EF-4BA5-A4F9-74105F550CB9}"
 EndProject
@@ -12,6 +12,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{BF9447CC-2D00-495A-A8C3-D4890EADB01B}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
+		Directory.Packages.props = Directory.Packages.props
 		LICENSE.txt = LICENSE.txt
 		README.md = README.md
 	EndProjectSection
@@ -32,6 +33,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.SwaggerExtensions", "src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj", "{289BC781-8B67-4A15-87A9-198EEA255160}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.UnitTests", "tests\AltaSoft.DomainPrimitives.UnitTests\AltaSoft.DomainPrimitives.UnitTests.csproj", "{253F7819-7F69-9B49-8257-65A17B56DF55}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.OpenApiExtensions", "src\AltaSoft.DomainPrimitives.OpenApiExtensions\AltaSoft.DomainPrimitives.OpenApiExtensions.csproj", "{4705B432-D0D1-123B-3566-797F9C9323A7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -67,6 +70,10 @@ Global
 		{253F7819-7F69-9B49-8257-65A17B56DF55}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{253F7819-7F69-9B49-8257-65A17B56DF55}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{253F7819-7F69-9B49-8257-65A17B56DF55}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4705B432-D0D1-123B-3566-797F9C9323A7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4705B432-D0D1-123B-3566-797F9C9323A7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4705B432-D0D1-123B-3566-797F9C9323A7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4705B432-D0D1-123B-3566-797F9C9323A7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

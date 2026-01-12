@@ -1,18 +1,20 @@
-﻿# DomainPrimitives for C#  
+﻿﻿# DomainPrimitives for C#  
 
 [![Version](https://img.shields.io/nuget/v/AltaSoft.DomainPrimitives?label=Version&color=0c3c60&style=for-the-badge&logo=nuget)](https://www.nuget.org/profiles/AltaSoft)
-[![Dot NET 7+](https://img.shields.io/static/v1?label=DOTNET&message=7%2B&color=0c3c60&style=for-the-badge)](https://dotnet.microsoft.com)
+[![Dot NET 8+](https://img.shields.io/static/v1?label=DOTNET&message=8%2B&color=0c3c60&style=for-the-badge)](https://dotnet.microsoft.com)
 
 # Table of Contents
 
 - [Introduction](#introduction)
 - [Key Features](#key-features)
+- [What's New](#whats-new)
 - [Generator Features](#generator-features)
 - [Supported Underlying types](#supported-underlying-types)
 - [Getting Started](#getting-started)
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Creating your Domain type](#creating-your-domain-type)
+- [OpenAPI Integration](#openapi-integration)
 - [Managing Generated Operators for numeric types](#managing-generated-operators-for-numeric-types)
 - [Managing Serialization Format for date-related types](#managing-serialization-format-for-date-related-types)
 - [Enhanced DateTime Interoperability](#enhanced-datetime-interoperability)
@@ -32,6 +34,25 @@ Welcome to **AltaSoft.DomainPrimitives** - a C# toolkit purposefully designed to
 
 
 With `AltaSoft.DomainPrimitives`, experience an accelerated development process while upholding code quality standards. This toolkit empowers developers to focus on the core business logic without compromising on precision or efficiency.
+
+## What's New
+
+### .NET 10 Support & Infrastructure Improvements
+
+The library now supports .NET 8, .NET 9, and .NET 10.
+
+**Key Updates:**
+
+* **Multi-Framework Support:** Target frameworks updated to `net8.0`, `net9.0`, and `net10.0`
+* **Central Package Management:** Introduced `Directory.Packages.props` for centralized NuGet package version management
+* **Source Link Support:** Enhanced debugging experience with embedded source code and deterministic builds in CI/CD pipelines
+* **OpenAPI Extensions:** New `AltaSoft.DomainPrimitives.OpenApiExtensions` package for OpenAPI integration with native OpenAPI support
+* **Generation Control Flags:** Fine-grained control over code generation with new MSBuild properties:
+  - `DomainPrimitiveGenerator_GenerateImplicitOperators` - Control implicit operator generation
+  - `DomainPrimitiveGenerator_GenerateNumericOperators` - Control numeric operator generation for numeric types
+  - `DomainPrimitiveGenerator_GenerateOpenApiHelper` - Control OpenAPI helper generation
+* **Enhanced Testing:** Updated test infrastructure with latest xUnit and verification tools
+* **Improved Code Generation:** Better handling of uninitialized domain primitives and enhanced operator generation
  
 ## Generator Features 
 
@@ -44,6 +65,7 @@ The **AltaSoft.DomainPrimitives.Generator** offers a diverse set of features:
 * **JsonConverters:** Handles JSON serialization and deserialization for the underlying type, including property name serialization support. [Example](#json-conversion)
 * **TypeConverters:** Assists in type conversion to/from it's underlying type. [Please refer to generated type converter below](#type-converter)
 * **Swagger Custom Type Mappings:** Facilitates easy integration with Swagger by treating the primitive type as it's underlying type, with full nullable support. [Please refer to generated swagger helper below](#swagger-mappers)
+* **OpenAPI Schema Transformers:** The `AltaSoft.DomainPrimitives.OpenApiExtensions` package provides schema transformers that automatically configure OpenAPI documentation for any application using OpenAPI. [See OpenAPI Integration](#openapi-integration)
 * **Interface Implementations:** All DomainPrimitives implement comprehensive interfaces for full framework integration:
   - `IEquatable<T>`, `IComparable`, `IComparable<T>` for equality and comparison operations
   - `IConvertible` for type conversion support
@@ -106,7 +128,7 @@ public readonly partial struct OrderNumber : IDomainValue<long> { /* validation 
 ## Getting Started
 
 ### Prerequisites
-*	.NET 7 or higher
+*	.NET 8 or higher
 *	NuGet Package Manager
 
 ### Installation
@@ -123,6 +145,23 @@ In your project file add references as follows:
   <PackageReference Include="AltaSoft.DomainPrimitives" Version="x.x.x" />
   <PackageReference Include="AltaSoft.DomainPrimitives.Generator" Version="x.x.x" PrivateAssets="all" />
 </ItemGroup>
+```
+
+### Optional Packages
+
+**For Swagger/Swashbuckle integration:**
+```xml
+<PackageReference Include="AltaSoft.DomainPrimitives.SwaggerExtensions" Version="x.x.x" />
+```
+
+**For OpenAPI integration:**
+```xml
+<PackageReference Include="AltaSoft.DomainPrimitives.OpenApiExtensions" Version="x.x.x" />
+```
+
+**For XML data types support:**
+```xml
+<PackageReference Include="AltaSoft.DomainPrimitives.XmlDataTypes" Version="x.x.x" />
 ```
 
 
@@ -644,6 +683,107 @@ public static class SwaggerTypeHelper
 		});
 	}
 ```
+
+### OpenApiHelper
+
+In addition to the Swagger mappings, the generator also creates an `OpenApiHelper` class with a dictionary-based approach for OpenAPI schema definitions:
+
+```csharp
+//------------------------------------------------------------------------------
+// <auto-generated>
+//     This code was generated by 'AltaSoft DomainPrimitives Generator'.
+//     Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
+// </auto-generated>
+//------------------------------------------------------------------------------
+
+#nullable enable
+
+using AltaSoft.DomainPrimitives;
+using System;
+using System.Collections.Frozen;
+using System.Collections.Generic;
+using Microsoft.OpenApi;
+
+namespace AltaSoft.DomainPrimitives.Converters.Helpers;
+
+/// <summary>
+/// Helper class providing methods to configure OpenApiSchema mappings for DomainPrimitive types
+/// </summary>
+public static class OpenApiHelper
+{
+    /// <summary>
+    /// Mapping of DomainPrimitive types to OpenApiSchema definitions.
+    /// </summary>
+    public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
+    {
+        {
+            typeof(PositiveInteger),
+            new OpenApiSchema
+            {
+                Type = JsonSchemaType.Integer,
+                Format = "int32",
+                Title = "PositiveInteger"
+            }
+        }
+    }.ToFrozenDictionary();
+}
+```
+
+This helper provides a frozen dictionary for efficient lookups and can be used for custom OpenAPI integration scenarios.
+
+## OpenAPI Integration
+
+The `AltaSoft.DomainPrimitives.OpenApiExtensions` package provides enhanced OpenAPI integration for any application using OpenAPI support:
+
+### Installation
+
+```xml
+<PackageReference Include="AltaSoft.DomainPrimitives.OpenApiExtensions" Version="x.x.x" />
+```
+
+### Usage
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Add OpenAPI services
+builder.Services.AddOpenApi();
+
+// Register domain primitive OpenAPI schema transformers
+builder.Services.AddDomainPrimitiveOpenApiSchemaTransformers();
+
+var app = builder.Build();
+
+app.MapOpenApi();
+app.Run();
+```
+
+The OpenAPI extensions automatically register schema transformers that ensure domain primitives are properly represented in your OpenAPI documentation, mapping them to their underlying primitive types while preserving nullable information.
+
+### Alternative: Using Reflection-Based Transformer
+
+If you prefer not to generate OpenAPI helper mappings or need a reflection-based approach, you can use the `UnderlyingPrimitiveOpenApiSchemaTransformer`:
+
+```csharp
+var builder = WebApplication.CreateBuilder(args);
+
+// Add OpenAPI services
+builder.Services.AddOpenApi(options =>
+{
+    // Use reflection-based transformer instead of generated mappings
+    options.AddSchemaTransformer(new UnderlyingPrimitiveOpenApiSchemaTransformer());
+});
+
+var app = builder.Build();
+
+app.MapOpenApi();
+app.Run();
+```
+
+The `UnderlyingPrimitiveOpenApiSchemaTransformer` uses reflection to determine the underlying primitive type of your domain primitives at runtime, making it useful when:
+- You have disabled OpenAPI helper generation (`DomainPrimitiveGenerator_GenerateOpenApiHelper=false`)
+- You want to avoid generated code and prefer runtime reflection
+
 ## Specialized ToString method 
 By Default IDomainValue uses its underlying type's ToString method however this can be overriden by implementing a method specified below
 
@@ -767,16 +907,25 @@ DateTime dateTime = myTime;        // Implicit conversion to DateTime
 MyTime fromDateTime = DateTime.Now; // Implicit conversion from DateTime
 ```
 
-# Disable Generation of Converters 
+# Disable Generation of Converters and Operators
 
-To disable the generation of Converters, Swagger Mappers or XML serialization, in .csproj file follow the below described steps.
+To disable the generation of Converters, Swagger Mappers, XML serialization, or operators, add the following properties to your .csproj file:
 
 ```xml
   <PropertyGroup>
+    <!-- Disable specific converters -->
     <DomainPrimitiveGenerator_GenerateJsonConverters>false</DomainPrimitiveGenerator_GenerateJsonConverters>
     <DomainPrimitiveGenerator_GenerateTypeConverters>false</DomainPrimitiveGenerator_GenerateTypeConverters>
-    <DomainPrimitiveGenerator_GenerateSwaggerConverters>false</DomainPrimitiveGenerator_GenerateSwaggerConverters>
-    <DomainPrimitiveGenerator_GenerateXmlSerialization>false</DomainPrimitiveGenerator_GenerateXmlSerialization> 
+    <DomainPrimitiveGenerator_GenerateXmlSerialization>false</DomainPrimitiveGenerator_GenerateXmlSerialization>
+    
+    <!-- Disable OpenAPI helper generation (default: true) -->
+    <DomainPrimitiveGenerator_GenerateOpenApiHelper>false</DomainPrimitiveGenerator_GenerateOpenApiHelper>
+    
+    <!-- Disable implicit operators (default: true) -->
+    <DomainPrimitiveGenerator_GenerateImplicitConversions>false</DomainPrimitiveGenerator_GenerateImplicitConversions>
+    
+    <!-- Disable numeric operators for numeric types (default: true) -->
+    <DomainPrimitiveGenerator_GenerateNumericOperations>false</DomainPrimitiveGenerator_GenerateNumericOperations>
   </PropertyGroup>
 ```
 
@@ -998,5 +1147,3 @@ For support, questions, or additional information, please visit GitHub Issues.
 
 # License
 This project is licensed under [MIT](LICENSE.TXT). See the LICENSE file for details.
-
-

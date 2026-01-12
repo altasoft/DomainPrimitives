@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>true</InvariantGlobalization>
@@ -10,14 +10,14 @@
   </PropertyGroup>
 
 
+	<ItemGroup>
+		<PackageReference Include="Scalar.AspNetCore" Version="1.1.1" />
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+	</ItemGroup>
+
   <ItemGroup>
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0" />
-  </ItemGroup>
-
-
-
-  <ItemGroup>
+    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.OpenApiExtensions\AltaSoft.DomainPrimitives.OpenApiExtensions.csproj" />
     <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
     <ProjectReference Include="..\DomainPrimitivesDemo\DomainPrimitivesDemo.csproj" />
   </ItemGroup>

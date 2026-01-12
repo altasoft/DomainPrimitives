@@ -11,7 +11,7 @@ public readonly partial struct CustomerId : IDomainValue<Guid>
 {
     public static PrimitiveValidationResult Validate(Guid value)
     {
-        return PrimitiveValidationResult.Ok;
+        return value == Guid.Empty ? "Invalid value provided" : PrimitiveValidationResult.Ok;
     }
 
 }

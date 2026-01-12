@@ -33,7 +33,7 @@ internal static class Executor
         if (typesToGenerate.IsDefaultOrEmpty)
             return;
 
-        var swaggerTypes = new List<GeneratorData>(typesToGenerate.Length);
+        var openApiTypes = new List<GeneratorData>(typesToGenerate.Length);
         var efCoreValueConverterTypes = new List<INamedTypeSymbol>(typesToGenerate.Length);
         var cachedOperationsAttributes = new Dictionary<INamedTypeSymbol, SupportedOperationsAttributeData>(SymbolEqualityComparer.Default);
 
@@ -72,9 +72,9 @@ internal static class Executor
                     MethodGeneratorHelper.ProcessTypeConverter(generatorData, context);
                 }
 
-                if (globalOptions.GenerateSwaggerConverters)
+                if (globalOptions.GenerateOpenApiHelper)
                 {
-                    swaggerTypes.Add(generatorData);
+                    openApiTypes.Add(generatorData);
                 }
 
                 if (globalOptions.GenerateEntityFrameworkCoreValueConverters)
@@ -84,9 +84,9 @@ internal static class Executor
                 }
             }
 
-            MethodGeneratorHelper.AddSwaggerOptions(assemblyName, swaggerTypes, context);
+            MethodGeneratorHelper.AddOpenApiSchemas(assemblyName, openApiTypes, context);
 
-            MethodGeneratorHelper.GenerateValueConvertersExtension(swaggerTypes.Count == 0, assemblyName, efCoreValueConverterTypes, context);
+            MethodGeneratorHelper.GenerateValueConvertersExtension(openApiTypes.Count == 0, assemblyName, efCoreValueConverterTypes, context);
         }
         catch (Exception ex)
         {
@@ -134,10 +134,10 @@ internal static class Executor
             PrimitiveTypeSymbol = underlyingTypeSymbol,
             PrimitiveTypeFriendlyName = underlyingTypeSymbol.GetFriendlyName(),
             Namespace = typeSymbol.ContainingNamespace.ToDisplayString(),
-            GenerateImplicitOperators = true,
+            GenerateImplicitOperators = globalOptions.GenerateImplicitOperators,
             ParentSymbols = parentSymbols,
             GenerateConvertibles = underlyingType.IsIConvertible(),
-            UseTransformMethod = hasTransformMethod
+            UseTransformMethod = hasTransformMethod,
         };
 
         var attributes = typeSymbol.GetAttributes();
@@ -176,18 +176,14 @@ internal static class Executor
             generatorData.SerializationFormat = value.Value?.ToString();
         }
 
-        if (isNumeric)
+        if (isNumeric && globalOptions.GenerateNumericOperators)
         {
             var supportedOperationsAttributeData = GetSupportedOperationsAttributeData(typeSymbol, underlyingType, parentSymbols, cachedOperationsAttributes);
 
             generatorData.GenerateAdditionOperators = supportedOperationsAttributeData.Addition && !typeSymbol.ImplementsInterface("System.Numerics.IAdditionOperators");
-
             generatorData.GenerateSubtractionOperators = supportedOperationsAttributeData.Subtraction && !typeSymbol.ImplementsInterface("System.Numerics.ISubtractionOperators");
-
             generatorData.GenerateDivisionOperators = supportedOperationsAttributeData.Division && !typeSymbol.ImplementsInterface("System.Numerics.IDivisionOperators");
-
             generatorData.GenerateMultiplyOperators = supportedOperationsAttributeData.Multiplication && !typeSymbol.ImplementsInterface("System.Numerics.IMultiplyOperators");
-
             generatorData.GenerateModulusOperator = supportedOperationsAttributeData.Modulus && !typeSymbol.ImplementsInterface("System.Numerics.IModulusOperator");
         }
 
@@ -354,16 +350,11 @@ internal static class Executor
         }
 
         var builder = new SourceCodeBuilder();
-        var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics", "System.Runtime.CompilerServices", "AltaSoft.DomainPrimitives" };
+        var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics", "System.Runtime.CompilerServices", "AltaSoft.DomainPrimitives", "System.Diagnostics.CodeAnalysis" };
 
         if (data.ParentSymbols.Count > 0)
         {
             usings.Add(data.ParentSymbols[0].ContainingNamespace.ToDisplayString());
-        }
-
-        if (data.GenerateImplicitOperators)
-        {
-            usings.Add("System.Diagnostics.CodeAnalysis");
         }
 
         if (options.GenerateJsonConverters)
@@ -447,6 +438,10 @@ internal static class Executor
         if (data.GenerateImplicitOperators)
         {
             GenerateImplicitOperators(data, builder);
+        }
+        else
+        {
+            GenerateExplicitOperator(data, builder);
         }
 
         if (data.GenerateAdditionOperators)
@@ -607,6 +602,34 @@ internal static class Executor
 
             static StringBuilder AppendInterface(StringBuilder sb, string interfaceName)
                 => sb.AppendLine().Append(SourceCodeBuilder.GetIndentation(2)).Append(", ").Append(interfaceName);
+        }
+    }
+
+    /// <summary>
+    /// Generates Explicit operators for a specified class.
+    /// </summary>
+    /// <param name="data">The GeneratorData for the class.</param>
+    /// <param name="builder">The SourceCodeBuilder for generating source code.</param>
+    private static void GenerateExplicitOperator(GeneratorData data, SourceCodeBuilder builder)
+    {
+        var friendlyName = data.PrimitiveTypeFriendlyName;
+        var type = data.PrimitiveTypeSymbol;
+        var className = data.ClassName;
+
+        builder.AppendSummary($"Explicit conversion from <see cref = \"{className}\"/> to <see cref = \"{friendlyName}\"/>")
+            .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+            .Append($"public static explicit operator {friendlyName}({className} value)")
+            .AppendLine($" => ({friendlyName})value.{data.FieldName};")
+            .NewLine();
+
+        if (type.IsValueType)
+        {
+            builder.AppendSummary($"Explicit conversion from <see cref = \"{className}\"/> (nullable) to <see cref = \"{friendlyName}\"/> (nullable)")
+                .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
+                .AppendLine("[return: NotNullIfNotNull(nameof(value))]")
+                .Append($"public static explicit operator {friendlyName}?({className}? value)")
+                .AppendLine($" => value is null ? null : ({friendlyName}?)value.Value.{data.FieldName};")
+                .NewLine();
         }
     }
 

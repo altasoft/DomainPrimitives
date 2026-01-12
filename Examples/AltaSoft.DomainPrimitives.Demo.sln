@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.8.34330.188
+# Visual Studio Version 18
+VisualStudioVersion = 18.0.11217.181
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.Demo", "AltaSoft.DomainPrimitives.Demo\AltaSoft.DomainPrimitives.Demo.csproj", "{193DA3B4-7F2C-4EED-A7AF-9F69964B7B27}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives", "..\src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj", "{E15AD85A-80BF-DBA3-9850-D9E144EB26AA}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.SwaggerExtensions", "..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj", "{CAEE1818-F333-DF43-89BA-DEC9BD64E279}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AltaSoft.DomainPrimitives.OpenApiExtensions", "..\src\AltaSoft.DomainPrimitives.OpenApiExtensions\AltaSoft.DomainPrimitives.OpenApiExtensions.csproj", "{069E8303-00AA-16AD-9DE1-FCD188DA59B1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{CAEE1818-F333-DF43-89BA-DEC9BD64E279}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAEE1818-F333-DF43-89BA-DEC9BD64E279}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAEE1818-F333-DF43-89BA-DEC9BD64E279}.Release|Any CPU.Build.0 = Release|Any CPU
+		{069E8303-00AA-16AD-9DE1-FCD188DA59B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{069E8303-00AA-16AD-9DE1-FCD188DA59B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{069E8303-00AA-16AD-9DE1-FCD188DA59B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{069E8303-00AA-16AD-9DE1-FCD188DA59B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

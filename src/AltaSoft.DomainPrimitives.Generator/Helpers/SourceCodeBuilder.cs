@@ -239,6 +239,15 @@ internal sealed class SourceCodeBuilder
     public SourceCodeBuilder AppendIf(bool condition, string line) => !condition ? this : Append(line);
 
     /// <summary>
+    /// Appends one of two specified strings to the source code on a new line based on a condition.
+    /// </summary>
+    /// <param name="condition">A Boolean value indicating which string to append.</param>
+    /// <param name="ifLine">The string to append on a new line if the condition is true.</param>
+    /// <param name="elseLine">The string to append on a new line if the condition is false.</param>
+    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    public SourceCodeBuilder AppendIfElse(bool condition, string ifLine, string elseLine) => Append(condition ? ifLine : elseLine);
+
+    /// <summary>
     /// Appends the specified string to the source code on a new line if a specified condition is met.
     /// </summary>
     /// <param name="condition">A Boolean value indicating whether to append the string.</param>
@@ -266,6 +275,18 @@ internal sealed class SourceCodeBuilder
     /// </summary>
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
     public SourceCodeBuilder CloseBracket() => AppendLine("}");
+
+    /// <summary>
+    /// Appends a closing bracket '}' followed by a specified string to the source code on a new line.
+    /// </summary>
+    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    public SourceCodeBuilder CloseBracketWithString(string endWith) => AppendLine($"}}{endWith}");
+
+    /// <summary>
+    /// Appends a closing bracket '}' and colon ',' to the source code on a new line.
+    /// </summary>
+    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    public SourceCodeBuilder CloseBracketWithComma() => AppendLine("},");
 
     /// <summary>
     /// Appends a closing bracket '}' and semicolon ';' to the source code on a new line.

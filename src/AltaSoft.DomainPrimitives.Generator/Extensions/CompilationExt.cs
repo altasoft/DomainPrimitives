@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -118,46 +117,6 @@ internal static class CompilationExt
     }
 
     /// <summary>
-    /// Checks if the specified named type symbol implements the specified interface by its full name.
-    /// </summary>
-    /// <param name="type">The named type symbol to check for interface implementation.</param>
-    /// <param name="interfaceFullName">The full name of the interface to check for implementation.</param>
-    /// <returns>True if the type implements the interface; otherwise, false.</returns>
-    public static bool ImplementsInterface(this INamedTypeSymbol type, string interfaceFullName)
-    {
-        return type.Interfaces.Any(x => string.Equals(x.ContainingNamespace.ToDisplayString() + "." + x.Name, interfaceFullName, StringComparison.Ordinal));
-    }
-
-    /// <summary>
-    /// Gets the underlying primitive type information associated with the specified named type symbol.
-    /// </summary>
-    /// <param name="type">The named type symbol for which to retrieve the underlying primitive type information.</param>
-    /// <param name="domainTypes">A list of named type symbols representing domain types to track recursion.</param>
-    /// <returns>A tuple containing the <see cref="DomainPrimitiveUnderlyingType"/> enum value representing the primitive type and the corresponding named type symbol.</returns>
-    public static (DomainPrimitiveUnderlyingType underlyingType, INamedTypeSymbol typeSymbol) GetUnderlyingPrimitiveType(this INamedTypeSymbol type, List<INamedTypeSymbol> domainTypes)
-    {
-        while (true)
-        {
-            var underlyingType = type.GetDomainPrimitiveUnderlyingType();
-
-            if (underlyingType != DomainPrimitiveUnderlyingType.Other)
-                return (underlyingType, type);
-
-            var domainType = type.Interfaces.FirstOrDefault(x => x.IsDomainValue());
-
-            if (domainType is null)
-                return (DomainPrimitiveUnderlyingType.Other, type);
-
-            // Recurse into the domain type
-            if (domainType.TypeArguments[0] is not INamedTypeSymbol primitiveType)
-                throw new InvalidOperationException("primitiveType is null");
-
-            domainTypes.Add(type);
-            type = primitiveType;
-        }
-    }
-
-    /// <summary>
     /// Determines whether the specified <see cref="DomainPrimitiveUnderlyingType"/> implements  <see cref="IConvertible"/>
     /// </summary>
     /// <param name="self">The <see cref="DomainPrimitiveUnderlyingType"/> to check.</param>
@@ -176,72 +135,124 @@ internal static class CompilationExt
         };
     }
 
-    /// <summary>
-    /// Gets the Swagger type and format for a given primitive type.
-    /// </summary>
-    /// <param name="primitiveType">The named type symbol representing the primitive type.</param>
-    /// <returns>A tuple containing the Swagger type and format as strings.</returns>
-    public static (string type, string format) GetSwaggerTypeAndFormat(this INamedTypeSymbol primitiveType)
+    /// <param name="domainPrimitiveType">The named type symbol representing the primitive type.</param>
+    extension(INamedTypeSymbol domainPrimitiveType)
     {
-        var underlyingType = primitiveType.GetDomainPrimitiveUnderlyingType();
 
-        if (underlyingType.IsNumeric())
+        /// <summary>
+        /// Checks if the specified named type symbol implements the specified interface by its full name.
+        /// </summary>
+        /// <param name="interfaceFullName">The full name of the interface to check for implementation.</param>
+        /// <returns>True if the type implements the interface; otherwise, false.</returns>
+        public bool ImplementsInterface(string interfaceFullName)
         {
-            var format = underlyingType.ToString();
-            return underlyingType.IsFloatingPoint()
-                ? ("number", format.ToLower(CultureInfo.InvariantCulture))
-                : ("integer", format.ToLower(CultureInfo.InvariantCulture));
+            return domainPrimitiveType.Interfaces.Any(x => string.Equals(x.ContainingNamespace.ToDisplayString() + "." + x.Name, interfaceFullName, StringComparison.Ordinal));
         }
 
-        return underlyingType switch
+        /// <summary>
+        /// Gets the underlying primitive type information associated with the specified named type symbol.
+        /// </summary>
+        /// <param name="domainTypes">A list of named type symbols representing domain types to track recursion.</param>
+        /// <returns>A tuple containing the <see cref="DomainPrimitiveUnderlyingType"/> enum value representing the primitive type and the corresponding named type symbol.</returns>
+        public (DomainPrimitiveUnderlyingType underlyingType, INamedTypeSymbol typeSymbol) GetUnderlyingPrimitiveType(List<INamedTypeSymbol> domainTypes)
         {
-            DomainPrimitiveUnderlyingType.Boolean => ("boolean", ""),
-            DomainPrimitiveUnderlyingType.Guid => ("string", "uuid"),
-            DomainPrimitiveUnderlyingType.Char => ("string", ""),
+            while (true)
+            {
+                var underlyingType = domainPrimitiveType.GetDomainPrimitiveUnderlyingType();
 
-            DomainPrimitiveUnderlyingType.DateTime => ("string", "date-time"),
-            DomainPrimitiveUnderlyingType.DateOnly => ("string", "date"),
-            DomainPrimitiveUnderlyingType.TimeOnly => ("string", "HH:mm:ss"),
-            DomainPrimitiveUnderlyingType.DateTimeOffset => ("string", "date-time"),
-            DomainPrimitiveUnderlyingType.TimeSpan => ("integer", "int64"),
+                if (underlyingType != DomainPrimitiveUnderlyingType.Other)
+                    return (underlyingType, domainPrimitiveType);
 
-            _ => ("string", "")
-        };
-    }
+                var domainType = domainPrimitiveType.Interfaces.FirstOrDefault(x => x.IsDomainValue());
 
-    /// <summary>
-    /// Gets a friendly name for the named type symbol, including nullable types.
-    /// </summary>
-    /// <param name="type">The named type symbol to get the friendly name from.</param>
-    /// <returns>The friendly name of the type, including nullable types if applicable.</returns>
-    public static string GetFriendlyName(this INamedTypeSymbol type)
-    {
-        var ns = type.ContainingNamespace?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.OmittedAsContaining))!;
+                if (domainType is null)
+                    return (DomainPrimitiveUnderlyingType.Other, domainPrimitiveType);
 
-        if (s_typeAliases.TryGetValue(ns + "." + type.MetadataName, out var result))
-        {
-            return result;
+                // Recurse into the domain type
+                if (domainType.TypeArguments[0] is not INamedTypeSymbol primitiveType)
+                    throw new InvalidOperationException("primitiveType is null");
+
+                domainTypes.Add(domainPrimitiveType);
+                domainPrimitiveType = primitiveType;
+            }
         }
 
-        var friendlyName = new StringBuilder(type.MetadataName);
+        /// <summary>
+        /// Gets the OpenApiType and format for a given primitive type.
+        /// </summary>
+        /// <returns>A tuple containing the OpenApi type and format as strings.</returns>
+        public (string type, string format) GetOpenApiTypeAndFormat()
+        {
+            var underlyingType = domainPrimitiveType.GetDomainPrimitiveUnderlyingType();
 
-        if (!type.IsGenericType)
+            //mapping is retrieved from: https://github.com/dotnet/aspnetcore/blob/main/src/OpenApi/src/Extensions/JsonNodeSchemaExtensions.cs#L27
+            return underlyingType switch
+            {
+                DomainPrimitiveUnderlyingType.String => ("JsonSchemaType.String", ""),
+
+                DomainPrimitiveUnderlyingType.Boolean => ("JsonSchemaType.Boolean", ""),
+                DomainPrimitiveUnderlyingType.Guid => ("JsonSchemaType.String", "uuid"),
+                DomainPrimitiveUnderlyingType.Char => ("JsonSchemaType.String", "char"),
+
+                DomainPrimitiveUnderlyingType.DateTime => ("JsonSchemaType.String", "date-time"),
+                DomainPrimitiveUnderlyingType.DateTimeOffset => ("JsonSchemaType.String", "date-time"),
+                DomainPrimitiveUnderlyingType.DateOnly => ("JsonSchemaType.String", "date"),
+                DomainPrimitiveUnderlyingType.TimeOnly => ("JsonSchemaType.String", "time"), // ISO 8601 time format
+                DomainPrimitiveUnderlyingType.TimeSpan => ("JsonSchemaType.Integer", "int64"),
+
+                //integer type
+                DomainPrimitiveUnderlyingType.SByte => ("JsonSchemaType.Integer", "int8"),
+                DomainPrimitiveUnderlyingType.Byte => ("JsonSchemaType.Integer", "uint8"),
+                DomainPrimitiveUnderlyingType.Int16 => ("JsonSchemaType.Integer", "int16"),
+                DomainPrimitiveUnderlyingType.UInt16 => ("JsonSchemaType.Integer", "uint16"),
+                DomainPrimitiveUnderlyingType.Int32 => ("JsonSchemaType.Integer", "int32"),
+                DomainPrimitiveUnderlyingType.UInt32 => ("JsonSchemaType.Integer", "uint32"),
+                DomainPrimitiveUnderlyingType.Int64 => ("JsonSchemaType.Integer", "int64"),
+                DomainPrimitiveUnderlyingType.UInt64 => ("JsonSchemaType.Integer", "uint64"),
+
+                //floating points
+                DomainPrimitiveUnderlyingType.Single => ("JsonSchemaType.Number", "float"),
+                DomainPrimitiveUnderlyingType.Double => ("JsonSchemaType.Number", "double"),
+                // decimal
+                DomainPrimitiveUnderlyingType.Decimal => ("JsonSchemaType.Number", "double"),
+
+                _ => ("JsonSchemaType.String", "")
+            };
+        }
+
+        /// <summary>
+        /// Gets a friendly name for the named type symbol, including nullable types.
+        /// </summary>
+        /// <returns>The friendly name of the type, including nullable types if applicable.</returns>
+        public string GetFriendlyName()
+        {
+            var ns = domainPrimitiveType.ContainingNamespace?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat.WithGlobalNamespaceStyle(SymbolDisplayGlobalNamespaceStyle.OmittedAsContaining))!;
+
+            if (s_typeAliases.TryGetValue(ns + "." + domainPrimitiveType.MetadataName, out var result))
+            {
+                return result;
+            }
+
+            var friendlyName = new StringBuilder(domainPrimitiveType.MetadataName);
+
+            if (!domainPrimitiveType.IsGenericType)
+                return friendlyName.ToString();
+
+            var iBacktick = friendlyName.ToString().IndexOf('`');
+            if (iBacktick > 0)
+                friendlyName.Length = iBacktick;
+            friendlyName.Append('<');
+            var typeParameters = domainPrimitiveType.TypeArguments;
+            for (var i = 0; i < typeParameters.Length; ++i)
+            {
+                if (i > 0)
+                    friendlyName.Append(',');
+                friendlyName.Append(typeParameters[i]);
+            }
+            friendlyName.Append('>');
+
             return friendlyName.ToString();
-
-        var iBacktick = friendlyName.ToString().IndexOf('`');
-        if (iBacktick > 0)
-            friendlyName.Length = iBacktick;
-        friendlyName.Append('<');
-        var typeParameters = type.TypeArguments;
-        for (var i = 0; i < typeParameters.Length; ++i)
-        {
-            if (i > 0)
-                friendlyName.Append(',');
-            friendlyName.Append(typeParameters[i]);
         }
-        friendlyName.Append('>');
-
-        return friendlyName.ToString();
     }
 
     /// <summary>
