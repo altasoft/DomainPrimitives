@@ -210,7 +210,7 @@ internal static class MethodGeneratorHelper
 
                     builder.Length -= SourceCodeBuilder.s_newLineLength + 1;
                     builder.NewLine();
-                    builder.CloseBracket();
+                    builder.AppendLine("}");
                     builder.CloseBracketWithComma();
                 }
             }
