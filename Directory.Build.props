@@ -32,14 +32,13 @@
 	<PackageTags>ddd;domain;entity;dotnet-core;value-object;strongly-typed;</PackageTags>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TF_BUILD)' == 'True' ">
+  <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
 	<DebugType>embedded</DebugType>
 	<EmbedUntrackedSources>true</EmbedUntrackedSources>
 	<EmbedAllSources>false</EmbedAllSources>
 	<ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
 	<Deterministic>true</Deterministic>
   </PropertyGroup>
-
 
   <ItemGroup>
 	<None Include="..\..\README.md" Pack="true" PackagePath="\" />
