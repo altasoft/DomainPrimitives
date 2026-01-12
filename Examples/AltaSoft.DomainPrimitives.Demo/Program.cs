@@ -1,15 +1,19 @@
 using AltaSoft.DomainPrimitives.Demo;
-using AltaSoft.DomainPrimitives.OpenApiExtensions;
 using AltaSoft.DomainPrimitives.SwaggerExtensions;
 using DomainPrimitivesDemo;
 using Microsoft.AspNetCore.Mvc;
 using Scalar.AspNetCore;
-
+#if NET10_0_OR_GREATER
+using AltaSoft.DomainPrimitives.OpenApiExtensions;
+#endif
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddOpenApi(options =>
 {
+
+#if NET10_0_OR_GREATER
     options.AddDomainPrimitivesOpenApiSchemaTransformer();
+#endif
 
     //options.AddSchemaTransformer(new DomainPrimitiveOpenApiReflectionTransformer());
 });

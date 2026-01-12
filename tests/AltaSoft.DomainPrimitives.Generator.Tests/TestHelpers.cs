@@ -18,7 +18,14 @@ internal static class TestHelpers
         (string source, IEnumerable<Assembly> assembliesToImport, DomainPrimitiveGlobalOptions? globalOptions = null)
         where T : IIncrementalGenerator, new()
     {
-        var syntaxTree = CSharpSyntaxTree.ParseText(source);
+        var parseOptions = new CSharpParseOptions(
+            LanguageVersion.Latest,
+            preprocessorSymbols:
+            [
+                "NET10_0_OR_GREATER"
+            ]);
+
+        var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions);
         var references = AppDomain.CurrentDomain.GetAssemblies()
             .Where(x => !x.IsDynamic && !string.IsNullOrWhiteSpace(x.Location))
             .Select(x => MetadataReference.CreateFromFile(x.Location))
@@ -37,7 +44,9 @@ internal static class TestHelpers
 
         var originalTreeCount = compilation.SyntaxTrees.Length;
         var generator = new T();
-        var driver = CSharpGeneratorDriver.Create(generator)
+        var driver = CSharpGeneratorDriver
+            .Create(generator)
+            .WithUpdatedParseOptions(parseOptions)
             .WithUpdatedAnalyzerConfigOptions(new DomainPrimitiveConfigOptionsProvider(globalOptions ?? new DomainPrimitiveGlobalOptions()));
 
         var newDriver = driver.RunGeneratorsAndUpdateCompilation(compilation, out var outputCompilation, out var syntaxDiagnostics);

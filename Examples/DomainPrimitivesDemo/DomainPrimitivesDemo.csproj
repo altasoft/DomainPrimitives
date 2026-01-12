@@ -1,7 +1,7 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFrameworks>net10.0;net9.0</TargetFrameworks>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <NoWarn>1591</NoWarn>
@@ -9,9 +9,17 @@
   </PropertyGroup>
 
 
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+		<PackageReference Include="Microsoft.OpenApi" Version="1.6.28" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+		<PackageReference Include="Microsoft.OpenApi" Version="2.4.2" />
+	</ItemGroup>
+
+
   <ItemGroup>
     <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.Generator\AltaSoft.DomainPrimitives.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" PrivateAssets="all" ExcludeAssets="runtime" />
-    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
     <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives\AltaSoft.DomainPrimitives.csproj" />
   </ItemGroup>
 

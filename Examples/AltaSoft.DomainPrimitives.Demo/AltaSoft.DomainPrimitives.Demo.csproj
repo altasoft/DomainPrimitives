@@ -1,25 +1,42 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <InvariantGlobalization>true</InvariantGlobalization>
-	<IsPackable>flase</IsPackable>
+	<TargetFramework>net10.0</TargetFramework>
+	<!--<TargetFramework>net9.0</TargetFramework>-->
+	<Nullable>enable</Nullable>
+	<ImplicitUsings>enable</ImplicitUsings>
+	<InvariantGlobalization>true</InvariantGlobalization>
+	<IsPackable>false</IsPackable>
 	<NoWarn>1591</NoWarn>
   </PropertyGroup>
 
+	<PropertyGroup>
+		<InterceptorsNamespaces>
+			$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated
+		</InterceptorsNamespaces>
+	</PropertyGroup>
 
-	<ItemGroup>
-		<PackageReference Include="Scalar.AspNetCore" Version="1.1.1" />
+  <ItemGroup>
+	<PackageReference Include="Scalar.AspNetCore" Version="2.12.5" />
+  </ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.11" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
 		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
+		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.OpenApiExtensions\AltaSoft.DomainPrimitives.OpenApiExtensions.csproj" />
 	</ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.OpenApiExtensions\AltaSoft.DomainPrimitives.OpenApiExtensions.csproj" />
-    <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
-    <ProjectReference Include="..\DomainPrimitivesDemo\DomainPrimitivesDemo.csproj" />
+	<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
+	<ProjectReference Include="..\DomainPrimitivesDemo\DomainPrimitivesDemo.csproj" />
   </ItemGroup>
 
 </Project>

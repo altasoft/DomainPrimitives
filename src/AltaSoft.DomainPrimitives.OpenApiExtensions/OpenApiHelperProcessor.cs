@@ -3,7 +3,11 @@ using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+#if NET10_0_OR_GREATER
 using Microsoft.OpenApi;
+#else
+using Microsoft.OpenApi.Models;
+#endif
 
 namespace AltaSoft.DomainPrimitives.OpenApiExtensions;
 

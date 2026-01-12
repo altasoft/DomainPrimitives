@@ -8,12 +8,17 @@
 
 #nullable enable
 
+#if NET10_0_OR_GREATER
+using Microsoft.OpenApi;
+#else
+using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi.Any;
+#endif
 using AltaSoft.DomainPrimitives;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Text.Json.Nodes;
-using Microsoft.OpenApi;
 
 [assembly: AltaSoft.DomainPrimitives.DomainPrimitiveAssemblyAttribute]
 namespace generator_Test.Converters.Helpers;
@@ -32,6 +37,8 @@ public static class OpenApiHelper
     /// <see cref="LongValue" />
     /// </para>
     /// </remarks>
+
+#if NET10_0_OR_GREATER
     public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
     {
         {
@@ -44,4 +51,30 @@ public static class OpenApiHelper
             }
         }
     }.ToFrozenDictionary();
+
+#else
+    public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
+    {
+        {
+            typeof(LongValue),
+            new OpenApiSchema
+            {
+                Type = "integer",
+                Format = "int64",
+                Title = "LongValue"
+            }
+        },
+
+        {
+            typeof(LongValue?),
+            new OpenApiSchema
+            {
+                Type = "integer",
+                Format = "int64",
+                Nullable = true,
+                Title = "Nullable<LongValue>"
+            }
+        }
+    }.ToFrozenDictionary();
+#endif
 }
