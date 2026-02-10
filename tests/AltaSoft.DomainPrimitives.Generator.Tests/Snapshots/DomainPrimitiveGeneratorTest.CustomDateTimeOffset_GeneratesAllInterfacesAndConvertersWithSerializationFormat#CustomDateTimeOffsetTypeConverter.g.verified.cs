@@ -31,7 +31,7 @@ internal sealed class CustomDateTimeOffsetTypeConverter : DateTimeOffsetConverte
             }
             catch (InvalidDomainValueException ex)
             {
-                throw new FormatException("Cannot parse ", ex);
+                throw new FormatException("Cannot parse CustomDateTimeOffset", ex);
             }
         }
 

@@ -60,7 +60,7 @@ public static class OpenApiHelper
             new OpenApiSchema
             {
                 Type = "integer",
-                Format = "hh\:mm",
+                Format = "hh\\:mm",
                 Title = "CustomTimeSpan"
             }
         },
@@ -70,7 +70,7 @@ public static class OpenApiHelper
             new OpenApiSchema
             {
                 Type = "integer",
-                Format = "hh\:mm",
+                Format = "hh\\:mm",
                 Nullable = true,
                 Title = "Nullable<CustomTimeSpan>"
             }

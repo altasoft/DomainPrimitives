@@ -31,7 +31,7 @@ internal sealed class CustomTimeSpanTypeConverter : TimeSpanConverter
             }
             catch (InvalidDomainValueException ex)
             {
-                throw new FormatException("Cannot parse ", ex);
+                throw new FormatException("Cannot parse CustomTimeSpan", ex);
             }
         }
 

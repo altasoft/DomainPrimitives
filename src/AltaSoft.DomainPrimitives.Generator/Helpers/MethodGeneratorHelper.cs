@@ -252,7 +252,7 @@ internal static class MethodGeneratorHelper
                 .CloseBracket()
                 .AppendLine("catch (InvalidDomainValueException ex)")
                 .OpenBracket()
-                .Append("throw new FormatException(\"Cannot parse ").AppendLine("\", ex);")
+                .Append("throw new FormatException(\"Cannot parse ").Append(data.ClassName).AppendLine("\", ex);")
                 .CloseBracket()
                 .CloseBracket()
                 .NewLine()

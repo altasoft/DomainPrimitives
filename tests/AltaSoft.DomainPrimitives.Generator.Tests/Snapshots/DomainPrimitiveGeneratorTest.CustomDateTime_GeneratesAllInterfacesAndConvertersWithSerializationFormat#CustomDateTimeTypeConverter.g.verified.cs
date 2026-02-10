@@ -31,7 +31,7 @@ internal sealed class CustomDateTimeTypeConverter : DateTimeConverter
             }
             catch (InvalidDomainValueException ex)
             {
-                throw new FormatException("Cannot parse ", ex);
+                throw new FormatException("Cannot parse CustomDateTime", ex);
             }
         }
 

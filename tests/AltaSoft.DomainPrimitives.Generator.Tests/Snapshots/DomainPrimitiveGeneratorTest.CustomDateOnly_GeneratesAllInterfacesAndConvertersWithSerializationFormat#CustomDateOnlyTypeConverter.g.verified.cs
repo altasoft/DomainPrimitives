@@ -31,7 +31,7 @@ internal sealed class CustomDateOnlyTypeConverter : DateOnlyConverter
             }
             catch (InvalidDomainValueException ex)
             {
-                throw new FormatException("Cannot parse ", ex);
+                throw new FormatException("Cannot parse CustomDateOnly", ex);
             }
         }
 

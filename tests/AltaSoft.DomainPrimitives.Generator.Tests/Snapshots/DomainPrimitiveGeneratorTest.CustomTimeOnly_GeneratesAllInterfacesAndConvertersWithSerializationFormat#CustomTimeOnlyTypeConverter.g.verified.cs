@@ -31,7 +31,7 @@ internal sealed class CustomTimeOnlyTypeConverter : TimeOnlyConverter
             }
             catch (InvalidDomainValueException ex)
             {
-                throw new FormatException("Cannot parse ", ex);
+                throw new FormatException("Cannot parse CustomTimeOnly", ex);
             }
         }
 
