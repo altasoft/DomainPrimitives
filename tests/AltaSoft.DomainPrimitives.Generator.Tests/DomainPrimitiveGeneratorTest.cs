@@ -862,4 +862,144 @@ public class DomainPrimitiveGeneratorTest
         });
     }
 
+    [Fact]
+    public Task CustomDateOnly_GeneratesAllInterfacesAndConvertersWithSerializationFormat()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              [SerializationFormat("yyyyMMdd")]
+                              public readonly partial struct CustomDateOnly : IDomainValue<DateOnly>
+                              {
+                              	/// <inheritdoc/>
+                              	public static PrimitiveValidationResult Validate(DateOnly value)
+                              	{
+                              		return PrimitiveValidationResult.Ok;
+                              	}
+                              }
+
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
+
+    [Fact]
+    public Task CustomDateTime_GeneratesAllInterfacesAndConvertersWithSerializationFormat()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              [SerializationFormat("yyyyMMdd_HHmmss")]
+                              public readonly partial struct CustomDateTime : IDomainValue<DateTime>
+                              {
+                              	/// <inheritdoc/>
+                              	public static PrimitiveValidationResult Validate(DateTime value)
+                              	{
+                              		return PrimitiveValidationResult.Ok;
+                              	}
+                              }
+
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
+
+    [Fact]
+    public Task CustomDateTimeOffset_GeneratesAllInterfacesAndConvertersWithSerializationFormat()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              [SerializationFormat("yyyyMMdd")]
+                              public readonly partial struct CustomDateTimeOffset : IDomainValue<DateTimeOffset>
+                              {
+                              	/// <inheritdoc/>
+                              	public static PrimitiveValidationResult Validate(DateTimeOffset value)
+                              	{
+                              		return PrimitiveValidationResult.Ok;
+                              	}
+                              }
+
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
+
+    [Fact]
+    public Task CustomTimeOnly_GeneratesAllInterfacesAndConvertersWithSerializationFormat()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              [SerializationFormat("HHmmss")]
+                              public readonly partial struct CustomTimeOnly : IDomainValue<TimeOnly>
+                              {
+                              	/// <inheritdoc/>
+                              	public static PrimitiveValidationResult Validate(TimeOnly value)
+                              	{
+                              		return PrimitiveValidationResult.Ok;
+                              	}
+                              }
+
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
+
+    [Fact]
+    public Task CustomTimeSpan_GeneratesAllInterfacesAndConvertersWithSerializationFormat()
+    {
+        const string source = """
+                              using System;
+                              using System.Collections.Generic;
+                              using System.Linq;
+                              using System.Text;
+                              using System.Threading.Tasks;
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              [SerializationFormat(@"hh\:mm")]
+                              public readonly partial struct CustomTimeSpan : IDomainValue<TimeSpan>
+                              {
+                              	/// <inheritdoc/>
+                              	public static PrimitiveValidationResult Validate(TimeSpan value)
+                              	{
+                              		return PrimitiveValidationResult.Ok;
+                              	}
+                              }
+
+                              """;
+
+        return TestHelper.Verify(source, (_, x, _) => Assert.Equal(4, x.Count));
+    }
+
 }

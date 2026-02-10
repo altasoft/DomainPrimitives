@@ -4,6 +4,7 @@ using System.Threading;
 using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace AltaSoft.DomainPrimitives.Generator.Helpers;
 
@@ -90,7 +91,7 @@ internal static class MethodGeneratorHelper
                     .Append("Type = ").Append(typeName).AppendLine(",");
 
                 if (!string.IsNullOrEmpty(format))
-                    builder.Append("Format = ").Append(Quote(data.SerializationFormat ?? format)).AppendLine(",");
+                    builder.Append("Format = ").Append(QuoteAndEscape(data.SerializationFormat ?? format)).AppendLine(",");
 
                 var title = data.ClassName;
                 builder.Append("Title = ").Append(Quote(title)).AppendLine(",");
@@ -144,8 +145,6 @@ internal static class MethodGeneratorHelper
         context.AddSource("OpenApiHelper.g.cs", builder.ToString());
 
         return;
-
-        static string Quote(string? value) => '\"' + value?.Replace("\"", "\"\"") + '\"';
 
         static void ProcessOldVersionOpenApi(List<GeneratorData> types, SourceCodeBuilder builder, CancellationToken cancellationToken)
         {
@@ -430,7 +429,7 @@ internal static class MethodGeneratorHelper
         builder.AppendInheritDoc().AppendLine($"public override void Write(Utf8JsonWriter writer, {data.ClassName} value, JsonSerializerOptions options)")
             .OpenBracket()
             .AppendLineIf(data.SerializationFormat is null, $"JsonInternalConverters.{converterName}Converter.Write(writer, ({data.PrimitiveTypeFriendlyName})value, options);")
-            .AppendLineIf(data.SerializationFormat is not null, $"writer.WriteStringValue(value.ToString(\"{data.SerializationFormat}\", CultureInfo.InvariantCulture));")
+            .AppendLineIf(data.SerializationFormat is not null, $"writer.WriteStringValue(value.ToString({QuoteAndEscape(data.SerializationFormat)}, CultureInfo.InvariantCulture));")
             .CloseBracket()
             .NewLine();
 
@@ -472,7 +471,7 @@ internal static class MethodGeneratorHelper
             .Append("public override void WriteAsPropertyName(Utf8JsonWriter writer, ").Append(data.ClassName).AppendLine(" value, JsonSerializerOptions options)")
             .OpenBracket()
                 .AppendLineIf(data.SerializationFormat is null, $"JsonInternalConverters.{converterName}Converter.WriteAsPropertyName(writer, ({data.PrimitiveTypeFriendlyName})value, options);")
-            .AppendLineIf(data.SerializationFormat is not null, $"writer.WritePropertyName(value.ToString(\"{data.SerializationFormat}\", CultureInfo.InvariantCulture));")
+            .AppendLineIf(data.SerializationFormat is not null, $"writer.WritePropertyName(value.ToString({QuoteAndEscape(data.SerializationFormat)}, CultureInfo.InvariantCulture));")
             .CloseBracket();
 
         builder.CloseBracket();
@@ -885,7 +884,7 @@ internal static class MethodGeneratorHelper
         else
         {
             builder.Append($"{underlyingType}.")
-                .AppendIfElse(format is null, "Parse(s, provider)", $"ParseExact(s, \"{format}\", provider)");
+                .AppendIfElse(format is null, "Parse(s, provider)", $"ParseExact(s, {QuoteAndEscape(format!)}, provider)");
         }
 
         builder.AppendLine(!data.GenerateImplicitOperators ? ");" : ";");
@@ -912,8 +911,14 @@ internal static class MethodGeneratorHelper
         }
         else
         {
+            var style = "";
+            if (format is not null)
+            {
+                style = data.UnderlyingType == DomainPrimitiveUnderlyingType.TimeSpan ? "TimeSpanStyles.None" : "DateTimeStyles.None";
+            }
+
             builder.AppendIf(format is null, $"if (!{underlyingType}.TryParse(s, provider, out var value))")
-                .AppendIf(format is not null, $"if (!{underlyingType}.TryParseExact(s, \"{format}\", out var value))");
+                .AppendIf(format is not null, $"if (!{underlyingType}.TryParseExact(s, {QuoteAndEscape(format)}, provider, {style}, out var value))");
         }
 
         builder.OpenBracket()
@@ -1092,18 +1097,28 @@ internal static class MethodGeneratorHelper
         builder.AppendLine("public XmlSchema? GetSchema() => null;")
             .NewLine();
 
-        var method = data.PrimitiveTypeFriendlyName switch
+        string method;
+
+        if (data.UnderlyingType.IsDateOrTime() && data.SerializationFormat is not null)
         {
-            "string" => "ReadElementContentAsString",
-            "bool" => "ReadElementContentAsBoolean",
-            "DateOnly" => "ReadElementContentAsDateOnly",
-            _ => $"ReadElementContentAs<{data.PrimitiveTypeFriendlyName}>"
-        };
+            method = "ReadElementContentAs" + data.PrimitiveTypeFriendlyName;
+        }
+        else
+        {
+            method = data.PrimitiveTypeFriendlyName switch
+            {
+                "string" => "ReadElementContentAsString",
+                "bool" => "ReadElementContentAsBoolean",
+                "DateOnly" => "ReadElementContentAsDateOnly",
+                _ => $"ReadElementContentAs<{data.PrimitiveTypeFriendlyName}>"
+            };
+        }
 
         builder.AppendInheritDoc();
         builder.AppendLine("public void ReadXml(XmlReader reader)")
             .OpenBracket()
-            .Append("var value = reader.").Append(method).AppendLine("();")
+            .Append("var value = reader.").Append(method)
+            .AppendLineIfElse(data.SerializationFormat is not null, $"({QuoteAndEscape(data.SerializationFormat)});", "();")
             .AppendLine("ValidateOrThrow(value);")
             .AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = value;")
             .AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;")
@@ -1118,7 +1133,10 @@ internal static class MethodGeneratorHelper
         if (data.SerializationFormat is null)
             builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteValue((({data.PrimitiveTypeFriendlyName}){data.FieldName}).ToXmlString());");
         else
-            builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName}.ToString(\"{data.SerializationFormat}\"));");
+            builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName}.ToString({QuoteAndEscape(data.SerializationFormat)}));");
         builder.NewLine();
     }
+
+    private static string Quote(string? value) => '\"' + value?.Replace("\"", "\"\"") + '\"';
+    private static string QuoteAndEscape(string? value) => value is null ? "\"\"" : SymbolDisplay.FormatLiteral(value, quote: true);
 }
