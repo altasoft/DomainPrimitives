@@ -19,7 +19,10 @@ builder.Services.AddOpenApi(options =>
 });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options => { options.AddAllDomainPrimitivesSwaggerMappings(); });
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddAllDomainPrimitivesSwaggerMappings();
+});
 builder.Services.AddSingleton<CustomerService>();
 builder.Services.AddSingleton<TransferService>();
 var app = builder.Build();

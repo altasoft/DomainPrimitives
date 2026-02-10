@@ -350,7 +350,15 @@ internal static class Executor
         }
 
         var builder = new SourceCodeBuilder();
-        var usings = new List<string>(3) { "System", "System.Numerics", "System.Diagnostics", "System.Runtime.CompilerServices", "AltaSoft.DomainPrimitives", "System.Diagnostics.CodeAnalysis" };
+        var usings = new List<string>(6)
+        {
+            "System",
+            "System.Numerics",
+            "System.Diagnostics",
+            "System.Runtime.CompilerServices",
+            "AltaSoft.DomainPrimitives",
+            "System.Diagnostics.CodeAnalysis"
+        };
 
         if (data.ParentSymbols.Count > 0)
         {
@@ -374,6 +382,11 @@ internal static class Executor
             usings.Add("System.Xml");
             usings.Add("System.Xml.Schema");
             usings.Add("System.Xml.Serialization");
+        }
+
+        if (data.SerializationFormat is not null)
+        {
+            usings.Add("System.Globalization");
         }
 
         var needsMathOperators = data.GenerateAdditionOperators || data.GenerateDivisionOperators ||

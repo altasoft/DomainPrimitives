@@ -25,6 +25,18 @@
 		</PackageReference>
 	</ItemGroup>
 
+	<PropertyGroup>
+		<DomainPrimitiveGenerator_GenerateJsonConverters>true</DomainPrimitiveGenerator_GenerateJsonConverters>
+		<DomainPrimitiveGenerator_GenerateXmlSerialization>true</DomainPrimitiveGenerator_GenerateXmlSerialization>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateJsonConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateTypeConverters" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateOpenApiHelper" />
+		<CompilerVisibleProperty Include="DomainPrimitiveGenerator_GenerateXmlSerialization" />
+	</ItemGroup>
+
 
   <ItemGroup>
 		<ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.SwaggerExtensions\AltaSoft.DomainPrimitives.SwaggerExtensions.csproj" />
