@@ -176,7 +176,7 @@ internal static class MethodGeneratorHelper
                         .Append("Type = ").Append(Quote(typeName)).AppendLine(",");
 
                     if (!string.IsNullOrEmpty(format))
-                        builder.Append("Format = ").Append(Quote(data.SerializationFormat ?? format)).AppendLine(",");
+                        builder.Append("Format = ").Append(QuoteAndEscape(data.SerializationFormat ?? format)).AppendLine(",");
 
                     if (isNullable)
                         builder.AppendLine("Nullable = true,");
