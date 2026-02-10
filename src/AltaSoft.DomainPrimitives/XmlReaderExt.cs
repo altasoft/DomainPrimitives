@@ -32,14 +32,14 @@ public static class XmlReaderExt
     /// <param name="reader">The <see cref="XmlReader"/> instance.</param>
     /// <param name="serializationFormat">serialization format to be used</param>
     /// <returns>
-    /// A <typeparamref name="T"/> value parsed from the current element's content.
+    /// A <see cref="DateTime"/> value parsed from the current element's content.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTime ReadElementContentAsDateTime(this XmlReader reader, string serializationFormat)
     {
         var str = reader.ReadElementContentAsString();
 
-        if (DateTime.TryParseExact(str, serializationFormat, null, DateTimeStyles.None, out var result))
+        if (DateTime.TryParseExact(str, serializationFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
             return result;
 
         return DateTime.Parse(str, CultureInfo.InvariantCulture);
@@ -51,14 +51,14 @@ public static class XmlReaderExt
     /// <param name="reader">The <see cref="XmlReader"/> instance.</param>
     /// <param name="serializationFormat">serialization format to be used</param>
     /// <returns>
-    /// A <typeparamref name="T"/> value parsed from the current element's content.
+    /// A <see cref="TimeOnly"/> value parsed from the current element's content.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TimeOnly ReadElementContentAsTimeOnly(this XmlReader reader, string serializationFormat)
     {
         var str = reader.ReadElementContentAsString();
 
-        if (TimeOnly.TryParseExact(str, serializationFormat, null, DateTimeStyles.None, out var result))
+        if (TimeOnly.TryParseExact(str, serializationFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
             return result;
 
         return TimeOnly.Parse(str, CultureInfo.InvariantCulture);
@@ -94,7 +94,7 @@ public static class XmlReaderExt
     {
         var str = reader.ReadElementContentAsString();
 
-        if (DateOnly.TryParseExact(str, serializationFormat, out var result))
+        if (DateOnly.TryParseExact(str, serializationFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
             return result;
 
         if (DateOnly.TryParse(str, CultureInfo.InvariantCulture, out result))
@@ -109,14 +109,14 @@ public static class XmlReaderExt
     /// <param name="reader">The <see cref="XmlReader"/> instance.</param>
     /// <param name="serializationFormat">serialization format to be used</param>
     /// <returns>
-    /// A <typeparamref name="T"/> value parsed from the current element's content.
+    /// A <see cref="DateTimeOffset"/> value parsed from the current element's content.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static DateTimeOffset ReadElementContentAsDateTimeOffset(this XmlReader reader, string serializationFormat)
     {
         var str = reader.ReadElementContentAsString();
 
-        if (DateTimeOffset.TryParseExact(str, serializationFormat, null, DateTimeStyles.None, out var result))
+        if (DateTimeOffset.TryParseExact(str, serializationFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var result))
             return result;
 
         return DateTimeOffset.Parse(str, CultureInfo.InvariantCulture);
@@ -128,14 +128,14 @@ public static class XmlReaderExt
     /// <param name="reader">The <see cref="XmlReader"/> instance.</param>
     /// <param name="serializationFormat">serialization format to be used</param>
     /// <returns>
-    /// A <typeparamref name="T"/> value parsed from the current element's content.
+    /// A <see cref="TimeSpan"/> value parsed from the current element's content.
     /// </returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static TimeSpan ReadElementContentAsTimeSpan(this XmlReader reader, string serializationFormat)
     {
         var str = reader.ReadElementContentAsString();
 
-        if (TimeSpan.TryParseExact(str, serializationFormat, null, TimeSpanStyles.None, out var result))
+        if (TimeSpan.TryParseExact(str, serializationFormat, CultureInfo.InvariantCulture, TimeSpanStyles.None, out var result))
             return result;
 
         return TimeSpan.Parse(str, CultureInfo.InvariantCulture);
