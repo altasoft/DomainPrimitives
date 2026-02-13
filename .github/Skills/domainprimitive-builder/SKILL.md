@@ -12,7 +12,7 @@ This skill applies only to C# projects using the AltaSoft DomainPrimitives frame
 Agent must:
 
 - Generate C# code only
-- Use modern C# syntax compatible with the project target framework and if applicable use c# copilot instructions
+- Use modern C# syntax compatible with the project target framework and if applicable use C# Copilot instructions
 - Follow C# type system rules for structs, classes, attributes, and static methods
 - Assume .NET and Roslyn source generator environment
 - prefer var over explicit types when the type is obvious from the right-hand side
