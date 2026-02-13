@@ -5,7 +5,7 @@ applyTo: '**/*.cs'
 # C# Development
 
 ## C# Instructions
-- Always use the latest version C#, currently C# 14 features.
+- Always use the C# language version configured by this repository (`LangVersion=Latest`) and its target frameworks, including the latest available language features.
 - Write clear and concise comments for each function you implement.
 
 ## General Instructions
