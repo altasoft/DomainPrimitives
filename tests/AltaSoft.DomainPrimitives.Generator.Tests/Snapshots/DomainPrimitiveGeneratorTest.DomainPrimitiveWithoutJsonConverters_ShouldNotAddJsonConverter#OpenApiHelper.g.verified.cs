@@ -8,13 +8,8 @@
 
 #nullable enable
 
-#if NET10_0_OR_GREATER
-using Microsoft.OpenApi;
-#else
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Any;
-#endif
 using AltaSoft.DomainPrimitives;
+using Microsoft.OpenApi;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -37,8 +32,6 @@ public static class OpenApiHelper
     /// <see cref="WithoutJsonConverterValue" />
     /// </para>
     /// </remarks>
-
-#if NET10_0_OR_GREATER
     public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
     {
         {
@@ -51,30 +44,4 @@ public static class OpenApiHelper
             }
         }
     }.ToFrozenDictionary();
-
-#else
-    public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
-    {
-        {
-            typeof(WithoutJsonConverterValue),
-            new OpenApiSchema
-            {
-                Type = "integer",
-                Format = "uint32",
-                Title = "WithoutJsonConverterValue"
-            }
-        },
-
-        {
-            typeof(WithoutJsonConverterValue?),
-            new OpenApiSchema
-            {
-                Type = "integer",
-                Format = "uint32",
-                Nullable = true,
-                Title = "Nullable<WithoutJsonConverterValue>"
-            }
-        }
-    }.ToFrozenDictionary();
-#endif
 }
