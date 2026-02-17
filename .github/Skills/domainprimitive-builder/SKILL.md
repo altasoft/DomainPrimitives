@@ -251,7 +251,7 @@ Validation must be pure.
 
 # Validation Logic Rules
 
-Validation defines domain invariants and must be explicit and domain-focused.
+Validation defines domain invariants and must be explicit and domain-focused. Validatation Method must not call Transform.
 
 ## Preferred Error Return Style
 
@@ -354,7 +354,7 @@ Templates must follow Structural Generator Safety Rules.
 
 ## Transform (Normalization) Rules
 
-Optional normalization hook executed before Validate.
+Optional normalization hook executed before Validate. 
 
 Signature:
 
