@@ -872,20 +872,20 @@ internal static class MethodGeneratorHelper
             builder.Append("s");
         }
         else
-        if (isChar)
-        {
-            builder.Append("char.Parse(s)");
-        }
-        else
-        if (isBool)
-        {
-            builder.Append("bool.Parse(s)");
-        }
-        else
-        {
-            builder.Append($"{underlyingType}.")
-                .AppendIfElse(format is null, "Parse(s, provider)", $"ParseExact(s, {QuoteAndEscape(format!)}, provider)");
-        }
+            if (isChar)
+            {
+                builder.Append("char.Parse(s)");
+            }
+            else
+                if (isBool)
+                {
+                    builder.Append("bool.Parse(s)");
+                }
+                else
+                {
+                    builder.Append($"{underlyingType}.")
+                        .AppendIfElse(format is null, "Parse(s, provider)", $"ParseExact(s, {QuoteAndEscape(format!)}, provider)");
+                }
 
         builder.AppendLine(!data.GenerateImplicitOperators ? ");" : ";");
 
@@ -900,26 +900,26 @@ internal static class MethodGeneratorHelper
             builder.AppendLine("if (s is null)");
         }
         else
-        if (isChar)
-        {
-            builder.AppendLine("if (!char.TryParse(s, out var value))");
-        }
-        else
-        if (isBool)
-        {
-            builder.AppendLine("if (!bool.TryParse(s, out var value))");
-        }
-        else
-        {
-            var style = "";
-            if (format is not null)
+            if (isChar)
             {
-                style = data.UnderlyingType == DomainPrimitiveUnderlyingType.TimeSpan ? "TimeSpanStyles.None" : "DateTimeStyles.None";
+                builder.AppendLine("if (!char.TryParse(s, out var value))");
             }
+            else
+                if (isBool)
+                {
+                    builder.AppendLine("if (!bool.TryParse(s, out var value))");
+                }
+                else
+                {
+                    var style = "";
+                    if (format is not null)
+                    {
+                        style = data.UnderlyingType == DomainPrimitiveUnderlyingType.TimeSpan ? "TimeSpanStyles.None" : "DateTimeStyles.None";
+                    }
 
-            builder.AppendIf(format is null, $"if (!{underlyingType}.TryParse(s, provider, out var value))")
-                .AppendIf(format is not null, $"if (!{underlyingType}.TryParseExact(s, {QuoteAndEscape(format)}, provider, {style}, out var value))");
-        }
+                    builder.AppendIf(format is null, $"if (!{underlyingType}.TryParse(s, provider, out var value))")
+                        .AppendIf(format is not null, $"if (!{underlyingType}.TryParseExact(s, {QuoteAndEscape(format)}, provider, {style}, out var value))");
+                }
 
         builder.OpenBracket()
         .AppendLine("result = default;")
@@ -1110,6 +1110,7 @@ internal static class MethodGeneratorHelper
                 "string" => "ReadElementContentAsString",
                 "bool" => "ReadElementContentAsBoolean",
                 "DateOnly" => "ReadElementContentAsDateOnly",
+                "TimeOnly" => "ReadElementContentAsTimeOnly",
                 _ => $"ReadElementContentAs<{data.PrimitiveTypeFriendlyName}>"
             };
         }
@@ -1130,10 +1131,10 @@ internal static class MethodGeneratorHelper
         if (string.Equals(data.PrimitiveTypeFriendlyName, "string", System.StringComparison.Ordinal))
             builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName});");
         else
-        if (data.SerializationFormat is null)
-            builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteValue((({data.PrimitiveTypeFriendlyName}){data.FieldName}).ToXmlString());");
-        else
-            builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName}.ToString({QuoteAndEscape(data.SerializationFormat)}));");
+            if (data.SerializationFormat is null)
+                builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteValue((({data.PrimitiveTypeFriendlyName}){data.FieldName}).ToXmlString());");
+            else
+                builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName}.ToString({QuoteAndEscape(data.SerializationFormat)}));");
         builder.NewLine();
     }
 
