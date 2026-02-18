@@ -97,7 +97,6 @@ public static class XmlReaderExt
 
         var dt = DateTimeOffset.ParseExact(str, s_acceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
         return TimeOnly.FromTimeSpan(dt.TimeOfDay);
-
     }
 
     /// <summary>
