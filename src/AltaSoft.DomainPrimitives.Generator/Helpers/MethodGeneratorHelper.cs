@@ -871,13 +871,11 @@ internal static class MethodGeneratorHelper
         {
             builder.Append("s");
         }
-        else
-        if (isChar)
+        else if (isChar)
         {
             builder.Append("char.Parse(s)");
         }
-        else
-        if (isBool)
+        else if (isBool)
         {
             builder.Append("bool.Parse(s)");
         }
@@ -899,13 +897,11 @@ internal static class MethodGeneratorHelper
         {
             builder.AppendLine("if (s is null)");
         }
-        else
-        if (isChar)
+        else if (isChar)
         {
             builder.AppendLine("if (!char.TryParse(s, out var value))");
         }
-        else
-        if (isBool)
+        else if (isBool)
         {
             builder.AppendLine("if (!bool.TryParse(s, out var value))");
         }
@@ -1110,6 +1106,7 @@ internal static class MethodGeneratorHelper
                 "string" => "ReadElementContentAsString",
                 "bool" => "ReadElementContentAsBoolean",
                 "DateOnly" => "ReadElementContentAsDateOnly",
+                "TimeOnly" => "ReadElementContentAsTimeOnly",
                 _ => $"ReadElementContentAs<{data.PrimitiveTypeFriendlyName}>"
             };
         }
@@ -1129,8 +1126,7 @@ internal static class MethodGeneratorHelper
 
         if (string.Equals(data.PrimitiveTypeFriendlyName, "string", System.StringComparison.Ordinal))
             builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName});");
-        else
-        if (data.SerializationFormat is null)
+        else if (data.SerializationFormat is null)
             builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteValue((({data.PrimitiveTypeFriendlyName}){data.FieldName}).ToXmlString());");
         else
             builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName}.ToString({QuoteAndEscape(data.SerializationFormat)}));");

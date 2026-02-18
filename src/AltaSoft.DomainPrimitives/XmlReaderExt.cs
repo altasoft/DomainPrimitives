@@ -82,6 +82,24 @@ public static class XmlReaderExt
     }
 
     /// <summary>
+    /// Reads the content of the current XML element as a <see cref="TimeOnly"/> value.
+    /// </summary>
+    /// <param name="reader">The <see cref="XmlReader"/> instance.</param>
+    /// <returns>
+    /// A <see cref="TimeOnly"/> value parsed from the current element's content.
+    /// </returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static TimeOnly ReadElementContentAsTimeOnly(this XmlReader reader)
+    {
+        var str = reader.ReadElementContentAsString();
+        if (TimeOnly.TryParse(str, CultureInfo.InvariantCulture, out var result))
+            return result;
+
+        var dt = DateTimeOffset.ParseExact(str, s_acceptedFormats, CultureInfo.InvariantCulture, DateTimeStyles.None);
+        return TimeOnly.FromTimeSpan(dt.TimeOfDay);
+    }
+
+    /// <summary>
     /// Reads the content of the current XML element as a <see cref="DateOnly"/> value.
     /// </summary>
     /// <param name="reader">The <see cref="XmlReader"/> instance.</param>
@@ -140,4 +158,12 @@ public static class XmlReaderExt
 
         return TimeSpan.Parse(str, CultureInfo.InvariantCulture);
     }
+
+    private static readonly string[] s_acceptedFormats =
+    [
+        "HH:mm:ss",
+        "HH:mm:sszzz",   // 15:00:00+04:00
+        "HH:mm:ssz",     // 15:00:00Z
+        "HH:mm:ss'+'",   // 15:00:00+  (bare plus)
+    ];
 }
