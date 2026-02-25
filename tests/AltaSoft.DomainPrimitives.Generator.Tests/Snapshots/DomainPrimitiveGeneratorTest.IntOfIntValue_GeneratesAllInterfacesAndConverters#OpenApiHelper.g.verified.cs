@@ -8,13 +8,8 @@
 
 #nullable enable
 
-#if NET10_0_OR_GREATER
-using Microsoft.OpenApi;
-#else
-using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Any;
-#endif
 using AltaSoft.DomainPrimitives;
+using Microsoft.OpenApi;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
@@ -40,8 +35,6 @@ public static class OpenApiHelper
     /// <see cref="IntOfIntValue" />
     /// </para>
     /// </remarks>
-
-#if NET10_0_OR_GREATER
     public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
     {
         {
@@ -63,50 +56,4 @@ public static class OpenApiHelper
             }
         }
     }.ToFrozenDictionary();
-
-#else
-    public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
-    {
-        {
-            typeof(IntValue),
-            new OpenApiSchema
-            {
-                Type = "integer",
-                Format = "int32",
-                Title = "IntValue"
-            }
-        },
-
-        {
-            typeof(IntValue?),
-            new OpenApiSchema
-            {
-                Type = "integer",
-                Format = "int32",
-                Nullable = true,
-                Title = "Nullable<IntValue>"
-            }
-        },
-        {
-            typeof(IntOfIntValue),
-            new OpenApiSchema
-            {
-                Type = "integer",
-                Format = "int32",
-                Title = "IntOfIntValue"
-            }
-        },
-
-        {
-            typeof(IntOfIntValue?),
-            new OpenApiSchema
-            {
-                Type = "integer",
-                Format = "int32",
-                Nullable = true,
-                Title = "Nullable<IntOfIntValue>"
-            }
-        }
-    }.ToFrozenDictionary();
-#endif
 }

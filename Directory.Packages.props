@@ -8,6 +8,10 @@
   <ItemGroup>
 	<PackageVersion Include="Microsoft.CodeAnalysis.Analyzers" Version="3.11.*" />
 	<PackageVersion Include="Microsoft.CodeAnalysis.CSharp" Version="5.0.*" />
+	<PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.*" />
+	<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.*" />
+	<PackageVersion Include="Microsoft.OpenApi" Version="2.6.*" />
+
 	<PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.*" />
 	<PackageVersion Include="Verify.SourceGenerators" Version="2.5.*" />
 	<PackageVersion Include="Verify.Xunit" Version="31.9.3" />
@@ -16,19 +20,4 @@
 	<PackageVersion Include="coverlet.collector" Version="6.0.4" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
-	<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.*" />
-	<PackageVersion Include="Microsoft.OpenApi" Version="1.6.*" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net9.0'">
-	<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="9.0.*" />
-	<PackageVersion Include="Microsoft.OpenApi" Version="1.6.*" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net10.0'">
-	<PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.*" />
-	<PackageVersion Include="Swashbuckle.AspNetCore.SwaggerGen" Version="10.1.*" />
-	<PackageVersion Include="Microsoft.OpenApi" Version="2.6.*" />
-  </ItemGroup>
 </Project>

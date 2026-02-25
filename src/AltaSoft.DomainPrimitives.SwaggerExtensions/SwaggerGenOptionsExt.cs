@@ -4,11 +4,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using AltaSoft.DomainPrimitives.OpenApiExtensions;
 using Microsoft.Extensions.DependencyInjection;
-#if NET10_0_OR_GREATER
 using Microsoft.OpenApi;
-#else
-using Microsoft.OpenApi.Models;
-#endif
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 // ReSharper disable UnusedMember.Global
