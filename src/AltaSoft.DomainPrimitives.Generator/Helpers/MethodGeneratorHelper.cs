@@ -823,9 +823,9 @@ internal static class MethodGeneratorHelper
                 style = data.UnderlyingType == DomainPrimitiveUnderlyingType.TimeSpan ? "TimeSpanStyles.None" : "DateTimeStyles.None";
             }
 
-                    builder.AppendIf(format is null, $"if (!{underlyingType}.TryParse(s, provider, out var value))")
-                        .AppendIf(format is not null, $"if (!{underlyingType}.TryParseExact(s, {QuoteAndEscape(format)}, provider, {style}, out var value))");
-                }
+            builder.AppendIf(format is null, $"if (!{underlyingType}.TryParse(s, provider, out var value))")
+                .AppendIf(format is not null, $"if (!{underlyingType}.TryParseExact(s, {QuoteAndEscape(format)}, provider, {style}, out var value))");
+        }
 
         builder.OpenBracket()
         .AppendLine("result = default;")
