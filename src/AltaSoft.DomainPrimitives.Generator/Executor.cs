@@ -9,6 +9,7 @@ using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Helpers;
 using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace AltaSoft.DomainPrimitives.Generator;
 
@@ -387,6 +388,11 @@ internal static class Executor
         if (data.SerializationFormat is not null)
         {
             usings.Add("System.Globalization");
+        }
+
+        if (data.ValidatePattern)
+        {
+            usings.Add("System.Text.RegularExpressions");
         }
 
         var needsMathOperators = data.GenerateAdditionOperators || data.GenerateDivisionOperators ||
@@ -780,7 +786,11 @@ internal static class Executor
             .OpenBracket();
 
         if (data.UnderlyingType == DomainPrimitiveUnderlyingType.String)
+        {
             AddStringLengthAttributeValidation(type, data, builder);
+            AddPatternAttribute(type, data, builder);
+
+        }
 
         builder.AppendLine("ValidateOrThrow(value);");
         builder.CloseBracket()
@@ -835,5 +845,34 @@ internal static class Executor
             .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
             .AppendLine($"\tthrow InvalidDomainValueException.StringRangeException(typeof({data.ClassName}), value, {minValue.ToString(CultureInfo.InvariantCulture)}, {maxValue.ToString(CultureInfo.InvariantCulture)});")
             .NewLine();
+    }
+
+    /// <summary>
+    /// Adds pattern validation to the constructor if the Domain Primitive type is decorated with the PatternAttribute.
+    /// </summary>
+    private static void AddPatternAttribute(ISymbol domainPrimitiveType, GeneratorData data, SourceCodeBuilder sb)
+    {
+        var attr = domainPrimitiveType.GetAttributes()
+            .FirstOrDefault(x => string.Equals(x.AttributeClass?.ToDisplayString(), Constants.PatternAttributeFullName, StringComparison.Ordinal));
+
+        if (attr is null)
+            return;
+
+        var pattern = (string)attr.ConstructorArguments[0].Value!;
+        var validate = (bool)attr.ConstructorArguments[1].Value!;
+
+        if (string.IsNullOrEmpty(pattern))
+            return;
+
+        data.Pattern = pattern;
+        data.ValidatePattern = validate;
+        var quotedPattern = SymbolDisplay.FormatLiteral(data.Pattern, quote: true);
+
+        if (validate)
+        {
+            sb.AppendLine($"if (!Regex.IsMatch(value, {quotedPattern}, RegexOptions.Compiled))")
+                .AppendLine($"\tthrow InvalidDomainValueException.InvalidPatternException(typeof({data.ClassName}), value, {quotedPattern});")
+                .NewLine();
+        }
     }
 }

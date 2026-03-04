@@ -7,5 +7,6 @@
         internal const string SupportedOperationsAttribute = "SupportedOperationsAttribute";
         internal const string SupportedOperationsAttributeFullName = "AltaSoft.DomainPrimitives.SupportedOperationsAttribute";
         internal const string StringLengthAttributeFullName = "AltaSoft.DomainPrimitives.StringLengthAttribute";
+        internal const string PatternAttributeFullName = "AltaSoft.DomainPrimitives.PatternAttribute";
     }
 }

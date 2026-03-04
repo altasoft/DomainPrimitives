@@ -7,7 +7,8 @@ public sealed record Customer(
 
     [Required] CustomerId A_CustomerId, [Required] Guid A_CustomerIdDotNet,
     [Required] BirthDate B_BirthDate, [Required] DateOnly B_BirthDateDotNet,
-    [Required] CustomerName C_CustomerName, [Required] string C_CustomerNameDotNet,
+    [Required] CustomerName C_CustomerName,
+    [Required][property: RegularExpression("\\Axxx")] string C_CustomerNameDotNet,
     [Required] PositiveAmount D_Amount, [Required] decimal D_AmountDotnet)
 {
     public CustomerAddress? CustomerAddress { get; set; } //ignore

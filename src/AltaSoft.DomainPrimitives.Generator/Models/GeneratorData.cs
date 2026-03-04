@@ -127,4 +127,15 @@ internal sealed class GeneratorData
     /// Indicates whether the `Transform` method should be invoked before validation and instantiation.
     /// </summary>
     public bool UseTransformMethod { get; set; }
+
+    /// <summary>
+    /// Gets or sets pattern for OpenAPI schema generation, or validation.
+    /// </summary>
+    public string? Pattern { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to validate the regex pattern at runtime when the `PatternAttribute` is applied to a Domain Primitive type. If set to `true`, the generated code will include logic to validate the pattern during instantiation and throw an exception if the value does not match the specified regex pattern.
+    /// If set to `false`, the pattern will only be used for OpenAPI schema generation and will not be validated at runtime.
+    /// </summary>
+    public bool ValidatePattern { get; set; }
 }
