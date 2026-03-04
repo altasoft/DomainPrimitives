@@ -503,7 +503,7 @@ internal static class MethodGeneratorHelper
             sb.AppendLine($"if (!Regex.IsMatch(value, {QuoteAndEscape(data.Pattern)}, RegexOptions.Compiled))")
                 .OpenBracket()
                 .AppendLine("result = null;")
-                .AppendLine($"errorMessage = \"String does not match the required pattern: {data.Pattern}\";")
+                .AppendLine($"errorMessage = \"String does not match the required pattern: \" + {QuoteAndEscape(data.Pattern)};")
                 .AppendLine("return false;")
                 .CloseBracket()
                 .NewLine();
