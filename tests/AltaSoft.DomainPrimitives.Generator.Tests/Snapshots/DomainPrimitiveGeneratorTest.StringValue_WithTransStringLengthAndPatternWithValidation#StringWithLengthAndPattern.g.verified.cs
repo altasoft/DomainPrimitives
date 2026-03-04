@@ -104,7 +104,7 @@ internal partial class StringWithLengthAndPattern : IEquatable<StringWithLengthA
         if (!Regex.IsMatch(value, "[A-Z]{100}", RegexOptions.Compiled))
         {
             result = null;
-            errorMessage = "String does not match the required pattern: [A-Z]{100}";
+            errorMessage = "String does not match the required pattern: " + "[A-Z]{100}";
             return false;
         }
 

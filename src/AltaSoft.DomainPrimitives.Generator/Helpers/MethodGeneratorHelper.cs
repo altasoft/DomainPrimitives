@@ -500,10 +500,11 @@ internal static class MethodGeneratorHelper
             if (!data.ValidatePattern)
                 return;
 
-            sb.AppendLine($"if (!Regex.IsMatch(value, {QuoteAndEscape(data.Pattern)}, RegexOptions.Compiled))")
+            var quoted = QuoteAndEscape(data.Pattern);
+            sb.AppendLine($"if (!Regex.IsMatch(value, {quoted}, RegexOptions.Compiled))")
                 .OpenBracket()
                 .AppendLine("result = null;")
-                .AppendLine($"errorMessage = \"String does not match the required pattern: \" + {QuoteAndEscape(data.Pattern)};")
+                .AppendLine($"errorMessage = \"String does not match the required pattern: \" + {quoted};")
                 .AppendLine("return false;")
                 .CloseBracket()
                 .NewLine();
