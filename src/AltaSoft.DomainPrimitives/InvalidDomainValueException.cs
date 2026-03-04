@@ -69,6 +69,19 @@ public class InvalidDomainValueException : Exception
     }
 
     /// <summary>
+    /// Creates an <see cref="InvalidDomainValueException"/> for string pattern mismatch errors.
+    /// </summary>
+    /// <param name="type">The <see cref="Type"/> of the domain primitive.</param>
+    /// <param name="value">The string value that failed to match the pattern.</param>
+    /// <param name="pattern">The expected regex pattern.</param>
+    /// <returns>An <see cref="InvalidDomainValueException"/> describing the pattern mismatch.</returns>
+    [EditorBrowsable(EditorBrowsableState.Never)]
+    public static InvalidDomainValueException InvalidPatternException(Type type, string value, string pattern)
+    {
+        return new InvalidDomainValueException($"String value does not match the required pattern '{pattern}'", type, value);
+    }
+
+    /// <summary>
     /// Generates the error message for the <see cref="InvalidDomainValueException"/> including the underlying value.
     /// </summary>
     /// <param name="message">The main error message.</param>

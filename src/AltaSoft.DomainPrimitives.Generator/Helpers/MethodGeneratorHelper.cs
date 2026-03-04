@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using AltaSoft.DomainPrimitives.Generator.Extensions;
 using AltaSoft.DomainPrimitives.Generator.Models;
@@ -110,6 +111,18 @@ internal static class MethodGeneratorHelper
 
                         builder.Append("Example = JsonValue.Create(").Append(exampleValue).AppendLine("),");
                     }
+                }
+
+                if (data.StringLengthAttributeValidation is { } stringLengthAttribute)
+                {
+                    var (min, max) = stringLengthAttribute;
+                    builder.Append("MinLength = ").Append(min.ToString(CultureInfo.InvariantCulture)).AppendLine(",");
+                    builder.Append("MaxLength = ").Append(max.ToString(CultureInfo.InvariantCulture)).AppendLine(",");
+                }
+
+                if (data.Pattern is not null)
+                {
+                    builder.Append("Pattern = ").Append(QuoteAndEscape(data.Pattern)).AppendLine(",");
                 }
 
                 builder.Length -= SourceCodeBuilder.s_newLineLength + 1;
@@ -424,6 +437,7 @@ internal static class MethodGeneratorHelper
         }
 
         AddStringLengthValidation(data, builder);
+        AddPatternValidation(data, builder);
 
         builder.AppendLine("var validationResult = Validate(value);")
                .AppendLine("if (!validationResult.IsValid)")
@@ -473,6 +487,24 @@ internal static class MethodGeneratorHelper
                 .OpenBracket()
                 .AppendLine("result = null;")
                 .AppendLine($"errorMessage = \"String length is out of range {minValue}..{maxValue}\";")
+                .AppendLine("return false;")
+                .CloseBracket()
+                .NewLine();
+        }
+
+        static void AddPatternValidation(GeneratorData data, SourceCodeBuilder sb)
+        {
+            if (data.Pattern is null)
+                return;
+
+            if (!data.ValidatePattern)
+                return;
+
+            var quoted = QuoteAndEscape(data.Pattern);
+            sb.AppendLine($"if (!Regex.IsMatch(value, {quoted}, RegexOptions.Compiled))")
+                .OpenBracket()
+                .AppendLine("result = null;")
+                .AppendLine($"errorMessage = \"String does not match the required pattern: \" + {quoted};")
                 .AppendLine("return false;")
                 .CloseBracket()
                 .NewLine();

@@ -5,19 +5,24 @@ using AltaSoft.DomainPrimitives.Generator.Models;
 using Microsoft.CodeAnalysis;
 using Microsoft.OpenApi;
 
-namespace AltaSoft.DomainPrimitives.Generator.Tests
+namespace AltaSoft.DomainPrimitives.Generator.Tests;
+
+public static class TestHelper
 {
-    public static class TestHelper
+    internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)
     {
-        internal static Task Verify(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks = null, DomainPrimitiveGlobalOptions? options = null)
-        {
-            List<Assembly> assemblies = [typeof(JsonSerializer).Assembly, typeof(OpenApiSchema).Assembly];
-            var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, assemblies, options);
+        var driver = Compile(source, additionalChecks, options);
 
-            Assert.Empty(diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error));
-            additionalChecks?.Invoke(diagnostics, output, driver);
+        return Verifier.Verify(driver).UseDirectory("Snapshots");
+    }
 
-            return Verifier.Verify(driver).UseDirectory("Snapshots");
-        }
+    internal static GeneratorDriver Compile(string source, Action<ImmutableArray<Diagnostic>, List<string>, GeneratorDriver>? additionalChecks, DomainPrimitiveGlobalOptions? options = null)
+    {
+        List<Assembly> assemblies = [typeof(JsonSerializer).Assembly, typeof(OpenApiSchema).Assembly];
+        var (diagnostics, output, driver) = TestHelpers.GetGeneratedOutput<DomainPrimitiveGenerator>(source, assemblies, options);
+
+        Assert.Empty(diagnostics.Where(x => x.Severity == DiagnosticSeverity.Error));
+        additionalChecks?.Invoke(diagnostics, output, driver);
+        return driver;
     }
 }

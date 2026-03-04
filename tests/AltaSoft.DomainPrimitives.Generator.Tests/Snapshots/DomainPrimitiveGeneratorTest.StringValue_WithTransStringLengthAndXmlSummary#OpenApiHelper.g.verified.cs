@@ -29,19 +29,21 @@ public static class OpenApiHelper
     /// <remarks>
     /// The Dictionary contains mappings for the following types:
     /// <para>
-    /// <see cref="TransformableString" />
+    /// <see cref="StringWithLengthAndPattern" />
     /// </para>
     /// </remarks>
     public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
     {
         {
-            typeof(TransformableString),
+            typeof(StringWithLengthAndPattern),
             new OpenApiSchema
             {
                 Type = JsonSchemaType.String,
-                Title = "TransformableString",
+                Title = "StringWithLengthAndPattern",
+                Description = @"A string domain primitive with both length and pattern validation attributes, as well as a custom validation method.",
                 MinLength = 1,
-                MaxLength = 100
+                MaxLength = 100,
+                Pattern = "[A-Z]{100}"
             }
         }
     }.ToFrozenDictionary();
