@@ -39,12 +39,17 @@ public static class ToXmlStringExt
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static string ToXmlString(this TimeOnly value)
     {
-        var date = DateOnly.FromDateTime(DateTime.Today);
+        // We avoid constructing a local DateTime for an arbitrary date to prevent
+        // possible exceptions on DST transition days (invalid or ambiguous local times).
+        var timePart = value.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
 
-        var localDateTime = date.ToDateTime(value, DateTimeKind.Local);
-        var dto = new DateTimeOffset(localDateTime);
+        // Derive the current local offset from UTC in a DST-safe way using the current instant.
+        var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+        var offsetSign = offset < TimeSpan.Zero ? "-" : "+";
+        var absoluteOffset = offset.Duration();
+        var offsetPart = absoluteOffset.ToString(@"hh\:mm", CultureInfo.InvariantCulture);
 
-        return dto.ToString("HH:mm:sszzz", CultureInfo.InvariantCulture);
+        return $"{timePart}{offsetSign}{offsetPart}";
     }
 
     /// <summary>
