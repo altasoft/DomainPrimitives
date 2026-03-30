@@ -31,7 +31,8 @@ public static class ToXmlStringExt
     public static string ToXmlString(this DateOnly value) => value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     /// <summary>
-    /// Converts a <see cref="TimeOnly" /> value to its XML string representation in the format "HH:mm:ss".
+    /// Converts a <see cref="TimeOnly" /> value to its XML string representation in the format "HH:mm:sszzz",
+    /// where the time zone offset reflects the current local offset from UTC.
     /// </summary>
     /// <param name="value">The TimeOnly value to convert.</param>
     /// <returns>The XML string representation of the TimeOnly value.</returns>

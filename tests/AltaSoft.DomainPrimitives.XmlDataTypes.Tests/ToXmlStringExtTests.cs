@@ -24,7 +24,15 @@ public class ToXmlStringExtTests
     {
         var t = new TimeOnly(13, 45, 30);
         var xml = t.ToXmlString();
-        Assert.Matches(@"^13:45:30(?:Z|[+-]\d{2}:\d{2})$", xml);
+
+        // Validate the overall shape: time followed by a timezone offset
+        Assert.Matches(@"^13:45:30[+-]\d{2}:\d{2}$", xml);
+
+        // Validate the offset suffix matches the actual current local offset
+        var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+        var offsetSign = offset < TimeSpan.Zero ? "-" : "+";
+        var expectedOffsetSuffix = $"{offsetSign}{offset.Duration():hh\\:mm}";
+        Assert.EndsWith(expectedOffsetSuffix, xml);
     }
 
     [Fact]
