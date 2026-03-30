@@ -31,12 +31,27 @@ public static class ToXmlStringExt
     public static string ToXmlString(this DateOnly value) => value.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
 
     /// <summary>
-    /// Converts a <see cref="TimeOnly" /> value to its XML string representation in the format "HH:mm:ss".
+    /// Converts a <see cref="TimeOnly" /> value to its XML string representation in the format "HH:mm:sszzz",
+    /// where the time zone offset reflects the current local offset from UTC.
     /// </summary>
     /// <param name="value">The TimeOnly value to convert.</param>
     /// <returns>The XML string representation of the TimeOnly value.</returns>
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ToXmlString(this TimeOnly value) => value.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+    public static string ToXmlString(this TimeOnly value)
+    {
+        // We avoid constructing a local DateTime for an arbitrary date to prevent
+        // possible exceptions on DST transition days (invalid or ambiguous local times).
+        var timePart = value.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+
+        // Derive the current local offset from UTC in a DST-safe way using the current instant.
+        var offset = TimeZoneInfo.Local.GetUtcOffset(DateTime.UtcNow);
+        var offsetSign = offset < TimeSpan.Zero ? "-" : "+";
+        var absoluteOffset = offset.Duration();
+        var offsetPart = absoluteOffset.ToString(@"hh\:mm", CultureInfo.InvariantCulture);
+
+        return $"{timePart}{offsetSign}{offsetPart}";
+    }
 
     /// <summary>
     /// Converts a <see cref="DateTimeOffset" /> value to its XML string representation
