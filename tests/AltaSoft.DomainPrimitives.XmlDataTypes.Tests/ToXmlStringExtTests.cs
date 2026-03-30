@@ -24,7 +24,7 @@ public class ToXmlStringExtTests
     {
         var t = new TimeOnly(13, 45, 30);
         var xml = t.ToXmlString();
-        Assert.Equal("13:45:30", xml);
+        Assert.Matches(@"^13:45:30(?:Z|[+-]\d{2}:\d{2})$", xml);
     }
 
     [Fact]

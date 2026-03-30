@@ -35,8 +35,17 @@ public static class ToXmlStringExt
     /// </summary>
     /// <param name="value">The TimeOnly value to convert.</param>
     /// <returns>The XML string representation of the TimeOnly value.</returns>
+
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static string ToXmlString(this TimeOnly value) => value.ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+    public static string ToXmlString(this TimeOnly value)
+    {
+        var date = DateOnly.FromDateTime(DateTime.Today);
+
+        var localDateTime = date.ToDateTime(value, DateTimeKind.Local);
+        var dto = new DateTimeOffset(localDateTime);
+
+        return dto.ToString("HH:mm:sszzz", CultureInfo.InvariantCulture);
+    }
 
     /// <summary>
     /// Converts a <see cref="DateTimeOffset" /> value to its XML string representation
