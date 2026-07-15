@@ -26,15 +26,26 @@ internal static class TestHelpers
             ]);
 
         var syntaxTree = CSharpSyntaxTree.ParseText(source, parseOptions);
-        var references = AppDomain.CurrentDomain.GetAssemblies()
-            .Where(x => !x.IsDynamic && !string.IsNullOrWhiteSpace(x.Location))
-            .Select(x => MetadataReference.CreateFromFile(x.Location))
+
+        // Use the full set of assemblies the runtime resolved for this process (via its deps.json),
+        // rather than AppDomain.CurrentDomain.GetAssemblies(), which only reflects whichever assemblies
+        // happen to already be JIT-loaded. The latter is non-deterministic across environments and can
+        // silently omit assemblies like System.ObjectModel (home of TypeConverterAttribute), causing
+        // sporadic compile errors depending on process/load-order, not on anything about the source under test.
+        var trustedAssemblyPaths = ((string?)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES"))
+            ?.Split(Path.PathSeparator) ?? [];
+
+        var referencePaths = trustedAssemblyPaths
             .Concat([
-                MetadataReference.CreateFromFile(typeof(T).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(IDomainValue<>).Assembly.Location),
-                MetadataReference.CreateFromFile(typeof(System.ComponentModel.DataAnnotations.DisplayAttribute).Assembly.Location)
+                typeof(T).Assembly.Location,
+                typeof(IDomainValue<>).Assembly.Location,
+                typeof(System.ComponentModel.DataAnnotations.DisplayAttribute).Assembly.Location
             ])
-            .Concat(assembliesToImport.Select(a => MetadataReference.CreateFromFile(a.Location)));
+            .Concat(assembliesToImport.Select(a => a.Location))
+            .Where(p => !string.IsNullOrWhiteSpace(p))
+            .Distinct(StringComparer.OrdinalIgnoreCase);
+
+        var references = referencePaths.Select(p => (MetadataReference)MetadataReference.CreateFromFile(p));
 
         var compilation = CSharpCompilation.Create(
             "generator_Test",
