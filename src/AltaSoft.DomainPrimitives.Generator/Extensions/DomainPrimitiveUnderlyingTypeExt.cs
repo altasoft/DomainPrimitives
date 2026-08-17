@@ -76,24 +76,6 @@ internal static class DomainPrimitiveUnderlyingTypeExt
     }
 
     /// <summary>
-    /// Gets whether type is one of Date and Time symbols.
-    /// </summary>
-    public static bool IsDateOrTimeType(this INamedTypeSymbol type)
-    {
-        if (type.SpecialType == SpecialType.System_DateTime)
-            return true;
-
-        return type.ToDisplayString() switch
-        {
-            "System.DateOnly" => true,
-            "System.TimeOnly" => true,
-            "System.TimeSpan" => true,
-            "System.DateTimeOffset" => true,
-            _ => false
-        };
-    }
-
-    /// <summary>
     /// Determines if the given DomainPrimitiveUnderlyingType is numeric.
     /// </summary>
     /// <param name="underlyingType">The DomainPrimitiveUnderlyingType to check.</param>
