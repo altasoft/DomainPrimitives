@@ -75,5 +75,39 @@ public static class TimeSpanExtensions
 
             throw new FormatException($"The value '{value}' is not in a recognized format '{format}'.");
         }
+
+        /// <summary>
+        /// Attempts to parse the specified text into a <see cref="TimeSpan"/> value using standard time span formats.
+        /// </summary>
+        /// <param name="value">The text to parse.</param>
+        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+        /// <param name="result">
+        /// When this method returns, contains the parsed <see cref="TimeSpan"/> value if parsing succeeded;
+        /// otherwise, the default value.
+        /// </param>
+        /// <returns><see langword="true"/> if parsing succeeded; otherwise, <see langword="false"/>.</returns>
+        public static bool TryParseFlexible(
+            [NotNullWhen(true)] string? value,
+            IFormatProvider? provider,
+            out TimeSpan result)
+        {
+            return TimeSpan.TryParse(value, provider, out result);
+        }
+
+        /// <summary>
+        /// Parses the specified text into a <see cref="TimeSpan"/> value using standard time span formats.
+        /// </summary>
+        /// <param name="value">The text to parse.</param>
+        /// <param name="provider">An object that supplies culture-specific formatting information.</param>
+        /// <returns>The parsed <see cref="TimeSpan"/> value.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="value"/> is <see langword="null"/>.</exception>
+        /// <exception cref="FormatException"><paramref name="value"/> is not in a recognized format.</exception>
+        public static TimeSpan ParseFlexible(string value, IFormatProvider? provider)
+        {
+            if (TimeSpanExtensions.TryParseFlexible(value, provider, out var result))
+                return result;
+
+            throw new FormatException($"The value '{value}' is not in a recognized format.");
+        }
     }
 }
