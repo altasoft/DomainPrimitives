@@ -32,7 +32,7 @@ public static class TimeSpanExtensions
         /// <returns><see langword="true"/> if parsing succeeded; otherwise, <see langword="false"/>.</returns>
         public static bool TryParseFlexible(
             [NotNullWhen(true)] string? value,
-            [NotNullWhen(true), StringSyntax("TimeSpanFormat")]
+            [NotNullWhen(true), StringSyntax(StringSyntaxAttribute.TimeSpanFormat)]
             string? format,
             bool allowStandardFormats,
             IFormatProvider? provider,
@@ -67,7 +67,7 @@ public static class TimeSpanExtensions
         /// <exception cref="FormatException"><paramref name="value"/> is not in a recognized format.</exception>
         public static TimeSpan ParseFlexible(
             string value,
-            [StringSyntax("TimeSpanFormat")] string? format,
+            [StringSyntax(StringSyntaxAttribute.TimeSpanFormat)] string? format,
             bool allowStandardFormats,
             IFormatProvider? provider)
         {

@@ -32,7 +32,7 @@ public static class DateTimeOffsetExtensions
         /// <returns><see langword="true"/> if parsing succeeded; otherwise, <see langword="false"/>.</returns>
         public static bool TryParseFlexible(
             [NotNullWhen(true)] string? value,
-            [NotNullWhen(true), StringSyntax("DateTimeFormat")]
+            [NotNullWhen(true), StringSyntax(StringSyntaxAttribute.DateTimeFormat)]
             string? format,
             bool allowStandardFormats,
             IFormatProvider? provider,
@@ -67,7 +67,7 @@ public static class DateTimeOffsetExtensions
         /// <exception cref="FormatException"><paramref name="value"/> is not in a recognized format.</exception>
         public static DateTimeOffset ParseFlexible(
             string value,
-            [StringSyntax("DateTimeFormat")] string? format,
+            [StringSyntax(StringSyntaxAttribute.DateTimeFormat)] string? format,
             bool allowStandardFormats,
             IFormatProvider? provider)
         {
