@@ -88,7 +88,7 @@ public readonly partial struct CustomTimeSpan : IEquatable<CustomTimeSpan>
     /// <param name="result">When this method returns, contains the created CustomTimeSpan if the conversion succeeded, or null if the conversion failed.</param>
     /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
     /// <returns>true if the conversion succeeded; otherwise, false.</returns>
-    public static bool TryCreate(TimeSpan value, [NotNullWhen(true)]  out CustomTimeSpan? result, [NotNullWhen(false)]  out string? errorMessage)
+    public static bool TryCreate(TimeSpan value, [NotNullWhen(true)] out CustomTimeSpan? result, [NotNullWhen(false)] out string? errorMessage)
     {
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
@@ -201,12 +201,12 @@ public readonly partial struct CustomTimeSpan : IEquatable<CustomTimeSpan>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CustomTimeSpan Parse(string s, IFormatProvider? provider) => TimeSpan.ParseExact(s, "hh\\:mm", provider);
+    public static CustomTimeSpan Parse(string s, IFormatProvider? provider) => TimeSpan.ParseFlexible(s, "hh\\:mm", true, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CustomTimeSpan result)
     {
-        if (!TimeSpan.TryParseExact(s, "hh\\:mm", provider, TimeSpanStyles.None, out var value))
+        if (!TimeSpan.TryParseFlexible(s, "hh\\:mm", true, provider, out var value))
         {
             result = default;
             return false;

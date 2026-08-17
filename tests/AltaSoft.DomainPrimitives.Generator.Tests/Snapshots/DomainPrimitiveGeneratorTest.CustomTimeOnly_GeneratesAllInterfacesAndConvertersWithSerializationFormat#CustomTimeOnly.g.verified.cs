@@ -89,7 +89,7 @@ public readonly partial struct CustomTimeOnly : IEquatable<CustomTimeOnly>
     /// <param name="result">When this method returns, contains the created CustomTimeOnly if the conversion succeeded, or null if the conversion failed.</param>
     /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
     /// <returns>true if the conversion succeeded; otherwise, false.</returns>
-    public static bool TryCreate(TimeOnly value, [NotNullWhen(true)]  out CustomTimeOnly? result, [NotNullWhen(false)]  out string? errorMessage)
+    public static bool TryCreate(TimeOnly value, [NotNullWhen(true)] out CustomTimeOnly? result, [NotNullWhen(false)] out string? errorMessage)
     {
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
@@ -214,12 +214,12 @@ public readonly partial struct CustomTimeOnly : IEquatable<CustomTimeOnly>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CustomTimeOnly Parse(string s, IFormatProvider? provider) => TimeOnly.ParseExact(s, "HHmmss", provider);
+    public static CustomTimeOnly Parse(string s, IFormatProvider? provider) => TimeOnly.ParseFlexible(s, "HHmmss", true, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CustomTimeOnly result)
     {
-        if (!TimeOnly.TryParseExact(s, "HHmmss", provider, DateTimeStyles.None, out var value))
+        if (!TimeOnly.TryParseFlexible(s, "HHmmss", true, provider, out var value))
         {
             result = default;
             return false;

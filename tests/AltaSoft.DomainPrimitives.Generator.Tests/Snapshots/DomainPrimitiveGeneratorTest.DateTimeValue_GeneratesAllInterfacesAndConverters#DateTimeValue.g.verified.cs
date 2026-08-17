@@ -88,7 +88,7 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
     /// <param name="result">When this method returns, contains the created DateTimeValue if the conversion succeeded, or null if the conversion failed.</param>
     /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
     /// <returns>true if the conversion succeeded; otherwise, false.</returns>
-    public static bool TryCreate(DateTime value, [NotNullWhen(true)]  out DateTimeValue? result, [NotNullWhen(false)]  out string? errorMessage)
+    public static bool TryCreate(DateTime value, [NotNullWhen(true)] out DateTimeValue? result, [NotNullWhen(false)] out string? errorMessage)
     {
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
@@ -201,12 +201,12 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTimeValue Parse(string s, IFormatProvider? provider) => DateTime.Parse(s, provider);
+    public static DateTimeValue Parse(string s, IFormatProvider? provider) => DateTime.ParseFlexible(s, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out DateTimeValue result)
     {
-        if (!DateTime.TryParse(s, provider, out var value))
+        if (!DateTime.TryParseFlexible(s, provider, out var value))
         {
             result = default;
             return false;

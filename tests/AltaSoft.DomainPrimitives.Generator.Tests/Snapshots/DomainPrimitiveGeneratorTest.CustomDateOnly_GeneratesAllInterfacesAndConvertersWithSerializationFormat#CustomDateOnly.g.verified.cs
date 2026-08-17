@@ -89,7 +89,7 @@ public readonly partial struct CustomDateOnly : IEquatable<CustomDateOnly>
     /// <param name="result">When this method returns, contains the created CustomDateOnly if the conversion succeeded, or null if the conversion failed.</param>
     /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
     /// <returns>true if the conversion succeeded; otherwise, false.</returns>
-    public static bool TryCreate(DateOnly value, [NotNullWhen(true)]  out CustomDateOnly? result, [NotNullWhen(false)]  out string? errorMessage)
+    public static bool TryCreate(DateOnly value, [NotNullWhen(true)] out CustomDateOnly? result, [NotNullWhen(false)] out string? errorMessage)
     {
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
@@ -214,12 +214,12 @@ public readonly partial struct CustomDateOnly : IEquatable<CustomDateOnly>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CustomDateOnly Parse(string s, IFormatProvider? provider) => DateOnly.ParseExact(s, "yyyyMMdd", provider);
+    public static CustomDateOnly Parse(string s, IFormatProvider? provider) => DateOnly.ParseFlexible(s, "yyyyMMdd", true, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CustomDateOnly result)
     {
-        if (!DateOnly.TryParseExact(s, "yyyyMMdd", provider, DateTimeStyles.None, out var value))
+        if (!DateOnly.TryParseFlexible(s, "yyyyMMdd", true, provider, out var value))
         {
             result = default;
             return false;

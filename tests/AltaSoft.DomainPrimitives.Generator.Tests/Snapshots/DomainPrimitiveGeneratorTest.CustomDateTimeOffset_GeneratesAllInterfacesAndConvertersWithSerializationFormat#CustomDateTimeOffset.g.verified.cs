@@ -88,7 +88,7 @@ public readonly partial struct CustomDateTimeOffset : IEquatable<CustomDateTimeO
     /// <param name="result">When this method returns, contains the created CustomDateTimeOffset if the conversion succeeded, or null if the conversion failed.</param>
     /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
     /// <returns>true if the conversion succeeded; otherwise, false.</returns>
-    public static bool TryCreate(DateTimeOffset value, [NotNullWhen(true)]  out CustomDateTimeOffset? result, [NotNullWhen(false)]  out string? errorMessage)
+    public static bool TryCreate(DateTimeOffset value, [NotNullWhen(true)] out CustomDateTimeOffset? result, [NotNullWhen(false)] out string? errorMessage)
     {
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
@@ -201,12 +201,12 @@ public readonly partial struct CustomDateTimeOffset : IEquatable<CustomDateTimeO
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CustomDateTimeOffset Parse(string s, IFormatProvider? provider) => DateTimeOffset.ParseExact(s, "yyyyMMdd", provider);
+    public static CustomDateTimeOffset Parse(string s, IFormatProvider? provider) => DateTimeOffset.ParseFlexible(s, "yyyyMMdd", true, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CustomDateTimeOffset result)
     {
-        if (!DateTimeOffset.TryParseExact(s, "yyyyMMdd", provider, DateTimeStyles.None, out var value))
+        if (!DateTimeOffset.TryParseFlexible(s, "yyyyMMdd", true, provider, out var value))
         {
             result = default;
             return false;

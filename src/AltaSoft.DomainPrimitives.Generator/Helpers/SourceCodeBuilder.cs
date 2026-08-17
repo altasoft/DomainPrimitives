@@ -236,6 +236,7 @@ internal sealed class SourceCodeBuilder
     /// <param name="condition">A Boolean value indicating whether to append the string.</param>
     /// <param name="line">The string to append if the condition is met.</param>
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    [Obsolete("Use Append instead.")]
     public SourceCodeBuilder AppendIf(bool condition, string line) => !condition ? this : Append(line);
 
     /// <summary>
@@ -245,6 +246,7 @@ internal sealed class SourceCodeBuilder
     /// <param name="ifLine">The string to append on a new line if the condition is true.</param>
     /// <param name="elseLine">The string to append on a new line if the condition is false.</param>
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    [Obsolete("Use AppendIfElse instead.")]
     public SourceCodeBuilder AppendIfElse(bool condition, string ifLine, string elseLine) => Append(condition ? ifLine : elseLine);
 
     /// <summary>
@@ -253,6 +255,7 @@ internal sealed class SourceCodeBuilder
     /// <param name="condition">A Boolean value indicating whether to append the string.</param>
     /// <param name="line">The string to append on a new line if the condition is met.</param>
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    [Obsolete("Use AppendLine instead.")]
     public SourceCodeBuilder AppendLineIf(bool condition, string line) => !condition ? this : AppendLine(line);
 
     /// <summary>
@@ -262,6 +265,7 @@ internal sealed class SourceCodeBuilder
     /// <param name="ifLine">The string to append on a new line if the condition is true.</param>
     /// <param name="elseLine">The string to append on a new line if the condition is false.</param>
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    [Obsolete("Use AppendLineIfElse instead.")]
     public SourceCodeBuilder AppendLineIfElse(bool condition, string ifLine, string elseLine) => AppendLine(condition ? ifLine : elseLine);
 
     /// <summary>
@@ -307,6 +311,7 @@ internal sealed class SourceCodeBuilder
     /// <param name="condition">A boolean indicating whether to append the line.</param>
     /// <param name="line">The line of text to be appended.</param>
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
+    [Obsolete("Use Continue instead.")]
     public SourceCodeBuilder ContinueIf(bool condition, string line) => !condition ? this : Continue(line);
 
     /// <summary>

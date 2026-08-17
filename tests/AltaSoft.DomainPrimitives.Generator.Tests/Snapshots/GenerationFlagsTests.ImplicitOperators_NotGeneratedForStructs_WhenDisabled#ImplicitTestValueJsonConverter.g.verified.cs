@@ -46,7 +46,7 @@ internal sealed class ImplicitTestValueJsonConverter : JsonConverter<ImplicitTes
     {
         try
         {
-            return new(JsonInternalConverters.Int32Converter.ReadAsPropertyName(ref reader, typeToConvert, options));
+            return new (JsonInternalConverters.Int32Converter.ReadAsPropertyName(ref reader, typeToConvert, options));
         }
         catch (InvalidDomainValueException ex)
         {

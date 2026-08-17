@@ -88,7 +88,7 @@ public readonly partial struct DateOnlyValue : IEquatable<DateOnlyValue>
     /// <param name="result">When this method returns, contains the created DateOnlyValue if the conversion succeeded, or null if the conversion failed.</param>
     /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
     /// <returns>true if the conversion succeeded; otherwise, false.</returns>
-    public static bool TryCreate(DateOnly value, [NotNullWhen(true)]  out DateOnlyValue? result, [NotNullWhen(false)]  out string? errorMessage)
+    public static bool TryCreate(DateOnly value, [NotNullWhen(true)] out DateOnlyValue? result, [NotNullWhen(false)] out string? errorMessage)
     {
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
@@ -213,12 +213,12 @@ public readonly partial struct DateOnlyValue : IEquatable<DateOnlyValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateOnlyValue Parse(string s, IFormatProvider? provider) => DateOnly.Parse(s, provider);
+    public static DateOnlyValue Parse(string s, IFormatProvider? provider) => DateOnly.ParseFlexible(s, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out DateOnlyValue result)
     {
-        if (!DateOnly.TryParse(s, provider, out var value))
+        if (!DateOnly.TryParseFlexible(s, provider, out var value))
         {
             result = default;
             return false;

@@ -87,7 +87,7 @@ public readonly partial struct DateOnlyXmlValue : IEquatable<DateOnlyXmlValue>
     /// <param name="result">When this method returns, contains the created DateOnlyXmlValue if the conversion succeeded, or null if the conversion failed.</param>
     /// <param name="errorMessage">When this method returns, contains the error message if the conversion failed; otherwise, null.</param>
     /// <returns>true if the conversion succeeded; otherwise, false.</returns>
-    public static bool TryCreate(DateOnly value, [NotNullWhen(true)]  out DateOnlyXmlValue? result, [NotNullWhen(false)]  out string? errorMessage)
+    public static bool TryCreate(DateOnly value, [NotNullWhen(true)] out DateOnlyXmlValue? result, [NotNullWhen(false)] out string? errorMessage)
     {
         var validationResult = Validate(value);
         if (!validationResult.IsValid)
@@ -212,12 +212,12 @@ public readonly partial struct DateOnlyXmlValue : IEquatable<DateOnlyXmlValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateOnlyXmlValue Parse(string s, IFormatProvider? provider) => DateOnly.Parse(s, provider);
+    public static DateOnlyXmlValue Parse(string s, IFormatProvider? provider) => DateOnly.ParseFlexible(s, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out DateOnlyXmlValue result)
     {
-        if (!DateOnly.TryParse(s, provider, out var value))
+        if (!DateOnly.TryParseFlexible(s, provider, out var value))
         {
             result = default;
             return false;
