@@ -26,6 +26,7 @@
 
   <ItemGroup>
 	  <ProjectReference Include="..\..\src\AltaSoft.DomainPrimitives.XmlDataTypes\AltaSoft.DomainPrimitives.XmlDataTypes.csproj" />
+	  <ProjectReference Include="..\AltaSoft.DomainPrimitives.UnitTests\AltaSoft.DomainPrimitives.UnitTests.csproj" />
 	</ItemGroup>
 
 </Project>

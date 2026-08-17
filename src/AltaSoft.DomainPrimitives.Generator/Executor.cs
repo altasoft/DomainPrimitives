@@ -840,11 +840,15 @@ internal static class Executor
 
         data.StringLengthAttributeValidation = (minValue, maxValue);
 
-        sb.Append("if (value.Length is ")
-            .AppendIf(hasMinValue, $"< {minValue}")
-            .AppendIf(hasMinValue && hasMaxValue, " or ")
-            .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
-            .AppendLine($"\tthrow InvalidDomainValueException.StringRangeException(typeof({data.ClassName}), value, {minValue.ToString(CultureInfo.InvariantCulture)}, {maxValue.ToString(CultureInfo.InvariantCulture)});")
+        sb.Append("if (value.Length is ");
+        if (hasMinValue)
+            sb.Append($"< {minValue}");
+        if (hasMinValue && hasMaxValue)
+            sb.Append(" or ");
+        if (hasMaxValue)
+            sb.Append($"> {maxValue}");
+        sb.AppendLine(")");
+        sb.AppendLine($"\tthrow InvalidDomainValueException.StringRangeException(typeof({data.ClassName}), value, {minValue.ToString(CultureInfo.InvariantCulture)}, {maxValue.ToString(CultureInfo.InvariantCulture)});")
             .NewLine();
     }
 

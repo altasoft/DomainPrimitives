@@ -326,10 +326,11 @@ internal static class MethodGeneratorHelper
             var rawValueStr = $"JsonInternalConverters.{converterName}Converter.Read(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")}";
 
             builder.AppendLine("try")
-                .OpenBracket()
-                .AppendLineIf(data.GenerateImplicitOperators, $"return {rawValueStr};")
-                .AppendLineIf(!data.GenerateImplicitOperators, $"return new ({rawValueStr});")
-                .CloseBracket();
+                .OpenBracket();
+            builder.AppendLine(data.GenerateImplicitOperators
+                ? $"return {rawValueStr};"
+                : $"return new ({rawValueStr});");
+            builder.CloseBracket();
         }
         else
         {
@@ -366,10 +367,11 @@ internal static class MethodGeneratorHelper
             var rawValueStr = $"JsonInternalConverters.{converterName}Converter.ReadAsPropertyName(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")}";
 
             builder.AppendLine("try")
-                .OpenBracket()
-                .AppendLineIf(data.GenerateImplicitOperators, $"return {rawValueStr};")
-                .AppendLineIf(!data.GenerateImplicitOperators, $"return new ({rawValueStr});")
-                .CloseBracket();
+                .OpenBracket();
+            builder.AppendLine(data.GenerateImplicitOperators
+                ? $"return {rawValueStr};"
+                : $"return new ({rawValueStr});");
+            builder.CloseBracket();
         }
         else
         {
@@ -482,11 +484,15 @@ internal static class MethodGeneratorHelper
             if (!hasMinValue && !hasMaxValue)
                 return;
 
-            sb.Append("if (value.Length is ")
-                .AppendIf(hasMinValue, $"< {minValue}")
-                .AppendIf(hasMinValue && hasMaxValue, " or ")
-                .AppendIf(hasMaxValue, $"> {maxValue}").AppendLine(")")
-                .OpenBracket()
+            sb.Append("if (value.Length is ");
+            if (hasMinValue)
+                sb.Append($"< {minValue}");
+            if (hasMinValue && hasMaxValue)
+                sb.Append(" or ");
+            if (hasMaxValue)
+                sb.Append($"> {maxValue}");
+            sb.AppendLine(")");
+            sb.OpenBracket()
                 .AppendLine("result = null;")
                 .AppendLine($"errorMessage = \"String length is out of range {minValue}..{maxValue}\";")
                 .AppendLine("return false;")
@@ -649,7 +655,10 @@ internal static class MethodGeneratorHelper
         builder.NewLine().AppendInheritDoc()
             .AppendLine($"public int CompareTo({className}{nullable} other)")
             .OpenBracket()
-            .Append("if (").AppendIf(!isValueType, "other is null || ").AppendLine("!other._isInitialized)")
+            .Append("if (");
+        if (!isValueType)
+            builder.Append("other is null || ");
+        builder.AppendLine("!other._isInitialized)")
             .AppendIndentation().AppendLine("return 1;")
             .AppendLine("if (!_isInitialized)")
             .AppendIndentation().AppendLine("return -1;")
@@ -795,7 +804,7 @@ internal static class MethodGeneratorHelper
     public static void GenerateParsable(GeneratorData data, SourceCodeBuilder builder)
     {
         var dataClassName = data.ClassName;
-        var underlyingType = data.ParentSymbols.Count == 0
+        var underlyingTypeName = data.ParentSymbols.Count == 0
             ? data.PrimitiveTypeFriendlyName
             : data.ParentSymbols[0].Name;
         var format = data.SerializationInfo?.serializationFormat;
@@ -804,38 +813,40 @@ internal static class MethodGeneratorHelper
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
             .Append($"public static {dataClassName} Parse(string s, IFormatProvider? provider) => ");
 
-        var isString = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.String;
-        var isChar = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.Char;
-        var isBool = data.ParentSymbols.Count == 0 && data.UnderlyingType is DomainPrimitiveUnderlyingType.Boolean;
-
         if (!data.GenerateImplicitOperators)
             builder.Append("new (");
 
-        if (isString)
+        if (data.ParentSymbols.Count == 0)
         {
-            builder.Append("s");
-        }
-        else if (isChar)
-        {
-            builder.Append("char.Parse(s)");
-        }
-        else if (isBool)
-        {
-            builder.Append("bool.Parse(s)");
+            switch (data.UnderlyingType)
+            {
+                case DomainPrimitiveUnderlyingType.String:
+                    builder.Append("s");
+                    break;
+                case DomainPrimitiveUnderlyingType.Char:
+                    builder.Append("char.Parse(s)");
+                    break;
+                case DomainPrimitiveUnderlyingType.Boolean:
+                    builder.Append("bool.Parse(s)");
+                    break;
+                default:
+                    builder.Append(underlyingTypeName).Append(".");
+                    if (format is null && !data.UnderlyingType.IsDateOrTime())
+                    {
+                        builder.Append("Parse(s, provider)");
+                    }
+                    else
+                    {
+                        builder.Append(format is null
+                            ? "ParseFlexible(s, provider)"
+                            : $"ParseFlexible(s, {QuoteAndEscape(format)}, {(data.SerializationInfo!.Value.allowStandardFormats ? "true" : "false")}, provider)");
+                    }
+                    break;
+            }
         }
         else
         {
-            builder.Append($"{underlyingType}.");
-            if (format is null && !data.UnderlyingType.IsDateOrTime())
-            {
-                builder.Append("Parse(s, provider)");
-            }
-            else
-            {
-                builder.Append(format is null
-                    ? "ParseFlexible(s, provider)"
-                    : $"ParseFlexible(s, {QuoteAndEscape(format)}, {(data.SerializationInfo!.Value.allowStandardFormats ? "true" : "false")}, provider)");
-            }
+            builder.Append(underlyingTypeName).Append(".Parse(s, provider)");
         }
 
         builder.AppendLine(!data.GenerateImplicitOperators ? ");" : ";");
@@ -846,30 +857,36 @@ internal static class MethodGeneratorHelper
             .AppendLine($"public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out {dataClassName} result)")
             .OpenBracket();
 
-        if (isString)
+        if (data.ParentSymbols.Count == 0)
         {
-            builder.AppendLine("if (s is null)");
-        }
-        else if (isChar)
-        {
-            builder.AppendLine("if (!char.TryParse(s, out var value))");
-        }
-        else if (isBool)
-        {
-            builder.AppendLine("if (!bool.TryParse(s, out var value))");
+            switch (data.UnderlyingType)
+            {
+                case DomainPrimitiveUnderlyingType.String:
+                    builder.AppendLine("if (s is null)");
+                    break;
+                case DomainPrimitiveUnderlyingType.Char:
+                    builder.AppendLine("if (!char.TryParse(s, out var value))");
+                    break;
+                case DomainPrimitiveUnderlyingType.Boolean:
+                    builder.AppendLine("if (!bool.TryParse(s, out var value))");
+                    break;
+                default:
+                    if (format is null && !data.UnderlyingType.IsDateOrTime())
+                    {
+                        builder.Append($"if (!{underlyingTypeName}.TryParse(s, provider, out var value))");
+                    }
+                    else
+                    {
+                        builder.Append(format is null
+                            ? $"if (!{underlyingTypeName}.TryParseFlexible(s, provider, out var value))"
+                            : $"if (!{underlyingTypeName}.TryParseFlexible(s, {QuoteAndEscape(format)}, {(data.SerializationInfo!.Value.allowStandardFormats ? "true" : "false")}, provider, out var value))");
+                    }
+                    break;
+            }
         }
         else
         {
-            if (format is null && !data.UnderlyingType.IsDateOrTime())
-            {
-                builder.Append($"if (!{underlyingType}.TryParse(s, provider, out var value))");
-            }
-            else
-            {
-                builder.Append(format is null
-                    ? $"if (!{underlyingType}.TryParseFlexible(s, provider, out var value))"
-                    : $"if (!{underlyingType}.TryParseFlexible(s, {QuoteAndEscape(format)}, {(data.SerializationInfo!.Value.allowStandardFormats ? "true" : "false")}, provider, out var value))");
-            }
+            builder.Append("if (!").Append(underlyingTypeName).Append(".TryParse(s, provider, out var value))");
         }
 
         builder
@@ -1008,7 +1025,10 @@ internal static class MethodGeneratorHelper
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
             .AppendLine($"public bool Equals({className}{nullable} other)")
             .OpenBracket()
-            .Append("if (").AppendIf(!isValueType, "other is null || ").AppendLine("!_isInitialized || !other._isInitialized)")
+            .Append("if (");
+        if (!isValueType)
+            builder.Append("other is null || ");
+        builder.AppendLine("!_isInitialized || !other._isInitialized)")
             .AppendIndentation().AppendLine("return false;")
             .AppendLine("return _value.Equals(other._value);")
             .CloseBracket();

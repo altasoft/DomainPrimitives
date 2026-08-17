@@ -190,8 +190,9 @@ internal sealed class SourceCodeBuilder
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
     public SourceCodeBuilder AppendClass(bool isRecord, string modifiers, string className, string? inheritance = null)
     {
-        Append(modifiers).Continue(isRecord ? " record " : " class ").Continue(className)
-            .ContinueIf(!string.IsNullOrEmpty(inheritance), " : " + inheritance);
+        Append(modifiers).Continue(isRecord ? " record " : " class ").Continue(className);
+        if (!string.IsNullOrEmpty(inheritance))
+            Continue(" : " + inheritance);
 
         return OpenBracket();
     }
@@ -205,8 +206,9 @@ internal sealed class SourceCodeBuilder
     /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
     public SourceCodeBuilder AppendStruct(string modifiers, string className, string? inheritance)
     {
-        Append(modifiers).Continue(" struct ").Continue(className)
-            .ContinueIf(!string.IsNullOrEmpty(inheritance), " : " + inheritance);
+        Append(modifiers).Continue(" struct ").Continue(className);
+        if (!string.IsNullOrEmpty(inheritance))
+            Continue(" : " + inheritance);
 
         return OpenBracket();
     }
@@ -230,43 +232,6 @@ internal sealed class SourceCodeBuilder
         return this;
     }
 
-    /// <summary>
-    /// Appends the specified string to the source code if a specified condition is met.
-    /// </summary>
-    /// <param name="condition">A Boolean value indicating whether to append the string.</param>
-    /// <param name="line">The string to append if the condition is met.</param>
-    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-    [Obsolete("Use Append instead.")]
-    public SourceCodeBuilder AppendIf(bool condition, string line) => !condition ? this : Append(line);
-
-    /// <summary>
-    /// Appends one of two specified strings to the source code on a new line based on a condition.
-    /// </summary>
-    /// <param name="condition">A Boolean value indicating which string to append.</param>
-    /// <param name="ifLine">The string to append on a new line if the condition is true.</param>
-    /// <param name="elseLine">The string to append on a new line if the condition is false.</param>
-    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-    [Obsolete("Use AppendIfElse instead.")]
-    public SourceCodeBuilder AppendIfElse(bool condition, string ifLine, string elseLine) => Append(condition ? ifLine : elseLine);
-
-    /// <summary>
-    /// Appends the specified string to the source code on a new line if a specified condition is met.
-    /// </summary>
-    /// <param name="condition">A Boolean value indicating whether to append the string.</param>
-    /// <param name="line">The string to append on a new line if the condition is met.</param>
-    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-    [Obsolete("Use AppendLine instead.")]
-    public SourceCodeBuilder AppendLineIf(bool condition, string line) => !condition ? this : AppendLine(line);
-
-    /// <summary>
-    /// Appends one of two specified strings to the source code on a new line based on a condition.
-    /// </summary>
-    /// <param name="condition">A Boolean value indicating which string to append.</param>
-    /// <param name="ifLine">The string to append on a new line if the condition is true.</param>
-    /// <param name="elseLine">The string to append on a new line if the condition is false.</param>
-    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-    [Obsolete("Use AppendLineIfElse instead.")]
-    public SourceCodeBuilder AppendLineIfElse(bool condition, string ifLine, string elseLine) => AppendLine(condition ? ifLine : elseLine);
 
     /// <summary>
     /// Appends an opening curly brace "{" on a new line to the source code.
@@ -306,15 +271,6 @@ internal sealed class SourceCodeBuilder
     public SourceCodeBuilder Continue(string? line) => line is null ? this : InternalAppend(line, false, false);
 
     /// <summary>
-    /// Appends a line of text to the source code without adding a newline character if a specified condition is met.
-    /// </summary>
-    /// <param name="condition">A boolean indicating whether to append the line.</param>
-    /// <param name="line">The line of text to be appended.</param>
-    /// <returns>A reference to this <see cref="SourceCodeBuilder"/> instance.</returns>
-    [Obsolete("Use Continue instead.")]
-    public SourceCodeBuilder ContinueIf(bool condition, string line) => !condition ? this : Continue(line);
-
-    /// <summary>
     /// Appends a line of text to the source code without adding a newline character.
     /// </summary>
     /// <param name="line">The line of text to be appended.</param>
@@ -350,15 +306,15 @@ internal sealed class SourceCodeBuilder
                 _sb.AppendLine();
             }
             else
-            if (line[0] == '#')
-            {
-                _sb.AppendLine(line);
-            }
-            else
-            {
-                _sb.Append(_indentations);
-                _sb.AppendLine(line);
-            }
+                if (line[0] == '#')
+                {
+                    _sb.AppendLine(line);
+                }
+                else
+                {
+                    _sb.Append(_indentations);
+                    _sb.AppendLine(line);
+                }
         }
 
         return this;
