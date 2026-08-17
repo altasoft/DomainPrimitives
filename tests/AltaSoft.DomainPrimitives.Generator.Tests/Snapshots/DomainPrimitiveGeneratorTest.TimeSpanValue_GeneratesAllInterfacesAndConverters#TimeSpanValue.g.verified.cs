@@ -200,12 +200,12 @@ public readonly partial struct TimeSpanValue : IEquatable<TimeSpanValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static TimeSpanValue Parse(string s, IFormatProvider? provider) => TimeSpan.Parse(s, provider);
+    public static TimeSpanValue Parse(string s, IFormatProvider? provider) => TimeSpan.ParseFlexible(s, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out TimeSpanValue result)
     {
-        if (!TimeSpan.TryParse(s, provider, out var value))
+        if (!TimeSpan.TryParseFlexible(s, provider, out var value))
         {
             result = default;
             return false;

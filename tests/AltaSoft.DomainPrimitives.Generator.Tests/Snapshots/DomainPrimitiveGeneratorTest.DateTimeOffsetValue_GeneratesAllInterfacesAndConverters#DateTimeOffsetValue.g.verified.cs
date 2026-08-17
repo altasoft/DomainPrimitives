@@ -200,12 +200,12 @@ public readonly partial struct DateTimeOffsetValue : IEquatable<DateTimeOffsetVa
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTimeOffsetValue Parse(string s, IFormatProvider? provider) => DateTimeOffset.Parse(s, provider);
+    public static DateTimeOffsetValue Parse(string s, IFormatProvider? provider) => DateTimeOffset.ParseFlexible(s, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out DateTimeOffsetValue result)
     {
-        if (!DateTimeOffset.TryParse(s, provider, out var value))
+        if (!DateTimeOffset.TryParseFlexible(s, provider, out var value))
         {
             result = default;
             return false;

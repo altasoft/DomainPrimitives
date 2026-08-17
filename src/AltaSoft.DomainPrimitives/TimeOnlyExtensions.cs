@@ -66,7 +66,8 @@ public static class TimeOnlyExtensions
         /// <param name="value">The text to parse.</param>
         /// <param name="format">The exact time format to match.</param>
         /// <param name="allowStandardFormats">
-        /// Reserved for API symmetry with <see cref="TimeOnlyExtensions.TryParseFlexible"/>.
+        /// <see langword="true"/> to allow fallback parsing with standard time formats when exact parsing fails;
+        /// otherwise, <see langword="false"/>.
         /// </param>
         /// <param name="provider">An object that supplies culture-specific formatting information.</param>
         /// <returns>The parsed <see cref="TimeOnly"/> value.</returns>

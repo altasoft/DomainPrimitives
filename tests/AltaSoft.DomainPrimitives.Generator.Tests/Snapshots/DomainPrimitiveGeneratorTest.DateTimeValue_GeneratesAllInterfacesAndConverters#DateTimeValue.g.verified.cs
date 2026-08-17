@@ -201,12 +201,12 @@ public readonly partial struct DateTimeValue : IEquatable<DateTimeValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateTimeValue Parse(string s, IFormatProvider? provider) => DateTime.Parse(s, provider);
+    public static DateTimeValue Parse(string s, IFormatProvider? provider) => DateTime.ParseFlexible(s, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out DateTimeValue result)
     {
-        if (!DateTime.TryParse(s, provider, out var value))
+        if (!DateTime.TryParseFlexible(s, provider, out var value))
         {
             result = default;
             return false;
