@@ -84,7 +84,7 @@ internal static class MethodGeneratorHelper
                     .Append("Type = ").Append(typeName).AppendLine(",");
 
                 if (!string.IsNullOrEmpty(format))
-                    builder.Append("Format = ").Append(QuoteAndEscape(data.SerializationFormat ?? format)).AppendLine(",");
+                    builder.Append("Format = ").Append(QuoteAndEscape(data.SerializationInfo?.serializationFormat ?? format)).AppendLine(",");
 
                 var title = data.ClassName;
                 builder.Append("Title = ").Append(Quote(title)).AppendLine(",");
@@ -165,7 +165,7 @@ internal static class MethodGeneratorHelper
             .AppendLine("public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)")
             .OpenBracket();
 
-        if (data.SerializationFormat is not null)
+        if (data.SerializationInfo is not null)
         {
             builder.AppendLine("if (value is string s)")
                 .OpenBracket()
@@ -184,16 +184,16 @@ internal static class MethodGeneratorHelper
         else
         {
             builder.AppendLine("var result = base.ConvertFrom(context, culture, value);")
-            .AppendLine("if (result is null)")
-            .AppendIndentation().AppendLine("return null;")
-            .AppendLine("try")
-            .OpenBracket()
-            .AppendLine($"return new {data.ClassName}(({data.PrimitiveTypeFriendlyName})result);")
-            .CloseBracket()
-            .AppendLine("catch (InvalidDomainValueException ex)")
-            .OpenBracket()
-            .Append("throw new FormatException(\"Cannot parse ").Append(data.ClassName).AppendLine("\", ex);")
-            .CloseBracket();
+                .AppendLine("if (result is null)")
+                .AppendIndentation().AppendLine("return null;")
+                .AppendLine("try")
+                .OpenBracket()
+                .AppendLine($"return new {data.ClassName}(({data.PrimitiveTypeFriendlyName})result);")
+                .CloseBracket()
+                .AppendLine("catch (InvalidDomainValueException ex)")
+                .OpenBracket()
+                .Append("throw new FormatException(\"Cannot parse ").Append(data.ClassName).AppendLine("\", ex);")
+                .CloseBracket();
         }
         builder.CloseBracket().CloseBracket();
 
@@ -306,7 +306,7 @@ internal static class MethodGeneratorHelper
                     "System.Text.Json.Serialization",
                     "System.Globalization",
                     "System.Text.Json.Serialization.Metadata",
-                    "AltaSoft.DomainPrimitives",
+                    "AltaSoft.DomainPrimitives"
                 };
 
         var converterName = data.UnderlyingType.ToString();
@@ -321,7 +321,7 @@ internal static class MethodGeneratorHelper
             .Append("public override ").Append(data.ClassName).AppendLine(" Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)")
             .OpenBracket();
 
-        if (data.SerializationFormat is null)
+        if (data.SerializationInfo is null)
         {
             var rawValueStr = $"JsonInternalConverters.{converterName}Converter.Read(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")}";
 
@@ -350,25 +350,25 @@ internal static class MethodGeneratorHelper
         .NewLine();
 
         builder.AppendInheritDoc().AppendLine($"public override void Write(Utf8JsonWriter writer, {data.ClassName} value, JsonSerializerOptions options)")
-            .OpenBracket()
-            .AppendLineIf(data.SerializationFormat is null, $"JsonInternalConverters.{converterName}Converter.Write(writer, ({data.PrimitiveTypeFriendlyName})value, options);")
-            .AppendLineIf(data.SerializationFormat is not null, $"writer.WriteStringValue(value.ToString({QuoteAndEscape(data.SerializationFormat)}, CultureInfo.InvariantCulture));")
-            .CloseBracket()
-            .NewLine();
+            .OpenBracket();
+        if (data.SerializationInfo is null)
+            builder.AppendLine($"JsonInternalConverters.{converterName}Converter.Write(writer, ({data.PrimitiveTypeFriendlyName})value, options);");
+        else
+            builder.AppendLine($"writer.WriteStringValue(value.ToString({QuoteAndEscape(data.SerializationInfo.Value.serializationFormat)}, CultureInfo.InvariantCulture));");
+        builder.CloseBracket().NewLine();
 
         builder.AppendInheritDoc()
             .Append("public override ").Append(data.ClassName).AppendLine(" ReadAsPropertyName(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)")
             .OpenBracket();
 
-        if (data.SerializationFormat is null)
+        if (data.SerializationInfo is null)
         {
-
             var rawValueStr = $"JsonInternalConverters.{converterName}Converter.ReadAsPropertyName(ref reader, typeToConvert, options){(primitiveTypeIsValueType ? "" : "!")}";
 
             builder.AppendLine("try")
                 .OpenBracket()
                 .AppendLineIf(data.GenerateImplicitOperators, $"return {rawValueStr};")
-                .AppendLineIf(!data.GenerateImplicitOperators, $"return new({rawValueStr});")
+                .AppendLineIf(!data.GenerateImplicitOperators, $"return new ({rawValueStr});")
                 .CloseBracket();
         }
         else
@@ -392,10 +392,12 @@ internal static class MethodGeneratorHelper
 
         builder.AppendInheritDoc()
             .Append("public override void WriteAsPropertyName(Utf8JsonWriter writer, ").Append(data.ClassName).AppendLine(" value, JsonSerializerOptions options)")
-            .OpenBracket()
-                .AppendLineIf(data.SerializationFormat is null, $"JsonInternalConverters.{converterName}Converter.WriteAsPropertyName(writer, ({data.PrimitiveTypeFriendlyName})value, options);")
-            .AppendLineIf(data.SerializationFormat is not null, $"writer.WritePropertyName(value.ToString({QuoteAndEscape(data.SerializationFormat)}, CultureInfo.InvariantCulture));")
-            .CloseBracket();
+            .OpenBracket();
+        if (data.SerializationInfo is null)
+            builder.AppendLine($"JsonInternalConverters.{converterName}Converter.WriteAsPropertyName(writer, ({data.PrimitiveTypeFriendlyName})value, options);");
+        else
+            builder.AppendLine($"writer.WritePropertyName(value.ToString({QuoteAndEscape(data.SerializationInfo.Value.serializationFormat)}, CultureInfo.InvariantCulture));");
+        builder.CloseBracket();
 
         builder.CloseBracket();
 
@@ -427,8 +429,8 @@ internal static class MethodGeneratorHelper
             .AppendParamDescription("errorMessage", "When this method returns, contains the error message if the conversion failed; otherwise, null.")
             .AppendReturnsDescription("true if the conversion succeeded; otherwise, false.");
 
-        builder.Append("public static bool TryCreate(").Append(primitiveType).Append(" value, [NotNullWhen(true)]  out ").Append(data.ClassName)
-            .AppendLine("? result, [NotNullWhen(false)]  out string? errorMessage)")
+        builder.Append("public static bool TryCreate(").Append(primitiveType).Append(" value, [NotNullWhen(true)] out ").Append(data.ClassName)
+            .AppendLine("? result, [NotNullWhen(false)] out string? errorMessage)")
             .OpenBracket();
 
         if (data.UseTransformMethod)
@@ -796,7 +798,7 @@ internal static class MethodGeneratorHelper
         var underlyingType = data.ParentSymbols.Count == 0
             ? data.PrimitiveTypeFriendlyName
             : data.ParentSymbols[0].Name;
-        var format = data.SerializationFormat;
+        var format = data.SerializationInfo?.serializationFormat;
 
         builder.AppendInheritDoc()
             .AppendLine("[MethodImpl(MethodImplOptions.AggressiveInlining)]")
@@ -823,8 +825,17 @@ internal static class MethodGeneratorHelper
         }
         else
         {
-            builder.Append($"{underlyingType}.")
-                .AppendIfElse(format is null, "Parse(s, provider)", $"ParseExact(s, {QuoteAndEscape(format!)}, provider)");
+            builder.Append($"{underlyingType}.");
+            if (format is null && !data.UnderlyingType.IsDateOrTime())
+            {
+                builder.Append("Parse(s, provider)");
+            }
+            else
+            {
+                builder.Append(format is null
+                    ? "ParseFlexible(s, provider)"
+                    : $"ParseFlexible(s, {QuoteAndEscape(format)}, {(data.SerializationInfo!.Value.allowStandardFormats ? "true" : "false")}, provider)");
+            }
         }
 
         builder.AppendLine(!data.GenerateImplicitOperators ? ");" : ";");
@@ -849,21 +860,24 @@ internal static class MethodGeneratorHelper
         }
         else
         {
-            var style = "";
-            if (format is not null)
+            if (format is null && !data.UnderlyingType.IsDateOrTime())
             {
-                style = data.UnderlyingType == DomainPrimitiveUnderlyingType.TimeSpan ? "TimeSpanStyles.None" : "DateTimeStyles.None";
+                builder.Append($"if (!{underlyingType}.TryParse(s, provider, out var value))");
             }
-
-            builder.AppendIf(format is null, $"if (!{underlyingType}.TryParse(s, provider, out var value))")
-                .AppendIf(format is not null, $"if (!{underlyingType}.TryParseExact(s, {QuoteAndEscape(format)}, provider, {style}, out var value))");
+            else
+            {
+                builder.Append(format is null
+                    ? $"if (!{underlyingType}.TryParseFlexible(s, provider, out var value))"
+                    : $"if (!{underlyingType}.TryParseFlexible(s, {QuoteAndEscape(format)}, {(data.SerializationInfo!.Value.allowStandardFormats ? "true" : "false")}, provider, out var value))");
+            }
         }
 
-        builder.OpenBracket()
-        .AppendLine("result = default;")
-        .AppendLine("return false;")
-        .CloseBracket()
-        .NewLine();
+        builder
+            .OpenBracket()
+            .AppendLine("result = default;")
+            .AppendLine("return false;")
+            .CloseBracket()
+            .NewLine();
 
         if (!data.TypeSymbol.IsValueType)
         {
@@ -1037,7 +1051,7 @@ internal static class MethodGeneratorHelper
 
         string method;
 
-        if (data.UnderlyingType.IsDateOrTime() && data.SerializationFormat is not null)
+        if (data.UnderlyingType.IsDateOrTime() && data.SerializationInfo is not null)
         {
             method = "ReadElementContentAs" + data.PrimitiveTypeFriendlyName;
         }
@@ -1056,9 +1070,14 @@ internal static class MethodGeneratorHelper
         builder.AppendInheritDoc();
         builder.AppendLine("public void ReadXml(XmlReader reader)")
             .OpenBracket()
-            .Append("var value = reader.").Append(method)
-            .AppendLineIfElse(data.SerializationFormat is not null, $"({QuoteAndEscape(data.SerializationFormat)});", "();")
-            .AppendLine("ValidateOrThrow(value);")
+            .Append("var value = reader.").Append(method);
+
+        if (data.SerializationInfo is { } serInfo)
+            builder.AppendLine($"({QuoteAndEscape(serInfo.serializationFormat)}, {(serInfo.allowStandardFormats ? "true" : "false")});");
+        else
+            builder.AppendLine("();");
+
+        builder.AppendLine("ValidateOrThrow(value);")
             .AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _value) = value;")
             .AppendLine("System.Runtime.CompilerServices.Unsafe.AsRef(in _isInitialized) = true;")
             .CloseBracket()
@@ -1068,10 +1087,10 @@ internal static class MethodGeneratorHelper
 
         if (string.Equals(data.PrimitiveTypeFriendlyName, "string", System.StringComparison.Ordinal))
             builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName});");
-        else if (data.SerializationFormat is null)
+        else if (data.SerializationInfo is null)
             builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteValue((({data.PrimitiveTypeFriendlyName}){data.FieldName}).ToXmlString());");
         else
-            builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName}.ToString({QuoteAndEscape(data.SerializationFormat)}));");
+            builder.AppendLine($"public void WriteXml(XmlWriter writer) => writer.WriteString({data.FieldName}.ToString({QuoteAndEscape(data.SerializationInfo?.serializationFormat)}));");
         builder.NewLine();
     }
 

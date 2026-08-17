@@ -94,10 +94,10 @@ internal sealed class GeneratorData
     public bool GenerateImplicitOperators { get; set; }
 
     /// <summary>
-    /// Gets or sets the serialization format (if applicable).
+    /// Gets or sets the serialization information, including format and whether standard formats are allowed.
     /// </summary>
-    public string? SerializationFormat { get; set; }
-
+    public (string serializationFormat, bool allowStandardFormats)? SerializationInfo { get; set; }
+  
     /// <summary>
     /// Gets or sets a value indicating whether to generate ISpanFormattable methods.
     /// </summary>

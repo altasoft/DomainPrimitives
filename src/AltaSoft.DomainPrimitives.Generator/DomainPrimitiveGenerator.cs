@@ -21,9 +21,9 @@ public sealed class DomainPrimitiveGenerator : IIncrementalGenerator
     /// <param name="context">The generator initialization context.</param>
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        //#if DEBUG
-        //        System.Diagnostics.Debugger.Launch();
-        //#endif
+//#if DEBUG
+//        System.Diagnostics.Debugger.Launch();
+//#endif
 
         var domainPrimitivesToGenerate = context.SyntaxProvider.CreateSyntaxProvider(
                 predicate: static (node, _) => IsSyntaxTargetForGeneration(node),

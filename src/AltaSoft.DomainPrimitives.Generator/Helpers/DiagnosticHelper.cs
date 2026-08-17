@@ -22,11 +22,11 @@ internal static class DiagnosticHelper
             new DiagnosticDescriptor(
                 "AL1000",
                 "An exception was thrown by the AltaSoft.DomainPrimitiveGenerator generator",
-                "An exception was thrown by the AltaSoft.DomainPrimitiveGenerator generator: `{0}`{1}{2}",
+                "An exception was thrown by the AltaSoft.DomainPrimitiveGenerator generator: `{0}`",
                 Category,
                 DiagnosticSeverity.Error,
                 isEnabledByDefault: true),
-            location, ex, SourceCodeBuilder.s_newLine, ex.StackTrace);
+            location, ex.ToString());
     }
 
     /// <summary>

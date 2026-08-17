@@ -16,14 +16,21 @@ public sealed class SerializationFormatAttribute : Attribute
     /// <summary>
     /// Gets or sets the serialization format as a string.
     /// </summary>
-    public string Format { get; set; }
+    public string Format { get; private set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether standard formats are allowed.
+    /// </summary>
+    public bool AllowStandardFormats { get; private set; }
 
     /// <summary>
     /// Initializes a new instance of the SerializationFormat class with the specified format.
     /// </summary>
     /// <param name="format">The serialization format as a string.</param>
-    public SerializationFormatAttribute(string format)
+    /// <param name="allowStandardFormats">A value indicating whether standard formats are allowed.</param>
+    public SerializationFormatAttribute(string format, bool allowStandardFormats = true)
     {
         Format = format;
+        AllowStandardFormats = allowStandardFormats;
     }
 }

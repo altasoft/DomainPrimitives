@@ -171,10 +171,11 @@ internal static class Executor
             return null;
         }
 
-        if (serializationAttribute is not null && serializationAttribute.ConstructorArguments.Length != 0)
+        if (serializationAttribute is not null && serializationAttribute.ConstructorArguments.Length > 0)
         {
-            var value = serializationAttribute.ConstructorArguments[0];
-            generatorData.SerializationFormat = value.Value?.ToString();
+            var format = serializationAttribute.ConstructorArguments[0].Value?.ToString() ?? string.Empty;
+            var allowStandardFormats = (bool?)serializationAttribute.ConstructorArguments[1].Value != false;
+            generatorData.SerializationInfo = (format, allowStandardFormats);
         }
 
         if (isNumeric && globalOptions.GenerateNumericOperators)
@@ -385,7 +386,7 @@ internal static class Executor
             usings.Add("System.Xml.Serialization");
         }
 
-        if (data.SerializationFormat is not null)
+        if (data.SerializationInfo is not null)
         {
             usings.Add("System.Globalization");
         }
