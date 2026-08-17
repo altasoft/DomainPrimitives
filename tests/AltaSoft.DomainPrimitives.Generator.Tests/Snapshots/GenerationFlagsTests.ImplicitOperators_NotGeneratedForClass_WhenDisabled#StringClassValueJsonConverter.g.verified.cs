@@ -46,7 +46,7 @@ internal sealed class StringClassValueJsonConverter : JsonConverter<StringClassV
     {
         try
         {
-            return new(JsonInternalConverters.StringConverter.ReadAsPropertyName(ref reader, typeToConvert, options)!);
+            return new (JsonInternalConverters.StringConverter.ReadAsPropertyName(ref reader, typeToConvert, options)!);
         }
         catch (InvalidDomainValueException ex)
         {

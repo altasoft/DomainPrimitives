@@ -201,12 +201,12 @@ public readonly partial struct CustomDateTimeOffset : IEquatable<CustomDateTimeO
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CustomDateTimeOffset Parse(string s, IFormatProvider? provider) => DateTimeOffset.ParseExact(s, "yyyyMMdd", provider);
+    public static CustomDateTimeOffset Parse(string s, IFormatProvider? provider) => DateTimeOffset.ParseFlexible(s, "yyyyMMdd", true, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CustomDateTimeOffset result)
     {
-        if (!DateTimeOffset.TryParseExact(s, "yyyyMMdd", provider, DateTimeStyles.None, out var value))
+        if (!DateTimeOffset.TryParseFlexible(s, "yyyyMMdd", true, provider, out var value))
         {
             result = default;
             return false;

@@ -214,12 +214,12 @@ public readonly partial struct CustomDateOnly : IEquatable<CustomDateOnly>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CustomDateOnly Parse(string s, IFormatProvider? provider) => DateOnly.ParseExact(s, "yyyyMMdd", provider);
+    public static CustomDateOnly Parse(string s, IFormatProvider? provider) => DateOnly.ParseFlexible(s, "yyyyMMdd", true, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CustomDateOnly result)
     {
-        if (!DateOnly.TryParseExact(s, "yyyyMMdd", provider, DateTimeStyles.None, out var value))
+        if (!DateOnly.TryParseFlexible(s, "yyyyMMdd", true, provider, out var value))
         {
             result = default;
             return false;

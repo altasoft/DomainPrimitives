@@ -213,12 +213,12 @@ public readonly partial struct DateOnlyValue : IEquatable<DateOnlyValue>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static DateOnlyValue Parse(string s, IFormatProvider? provider) => DateOnly.Parse(s, provider);
+    public static DateOnlyValue Parse(string s, IFormatProvider? provider) => DateOnly.ParseFlexible(s, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out DateOnlyValue result)
     {
-        if (!DateOnly.TryParse(s, provider, out var value))
+        if (!DateOnly.TryParseFlexible(s, provider, out var value))
         {
             result = default;
             return false;

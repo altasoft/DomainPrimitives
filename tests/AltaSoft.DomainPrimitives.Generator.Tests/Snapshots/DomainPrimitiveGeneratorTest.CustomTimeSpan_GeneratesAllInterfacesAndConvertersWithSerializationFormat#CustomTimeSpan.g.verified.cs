@@ -201,12 +201,12 @@ public readonly partial struct CustomTimeSpan : IEquatable<CustomTimeSpan>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CustomTimeSpan Parse(string s, IFormatProvider? provider) => TimeSpan.ParseExact(s, "hh\\:mm", provider);
+    public static CustomTimeSpan Parse(string s, IFormatProvider? provider) => TimeSpan.ParseFlexible(s, "hh\\:mm", true, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CustomTimeSpan result)
     {
-        if (!TimeSpan.TryParseExact(s, "hh\\:mm", provider, TimeSpanStyles.None, out var value))
+        if (!TimeSpan.TryParseFlexible(s, "hh\\:mm", true, provider, out var value))
         {
             result = default;
             return false;

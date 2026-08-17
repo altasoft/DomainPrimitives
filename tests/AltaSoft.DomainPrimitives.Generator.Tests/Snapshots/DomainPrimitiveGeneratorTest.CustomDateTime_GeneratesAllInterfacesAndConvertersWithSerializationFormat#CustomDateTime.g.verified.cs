@@ -202,12 +202,12 @@ public readonly partial struct CustomDateTime : IEquatable<CustomDateTime>
 
     /// <inheritdoc/>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static CustomDateTime Parse(string s, IFormatProvider? provider) => DateTime.ParseExact(s, "yyyyMMdd_HHmmss", provider);
+    public static CustomDateTime Parse(string s, IFormatProvider? provider) => DateTime.ParseFlexible(s, "yyyyMMdd_HHmmss", true, provider);
 
     /// <inheritdoc/>
     public static bool TryParse([NotNullWhen(true)] string? s, IFormatProvider? provider, [MaybeNullWhen(false)] out CustomDateTime result)
     {
-        if (!DateTime.TryParseExact(s, "yyyyMMdd_HHmmss", provider, DateTimeStyles.None, out var value))
+        if (!DateTime.TryParseFlexible(s, "yyyyMMdd_HHmmss", true, provider, out var value))
         {
             result = default;
             return false;
