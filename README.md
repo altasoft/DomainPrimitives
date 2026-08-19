@@ -17,6 +17,7 @@
 - [OpenAPI Integration](#openapi-integration)
 - [Managing Generated Operators for numeric types](#managing-generated-operators-for-numeric-types)
 - [Managing Serialization Format for date-related types](#managing-serialization-format-for-date-related-types)
+- [Flexible Date/Time Parsing](#flexible-datetime-parsing)
 - [Enhanced DateTime Interoperability](#enhanced-datetime-interoperability)
 - [Json Conversion](#json-conversion)
 - [Transform Method](#transform-method)
@@ -37,6 +38,15 @@ With `AltaSoft.DomainPrimitives`, experience an accelerated development process 
 
 ## What's New
 
+### Flexible Date & Time Parsing / Deserialization
+
+Parsing and deserialization for `DateOnly`, `DateTime`, `DateTimeOffset`, `TimeOnly`, and `TimeSpan` domain primitives has been significantly improved:
+
+* **`ParseFlexible` / `TryParseFlexible` extension methods:** New public extension methods (`DateOnlyExtensions`, `DateTimeExtensions`, `DateTimeOffsetExtensions`, `TimeOnlyExtensions`, `TimeSpanExtensions`) add `ParseFlexible`/`TryParseFlexible` static members directly on the corresponding BCL type (via C# extension members), so they're usable independently of domain primitives. [More details](#flexible-datetime-parsing)
+* **Generator uses flexible parsing automatically:** `Parse`/`TryParse` generated for date/time-based domain primitives now call these flexible helpers instead of the plain `Parse`/`TryParse`, so a value that doesn't match an exact `SerializationFormatAttribute` format can still fall back to standard .NET date/time formats when allowed.
+* **`SerializationFormatAttribute.AllowStandardFormats`:** The attribute now accepts a second, optional `allowStandardFormats` parameter (default `true`) controlling whether parsing may fall back to standard formats when the exact format doesn't match. [More details](#managing-serialization-format-for-date-related-types)
+* **Bug fixes:** Fixed XML serialization/deserialization edge cases and generator snapshot mismatches for `DateOnly`, `DateTime`, `TimeOnly`, `TimeSpan`, and `DateTimeOffset` domain primitives.
+
 ### .NET 10 Support & Infrastructure Improvements
 
 The library now supports .NET 8, .NET 9, and .NET 10.
@@ -48,8 +58,8 @@ The library now supports .NET 8, .NET 9, and .NET 10.
 * **Source Link Support:** Enhanced debugging experience with embedded source code and deterministic builds in CI/CD pipelines
 * **OpenAPI Extensions:** New `AltaSoft.DomainPrimitives.OpenApiExtensions` package for OpenAPI integration with native OpenAPI support
 * **Generation Control Flags:** Fine-grained control over code generation with new MSBuild properties:
-  - `DomainPrimitiveGenerator_GenerateImplicitOperators` - Control implicit operator generation
-  - `DomainPrimitiveGenerator_GenerateNumericOperators` - Control numeric operator generation for numeric types
+  - `DomainPrimitiveGenerator_GenerateImplicitConversions` - Control implicit operator generation
+  - `DomainPrimitiveGenerator_GenerateNumericOperations` - Control numeric operator generation for numeric types
   - `DomainPrimitiveGenerator_GenerateOpenApiHelper` - Control OpenAPI helper generation
 * **Enhanced Testing:** Updated test infrastructure with latest xUnit and verification tools
 * **Improved Code Generation:** Better handling of uninitialized domain primitives and enhanced operator generation
@@ -182,7 +192,7 @@ public readonly partial struct PositiveInteger : IDomainValue<int>
 }
 ```
 
-This will automatically generate by default 4 classes
+This will automatically generate by default 4 classes. (The example below also has `DomainPrimitiveGenerator_GenerateXmlSerialization` enabled, to illustrate the `IXmlSerializable` implementation - it is `false` by default; see [Disable Generation of Converters and Operators](#disable-generation-of-converters-and-operators).)
 ## **PositiveInteger.Generated**
 ```csharp
 //------------------------------------------------------------------------------
@@ -201,13 +211,13 @@ using System.Runtime.CompilerServices;
 using AltaSoft.DomainPrimitives;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json.Serialization;
-using AltaSoft.DomainPrimitives.XmlDataTypes.Converters;
+using AltaSoft.DomainPrimitives.Converters;
 using System.ComponentModel;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace AltaSoft.DomainPrimitives.XmlDataTypes;
+namespace AltaSoft.DomainPrimitives;
 
 [JsonConverter(typeof(PositiveIntegerJsonConverter))]
 [TypeConverter(typeof(PositiveIntegerTypeConverter))]
@@ -234,7 +244,7 @@ public readonly partial struct PositiveInteger : IEquatable<PositiveInteger>
     /// <inheritdoc/>
      public object GetUnderlyingPrimitiveValue() => (int)this;
 
-    private int _valueOrThrow => _isInitialized ? _value : throw new InvalidDomainValueException("The domain value has not been initialized", this);
+    private int _valueOrThrow => _isInitialized ? _value : throw InvalidDomainValueException.NotInitializedException(typeof(PositiveInteger));
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly int _value;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -306,7 +316,7 @@ public readonly partial struct PositiveInteger : IEquatable<PositiveInteger>
     {
         var result = Validate(value);
         if (!result.IsValid)
-        	throw new InvalidDomainValueException(result.ErrorMessage, this);
+        	throw new InvalidDomainValueException(result.ErrorMessage, typeof(PositiveInteger), value);
     }
 
 
@@ -631,62 +641,28 @@ public sealed class PositiveIntegerTypeConverter : Int32Converter
 ```
 ## **Swagger Mappers**
 
-A single file for all domainPrimitives containing all type mappings is generated.
-**Please note that you need to manually add Swashbuckle.AspNetCore.SwaggerGen nuget package to the project**
+Instead of generating a `SwaggerGenOptions` extension per-project, the generator emits a single `OpenApiHelper` class per assembly (see [OpenApiHelper](#openapihelper) below), and marks the assembly with `[assembly: DomainPrimitiveAssemblyAttribute]` so it can be discovered at runtime.
+
+To wire these mappings into Swashbuckle, install the `AltaSoft.DomainPrimitives.SwaggerExtensions` NuGet package (which depends on `Swashbuckle.AspNetCore.SwaggerGen`) and call one of the following inside `AddSwaggerGen`:
 
 ```csharp
-//------------------------------------------------------------------------------
-// <auto-generated>
-//     This code was generated by 'AltaSoft DomainPrimitives Generator'.
-//     Changes to this file may cause incorrect behavior and will be lost if the code is regenerated.
-// </auto-generated>
-//------------------------------------------------------------------------------
+using AltaSoft.DomainPrimitives.SwaggerExtensions;
 
-#nullable enable
-
-using AltaSoft.DomainPrimitives;
-using Microsoft.Extensions.DependencyInjection;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Microsoft.OpenApi.Models;
-
-namespace AltaSoft.DomainPrimitives.Converters.Extensions;
-
-/// <summary>
-/// Helper class providing methods to configure Swagger mappings for DomainPrimitive types of AltaSoft.DomainPrimitives
-/// </summary>
-public static class SwaggerTypeHelper
+builder.Services.AddSwaggerGen(options =>
 {
-	/// <summary>
-	/// Adds Swagger mappings for specific custom types to ensure proper OpenAPI documentation generation.
-	/// </summary>
-	/// <param name="options">The SwaggerGenOptions instance to which mappings are added.</param>
-	/// <remarks>
-	/// The method adds Swagger mappings for the following types:
-	/// <see cref="PositiveInteger"/>
-	/// </remarks>
-	public static void AddSwaggerMappings(this SwaggerGenOptions options)
-	{
-		options.MapType<PositiveInteger>(() => new OpenApiSchema
-		{
-			Type = "integer",
-			Format = "int32",
-			Title = "PositiveInteger",
-			Description = @"A domain primitive type representing a positive integer."
-		});
-		options.MapType<PositiveInteger?>(() => new OpenApiSchema
-		{
-			Type = "integer",
-			Format = "int32",
-			Nullable = true,
-			Title = "Nullable<PositiveInteger>",
-			Description = @"A domain primitive type representing a positive integer."
-		});
-	}
+    // Registers mappings from the specified assemblies only
+    options.AddDomainPrimitivesSwaggerMappings(typeof(PositiveInteger).Assembly);
+
+    // Or: scans all loaded assemblies (and their references) marked with DomainPrimitiveAssemblyAttribute
+    options.AddAllDomainPrimitivesSwaggerMappings();
+});
 ```
+
+Both methods read the `Schemas` dictionary from each discovered `OpenApiHelper` class and register it via `options.MapType(type, () => schema)`.
 
 ### OpenApiHelper
 
-In addition to the Swagger mappings, the generator also creates an `OpenApiHelper` class with a dictionary-based approach for OpenAPI schema definitions:
+The generator creates an `OpenApiHelper` class per assembly, with a dictionary-based approach for OpenAPI schema definitions. It is generated when `DomainPrimitiveGenerator_GenerateOpenApiHelper` is `true` (the default):
 
 ```csharp
 //------------------------------------------------------------------------------
@@ -699,21 +675,29 @@ In addition to the Swagger mappings, the generator also creates an `OpenApiHelpe
 #nullable enable
 
 using AltaSoft.DomainPrimitives;
+using Microsoft.OpenApi;
 using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
-using Microsoft.OpenApi;
+using System.Text.Json.Nodes;
 
-namespace AltaSoft.DomainPrimitives.Converters.Helpers;
+[assembly: AltaSoft.DomainPrimitives.DomainPrimitiveAssemblyAttribute]
+namespace YourApp.Converters.Helpers;
 
 /// <summary>
-/// Helper class providing methods to configure OpenApiSchema mappings for DomainPrimitive types
+/// Helper class providing methods to configure OpenApiSchema mappings for DomainPrimitive types of YourApp
 /// </summary>
 public static class OpenApiHelper
 {
     /// <summary>
     /// Mapping of DomainPrimitive types to OpenApiSchema definitions.
     /// </summary>
+    /// <remarks>
+    /// The Dictionary contains mappings for the following types:
+    /// <para>
+    /// <see cref="PositiveInteger" />
+    /// </para>
+    /// </remarks>
     public static FrozenDictionary<Type, OpenApiSchema> Schemas = new Dictionary<Type, OpenApiSchema>()
     {
         {
@@ -729,7 +713,7 @@ public static class OpenApiHelper
 }
 ```
 
-This helper provides a frozen dictionary for efficient lookups and can be used for custom OpenAPI integration scenarios.
+This helper provides a frozen dictionary for efficient lookups and is consumed by both the Swagger mappings above and the [OpenAPI Integration](#openapi-integration) transformers below.
 
 ## OpenAPI Integration
 
@@ -744,13 +728,15 @@ The `AltaSoft.DomainPrimitives.OpenApiExtensions` package provides enhanced Open
 ### Usage
 
 ```csharp
+using AltaSoft.DomainPrimitives.OpenApiExtensions;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add OpenAPI services
-builder.Services.AddOpenApi();
-
-// Register domain primitive OpenAPI schema transformers
-builder.Services.AddDomainPrimitiveOpenApiSchemaTransformers();
+// Add OpenAPI services and register the domain primitive schema transformer
+builder.Services.AddOpenApi(options =>
+{
+    options.AddDomainPrimitivesOpenApiSchemaTransformer();
+});
 
 var app = builder.Build();
 
@@ -758,7 +744,7 @@ app.MapOpenApi();
 app.Run();
 ```
 
-The OpenAPI extensions automatically register schema transformers that ensure domain primitives are properly represented in your OpenAPI documentation, mapping them to their underlying primitive types while preserving nullable information.
+`AddDomainPrimitivesOpenApiSchemaTransformer()` registers a schema transformer that scans loaded assemblies (and their references) for the generated `OpenApiHelper.Schemas` mappings, ensuring domain primitives are properly represented in your OpenAPI documentation while preserving nullable information.
 
 ### Alternative: Using Reflection-Based Transformer
 
@@ -872,6 +858,44 @@ public readonly partial struct GDay : IDomainValue<DateOnly>
 	public static string ToString(DateOnly value) => value.ToString("dd");
 }
 ```
+
+### `AllowStandardFormats`
+
+`SerializationFormatAttribute` accepts a second, optional constructor parameter, `allowStandardFormats` (default `true`). When `true`, generated `Parse`/`TryParse` (and JSON/XML deserialization) first try the exact `format`, then fall back to standard .NET date/time parsing if that fails. Set it to `false` to require the exact format only.
+
+```csharp
+// Only "yyyyMMdd_HHmmss" is accepted - standard formats are rejected
+[SerializationFormat("yyyyMMdd_HHmmss", allowStandardFormats: false)]
+public readonly partial struct CustomDateTime : IDomainValue<DateTime>
+{
+    public static PrimitiveValidationResult Validate(DateTime value) => PrimitiveValidationResult.Ok;
+}
+```
+
+Even without a `SerializationFormatAttribute`, date/time-based domain primitives (`DateOnly`, `DateTime`, `DateTimeOffset`, `TimeOnly`, `TimeSpan`) generate `Parse`/`TryParse` that use flexible, standard-format parsing rather than a single exact format.
+
+## Flexible Date/Time Parsing
+
+`AltaSoft.DomainPrimitives` provides `ParseFlexible`/`TryParseFlexible` extension methods for `DateOnly`, `DateTime`, `DateTimeOffset`, `TimeOnly`, and `TimeSpan`, implemented via C# extension members so they're called directly on the BCL type (e.g. `DateTime.ParseFlexible(...)`). These power the generated `Parse`/`TryParse` methods described above, and can also be used directly in your own code.
+
+Each type exposes two overloads:
+* `ParseFlexible(string value, IFormatProvider? provider)` / `TryParseFlexible(string? value, IFormatProvider? provider, out T result)` - parses using standard formats only.
+* `ParseFlexible(string value, string? format, bool allowStandardFormats, IFormatProvider? provider)` / `TryParseFlexible(string? value, string? format, bool allowStandardFormats, IFormatProvider? provider, out T result)` - tries an exact `format` first, optionally falling back to standard formats when `allowStandardFormats` is `true`.
+
+```csharp
+// Exact format first, falls back to standard formats
+DateTime.TryParseFlexible("2024-01-15", "yyyyMMdd", allowStandardFormats: true, CultureInfo.InvariantCulture, out var dateTime);
+
+// Standard formats only
+DateOnly.TryParseFlexible("2024-01-15", CultureInfo.InvariantCulture, out var dateOnly);
+
+// TimeOnly also falls back to a small set of DateTimeOffset formats (e.g. "HH:mm:sszzz") when extracting the time of day
+TimeOnly.TryParseFlexible("15:00:00+04:00", CultureInfo.InvariantCulture, out var timeOnly);
+```
+
+> `DateOnly.ParseFlexible`/`TryParseFlexible` additionally fall back to general `DateTime` parsing (extracting the date part) when neither the exact format nor standard `DateOnly` formats match.
+
+:warning: Calling `ParseFlexible`/`TryParseFlexible` directly as `DateTime.ParseFlexible(...)` requires a C# 14-capable SDK (extension members). Code generated by the source generator does not have this restriction.
 
 ## Enhanced DateTime Interoperability
 

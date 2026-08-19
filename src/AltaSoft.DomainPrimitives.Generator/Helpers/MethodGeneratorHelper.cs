@@ -413,7 +413,7 @@ internal static class MethodGeneratorHelper
     /// <param name="builder">The source code builder.</param>
     internal static void GenerateMandatoryMethods(GeneratorData data, SourceCodeBuilder builder)
     {
-        builder.AppendSummary("Tries to create an instance of AsciiString from the specified value.")
+        builder.AppendSummary($"Tries to create an instance of {data.ClassName} from the specified value.")
             .AppendParamDescription("value", $"The value to create {data.ClassName} from")
             .AppendParamDescription("result", $"When this method returns, contains the created {data.ClassName} if the conversion succeeded, or null if the conversion failed.")
             .AppendReturnsDescription("true if the conversion succeeded; otherwise, false.");
@@ -425,7 +425,7 @@ internal static class MethodGeneratorHelper
             .Append("return TryCreate(value, out result, out _);")
             .CloseBracket().NewLine();
 
-        builder.AppendSummary("Tries to create an instance of AsciiString from the specified value.")
+        builder.AppendSummary($"Tries to create an instance of {data.ClassName} from the specified value.")
             .AppendParamDescription("value", $"The value to create {data.ClassName} from")
             .AppendParamDescription("result", $"When this method returns, contains the created {data.ClassName} if the conversion succeeded, or null if the conversion failed.")
             .AppendParamDescription("errorMessage", "When this method returns, contains the error message if the conversion failed; otherwise, null.")

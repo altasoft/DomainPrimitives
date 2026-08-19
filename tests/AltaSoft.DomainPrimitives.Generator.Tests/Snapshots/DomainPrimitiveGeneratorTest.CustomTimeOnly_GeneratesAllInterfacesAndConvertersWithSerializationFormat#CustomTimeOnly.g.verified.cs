@@ -8,6 +8,14 @@
 
 #nullable enable
 
+#pragma warning disable CS8774 // Member must have a non-null value when exiting.
+#pragma warning disable CS0628 // New protected member declared in sealed type
+#pragma warning disable CS0612 // Type or member is obsolete
+#pragma warning disable CS0618 // Type or member is obsolete
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+#pragma warning disable IDE0290 // Use primary constructor
+
 using System;
 using System.Numerics;
 using System.Diagnostics;
@@ -72,7 +80,7 @@ public readonly partial struct CustomTimeOnly : IEquatable<CustomTimeOnly>
     }
 
     /// <summary>
-    /// Tries to create an instance of AsciiString from the specified value.
+    /// Tries to create an instance of CustomTimeOnly from the specified value.
     /// </summary>
     /// <param name="value">The value to create CustomTimeOnly from</param>
     /// <param name="result">When this method returns, contains the created CustomTimeOnly if the conversion succeeded, or null if the conversion failed.</param>
@@ -83,7 +91,7 @@ public readonly partial struct CustomTimeOnly : IEquatable<CustomTimeOnly>
     }
 
     /// <summary>
-    /// Tries to create an instance of AsciiString from the specified value.
+    /// Tries to create an instance of CustomTimeOnly from the specified value.
     /// </summary>
     /// <param name="value">The value to create CustomTimeOnly from</param>
     /// <param name="result">When this method returns, contains the created CustomTimeOnly if the conversion succeeded, or null if the conversion failed.</param>

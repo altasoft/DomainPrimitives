@@ -71,7 +71,7 @@ internal partial class StringWithLengthAndPattern : IEquatable<StringWithLengthA
 #pragma warning restore CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 
     /// <summary>
-    /// Tries to create an instance of AsciiString from the specified value.
+    /// Tries to create an instance of StringWithLengthAndPattern from the specified value.
     /// </summary>
     /// <param name="value">The value to create StringWithLengthAndPattern from</param>
     /// <param name="result">When this method returns, contains the created StringWithLengthAndPattern if the conversion succeeded, or null if the conversion failed.</param>
@@ -82,7 +82,7 @@ internal partial class StringWithLengthAndPattern : IEquatable<StringWithLengthA
     }
 
     /// <summary>
-    /// Tries to create an instance of AsciiString from the specified value.
+    /// Tries to create an instance of StringWithLengthAndPattern from the specified value.
     /// </summary>
     /// <param name="value">The value to create StringWithLengthAndPattern from</param>
     /// <param name="result">When this method returns, contains the created StringWithLengthAndPattern if the conversion succeeded, or null if the conversion failed.</param>
