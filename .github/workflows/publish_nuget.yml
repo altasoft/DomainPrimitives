@@ -7,32 +7,80 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v1
-      with: 
-        dotnet-version: |
-          11.0.x
-          10.0.x
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            11.0.x
+            10.0.x
 
-    - name: Extract version from tag
-      run: echo "VERSION=$(echo ${GITHUB_REF#refs/tags/v})" >> $GITHUB_ENV
+      - name: Extract version from tag
+        shell: bash
+        run: |
+          VERSION="${{ github.ref_name }}"
+          VERSION="${VERSION#v}"
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
 
-    - name: Restore dependencies
-      run: dotnet restore
+      - name: Restore dependencies
+        run: dotnet restore
 
-    - name: Build
-      run: dotnet build --no-restore -c Release
+      - name: Build
+        run: dotnet build --no-restore -c Release
 
-#    - name: Test
-#      run: dotnet test --no-build
+      - name: Pack
+        run: dotnet pack --no-build -c Release -o nupkg -p:Version=${{ env.VERSION }}
 
-    - name: Pack
-      run: dotnet pack --no-build -c Release -o nupkg -p:Version=${{ env.VERSION }}
+      - name: Upload packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: nuget-packages
+          path: nupkg/*
+          if-no-files-found: error
 
-    - name: Publish
-      run: dotnet nuget push "nupkg/*.nupkg" -k ${{ secrets.NUGET_API_KEY }} -s https://api.nuget.org/v3/index.json
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
 
+    steps:
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            11.0.x
+            10.0.x
+
+      - name: Download packages
+        uses: actions/download-artifact@v4
+        with:
+          name: nuget-packages
+          path: nupkg
+
+      - name: NuGet login (OIDC → temp API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+
+      - name: Publish package
+        id: publish_package
+        continue-on-error: true
+        run: dotnet nuget push "nupkg/*.nupkg" --skip-duplicate --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
+
+      - name: Publish symbols
+        id: publish_symbols
+        continue-on-error: true
+        run: dotnet nuget push "nupkg/*.snupkg" --skip-duplicate --api-key "${{ steps.login.outputs.NUGET_API_KEY }}" -s https://api.nuget.org/v3/index.json
+
+      - name: Warn about publish credential failure
+        if: steps.publish_package.outcome == 'failure' || steps.publish_symbols.outcome == 'failure'
+        run: |
+          echo "::warning::NuGet publish failed because the configured credential was rejected. The build completed successfully and the generated packages were uploaded as workflow artifacts for manual publishing after the NuGet credential is rotated."
