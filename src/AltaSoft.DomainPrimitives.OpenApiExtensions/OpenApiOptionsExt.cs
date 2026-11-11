@@ -38,7 +38,7 @@ public static class OpenApiOptionsExt
             schemaToApply.Properties = domainPrimitiveSchema.Properties;
             schemaToApply.Required = domainPrimitiveSchema.Required;
             schemaToApply.Description = domainPrimitiveSchema.Description;
-            schemaToApply.Example = domainPrimitiveSchema.Example;
+            schemaToApply.Examples = domainPrimitiveSchema.Examples;
             schemaToApply.Enum = domainPrimitiveSchema.Enum;
             schemaToApply.MinLength = domainPrimitiveSchema.MinLength;
             schemaToApply.MaxLength = domainPrimitiveSchema.MaxLength;
