@@ -109,7 +109,7 @@ internal static class MethodGeneratorHelper
                         if (!data.UnderlyingType.IsNumeric())
                             exampleValue = Quote(exampleValue);
 
-                        builder.Append("Example = JsonValue.Create(").Append(exampleValue).AppendLine("),");
+                        builder.Append("Examples = [JsonValue.Create(").Append(exampleValue).AppendLine(")],");
                     }
                 }
 

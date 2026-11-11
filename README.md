@@ -1,7 +1,7 @@
 ﻿﻿# DomainPrimitives for C#  
 
 [![Version](https://img.shields.io/nuget/v/AltaSoft.DomainPrimitives?label=Version&color=0c3c60&style=for-the-badge&logo=nuget)](https://www.nuget.org/profiles/AltaSoft)
-[![Dot NET 8+](https://img.shields.io/static/v1?label=DOTNET&message=8%2B&color=0c3c60&style=for-the-badge)](https://dotnet.microsoft.com)
+[![Dot NET 10+](https://img.shields.io/static/v1?label=DOTNET&message=10%2B&color=0c3c60&style=for-the-badge)](https://dotnet.microsoft.com)
 
 # Table of Contents
 
@@ -37,6 +37,16 @@ Welcome to **AltaSoft.DomainPrimitives** - a C# toolkit purposefully designed to
 With `AltaSoft.DomainPrimitives`, experience an accelerated development process while upholding code quality standards. This toolkit empowers developers to focus on the core business logic without compromising on precision or efficiency.
 
 ## What's New
+
+### .NET 11 Support
+
+The library now targets `net10.0` and `net11.0`. Support for .NET 8 and .NET 9 has been dropped.
+
+* **Framework-specific dependencies:** Packages that ship separate builds per .NET version are resolved per target framework:
+  - `net10.0`: `Microsoft.AspNetCore.OpenApi` 10.x, `Microsoft.OpenApi` 2.x, `Swashbuckle.AspNetCore.SwaggerGen` 10.x
+  - `net11.0`: `Microsoft.AspNetCore.OpenApi` 11.x, `Microsoft.OpenApi` 3.x, `Swashbuckle.AspNetCore.SwaggerGen` 11.x
+* **OpenAPI Extensions:** `AltaSoft.DomainPrimitives.OpenApiExtensions` now targets both `net10.0` and `net11.0`.
+* **OpenAPI schema examples:** The `<example>` XML doc value is now emitted into the generated `OpenApiHelper` as `OpenApiSchema.Examples` instead of the obsolete `Example` property. `AltaSoft.DomainPrimitives.SwaggerExtensions` now references `Microsoft.OpenApi` directly (latest 2.x on `net10.0`, latest 3.x on `net11.0`) so examples are also written for OpenAPI 3.0 documents.
 
 ### Flexible Date & Time Parsing / Deserialization
 
@@ -138,7 +148,7 @@ public readonly partial struct OrderNumber : IDomainValue<long> { /* validation 
 ## Getting Started
 
 ### Prerequisites
-*	.NET 8 or higher
+*	.NET 10 or higher
 *	NuGet Package Manager
 
 ### Installation

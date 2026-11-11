@@ -41,6 +41,41 @@ public class DomainPrimitiveGeneratorTest
     }
 
     [Fact]
+    public Task StringValue_WithXmlExampleStringLengthAndPattern()
+    {
+        const string source = """
+                              using AltaSoft.DomainPrimitives;
+
+                              namespace AltaSoft.DomainPrimitives;
+
+                              /// <summary>
+                              /// A country code.
+                              /// </summary>
+                              /// <example>GE</example>
+                              [StringLength(2, 2)]
+                              [Pattern(@"[A-Z]{2}")]
+                              public partial class CountryCode : IDomainValue<string>
+                              {
+                                  /// <inheritdoc/>
+                                  public static PrimitiveValidationResult Validate(string value) => PrimitiveValidationResult.Ok;
+                              }
+
+                              /// <summary>
+                              /// A positive amount.
+                              /// </summary>
+                              /// <example>42</example>
+                              public readonly partial struct PositiveAmount : IDomainValue<int>
+                              {
+                                  /// <inheritdoc/>
+                                  public static PrimitiveValidationResult Validate(int value) => PrimitiveValidationResult.Ok;
+                              }
+
+                              """;
+
+        return TestHelper.Verify(source);
+    }
+
+    [Fact]
     public Task StringValue_WithTransStringLengthAndPatternWithValidation()
     {
         const string source = """
